@@ -1,6 +1,0 @@
-c:\users\hyuan\documents\visual studio 2010\Projects\Project_Origin\Project_Origin\Project_Origin\bin\x86\Debug\Project_Origin.exe
-c:\users\hyuan\documents\visual studio 2010\Projects\Project_Origin\Project_Origin\Project_Origin\bin\x86\Debug\Project_Origin.pdb
-c:\users\hyuan\documents\visual studio 2010\Projects\Project_Origin\Project_Origin\Project_Origin\obj\x86\Debug\ResolveAssemblyReference.cache
-c:\users\hyuan\documents\visual studio 2010\Projects\Project_Origin\Project_Origin\Project_Origin\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
-c:\users\hyuan\documents\visual studio 2010\Projects\Project_Origin\Project_Origin\Project_Origin\obj\x86\Debug\Project_Origin.exe
-c:\users\hyuan\documents\visual studio 2010\Projects\Project_Origin\Project_Origin\Project_Origin\obj\x86\Debug\Project_Origin.pdb

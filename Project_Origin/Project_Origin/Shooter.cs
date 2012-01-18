@@ -119,6 +119,7 @@ namespace Project_Origin
 
         protected void OnClientSizeChanged(object sender, EventArgs e)
         {
+
         }
 
     }
