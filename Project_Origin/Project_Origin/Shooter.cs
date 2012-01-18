@@ -18,11 +18,17 @@ namespace Project_Origin
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        KeyboardState prevKeyboardState = Keyboard.GetState();
 
         public Shooter()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+
+            Window.Title = "Shooter Game";
+            Window.AllowUserResizing = true;
+            Window.ClientSizeChanged += OnClientSizeChanged;
         }
 
         /// <summary>
@@ -70,7 +76,15 @@ namespace Project_Origin
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            // TODO: Add your update logic here
+            KeyboardState keyboard = Keyboard.GetState();
+
+            if (keyboard.IsKeyDown(Keys.Escape))
+                Exit();
+
+            if (keyboard.IsKeyDown(Keys.F11) && prevKeyboardState.IsKeyUp(Keys.F11))
+                this.IsFullScreen = !this.IsFullScreen;
+
+            prevKeyboardState = keyboard;
 
             base.Update(gameTime);
         }
@@ -81,11 +95,31 @@ namespace Project_Origin
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
+            GraphicsDevice.Clear(Color.Black);
 
             base.Draw(gameTime);
         }
+
+
+        protected bool IsFullScreen
+        {
+            get { return graphics.IsFullScreen; }
+            set
+            {
+                if (value != graphics.IsFullScreen)
+                {
+                    // Toggle FullScreen, and Mouse Display, then apply the changes
+                    // on the DeviceManager
+                    graphics.IsFullScreen = !graphics.IsFullScreen;
+                    IsMouseVisible = !IsMouseVisible;
+                    graphics.ApplyChanges();
+                }
+            }
+        }
+
+        protected void OnClientSizeChanged(object sender, EventArgs e)
+        {
+        }
+
     }
 }
