@@ -14,12 +14,12 @@ namespace Project_Origin
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Microsoft.Xna.Framework.Game
+    public class Shooter : Microsoft.Xna.Framework.Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public Game1()
+        public Shooter()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";

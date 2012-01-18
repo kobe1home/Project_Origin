@@ -10,7 +10,7 @@ namespace Project_Origin
         /// </summary>
         static void Main(string[] args)
         {
-            using (Game1 game = new Game1())
+            using (Shooter game = new Shooter())
             {
                 game.Run();
             }
