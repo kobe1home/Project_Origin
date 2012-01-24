@@ -20,6 +20,17 @@ namespace Project_Origin
         SpriteBatch spriteBatch;
         KeyboardState prevKeyboardState = Keyboard.GetState();
 
+
+
+        DefaultEffect effect;
+        VertexDeclaration vertexDecl;
+        Matrix triangleTransform;
+        Matrix rectangleTransform;
+
+        Vector3[] triangleData;
+        Vector3[] rectangleData;
+
+
         public Shooter()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -39,7 +50,21 @@ namespace Project_Origin
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            triangleTransform = Matrix.CreateTranslation(new Vector3(-1.5f, 0.0f, -6.0f));
+            rectangleTransform = Matrix.CreateTranslation(new Vector3(1.5f, 0.0f, -6.0f));
+
+            // Initialize the triangle's data
+            triangleData = new Vector3[3];
+            triangleData[0] = new Vector3(1.0f, -1.0f, 0.0f);
+            triangleData[1] = new Vector3(-1.0f, -1.0f, 0.0f);
+            triangleData[2] = new Vector3(0.0f, 1.0f, 0.0f);
+
+            // Initialize the Rectangle's data
+            rectangleData = new Vector3[4];
+            rectangleData[0] = new Vector3(-1.0f, -1.0f, 0.0f);
+            rectangleData[1] = new Vector3(-1.0f, 1.0f, 0.0f);
+            rectangleData[2] = new Vector3(1.0f, -1.0f, 0.0f);
+            rectangleData[3] = new Vector3(1.0f, 1.0f, 0.0f);
 
             base.Initialize();
         }
@@ -51,8 +76,17 @@ namespace Project_Origin
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            //spriteBatch = new SpriteBatch(GraphicsDevice);
+            Effect tempEffect = Content.Load<Effect>("Effects/Default");
+            effect = new DefaultEffect(tempEffect);
+            tempEffect = null;
 
+            ResetProjection();
+
+            vertexDecl = new VertexDeclaration(new VertexElement[] {
+                    new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0)
+                }
+            );
             // TODO: use this.Content to load your game content here
         }
 
@@ -62,7 +96,7 @@ namespace Project_Origin
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+            Content.Unload();
         }
 
         /// <summary>
@@ -73,8 +107,8 @@ namespace Project_Origin
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            //    this.Exit();
 
             KeyboardState keyboard = Keyboard.GetState();
 
@@ -97,6 +131,17 @@ namespace Project_Origin
         {
             GraphicsDevice.Clear(Color.Black);
 
+            effect.World = triangleTransform;
+            effect.CurrentTechnique.Passes[0].Apply();
+
+            GraphicsDevice.DrawUserPrimitives<Vector3>(PrimitiveType.TriangleStrip,
+                triangleData, 0, 1, vertexDecl);
+
+            effect.World = rectangleTransform;
+            effect.CurrentTechnique.Passes[0].Apply();
+
+            GraphicsDevice.DrawUserPrimitives<Vector3>(PrimitiveType.TriangleStrip,
+                rectangleData, 0, 2, vertexDecl);
             base.Draw(gameTime);
         }
 
@@ -119,8 +164,17 @@ namespace Project_Origin
 
         protected void OnClientSizeChanged(object sender, EventArgs e)
         {
-
+            ResetProjection();
         }
+        protected void ResetProjection()
+        {
+            Viewport viewport = graphics.GraphicsDevice.Viewport;
 
+            // Set the Projection Matrix
+            effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
+                (float)viewport.Width / viewport.Height,
+                0.1f,
+                100.0f);
+        }
     }
 }
