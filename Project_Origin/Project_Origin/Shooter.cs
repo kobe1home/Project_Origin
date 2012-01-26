@@ -42,7 +42,7 @@ namespace Project_Origin
         /// </summary>
         protected override void Initialize()
         {
-            this.gameMap = new Map(this, new Vector3(-1, 1, 0), 1, 1);
+            this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
             this.Components.Add(this.gameMap);
 
             base.Initialize();
@@ -56,6 +56,7 @@ namespace Project_Origin
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             //spriteBatch = new SpriteBatch(GraphicsDevice);
+            base.LoadContent();
         }
 
         /// <summary>
