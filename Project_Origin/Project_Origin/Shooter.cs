@@ -17,20 +17,11 @@ namespace Project_Origin
     public class Shooter : Microsoft.Xna.Framework.Game
     {
         GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        //SpriteBatch spriteBatch;
         KeyboardState prevKeyboardState = Keyboard.GetState();
 
 
-
-        DefaultEffect effect;
-        VertexDeclaration vertexDecl;
-        Matrix triangleTransform;
-        Matrix rectangleTransform;
-
-        Vector3[] triangleData;
-        Vector3[] rectangleData;
-
-
+        private Map gameMap;
         public Shooter()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -39,7 +30,8 @@ namespace Project_Origin
 
             Window.Title = "Shooter Game";
             Window.AllowUserResizing = true;
-            Window.ClientSizeChanged += OnClientSizeChanged;
+            //Window.ClientSizeChanged += OnClientSizeChanged;
+            
         }
 
         /// <summary>
@@ -50,21 +42,8 @@ namespace Project_Origin
         /// </summary>
         protected override void Initialize()
         {
-            triangleTransform = Matrix.CreateTranslation(new Vector3(-1.5f, 0.0f, -6.0f));
-            rectangleTransform = Matrix.CreateTranslation(new Vector3(1.5f, 0.0f, -6.0f));
-
-            // Initialize the triangle's data
-            triangleData = new Vector3[3];
-            triangleData[0] = new Vector3(1.0f, -1.0f, 0.0f);
-            triangleData[1] = new Vector3(-1.0f, -1.0f, 0.0f);
-            triangleData[2] = new Vector3(0.0f, 1.0f, 0.0f);
-
-            // Initialize the Rectangle's data
-            rectangleData = new Vector3[4];
-            rectangleData[0] = new Vector3(-1.0f, -1.0f, 0.0f);
-            rectangleData[1] = new Vector3(-1.0f, 1.0f, 0.0f);
-            rectangleData[2] = new Vector3(1.0f, -1.0f, 0.0f);
-            rectangleData[3] = new Vector3(1.0f, 1.0f, 0.0f);
+            this.gameMap = new Map(this, new Vector3(-1, 1, 0), 1, 1);
+            this.Components.Add(this.gameMap);
 
             base.Initialize();
         }
@@ -77,17 +56,6 @@ namespace Project_Origin
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             //spriteBatch = new SpriteBatch(GraphicsDevice);
-            Effect tempEffect = Content.Load<Effect>("Effects/Default");
-            effect = new DefaultEffect(tempEffect);
-            tempEffect = null;
-
-            ResetProjection();
-
-            vertexDecl = new VertexDeclaration(new VertexElement[] {
-                    new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0)
-                }
-            );
-            // TODO: use this.Content to load your game content here
         }
 
         /// <summary>
@@ -130,18 +98,7 @@ namespace Project_Origin
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-
-            effect.World = triangleTransform;
-            effect.CurrentTechnique.Passes[0].Apply();
-
-            GraphicsDevice.DrawUserPrimitives<Vector3>(PrimitiveType.TriangleStrip,
-                triangleData, 0, 1, vertexDecl);
-
-            effect.World = rectangleTransform;
-            effect.CurrentTechnique.Passes[0].Apply();
-
-            GraphicsDevice.DrawUserPrimitives<Vector3>(PrimitiveType.TriangleStrip,
-                rectangleData, 0, 2, vertexDecl);
+          
             base.Draw(gameTime);
         }
 
@@ -161,20 +118,6 @@ namespace Project_Origin
                 }
             }
         }
-
-        protected void OnClientSizeChanged(object sender, EventArgs e)
-        {
-            ResetProjection();
-        }
-        protected void ResetProjection()
-        {
-            Viewport viewport = graphics.GraphicsDevice.Viewport;
-
-            // Set the Projection Matrix
-            effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                (float)viewport.Width / viewport.Height,
-                0.1f,
-                100.0f);
-        }
+       
     }
 }
