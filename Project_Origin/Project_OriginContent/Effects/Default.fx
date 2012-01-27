@@ -19,7 +19,7 @@ float4 VertexShaderFunction(float4 input : POSITION0 ) : POSITION0
 
 float4 PixelShaderFunction(float4 input : POSITION0 ) : COLOR0
 {
-    return float4(1, 1, 1, 1);
+    return float4(0, 0, 0, 1);
 }
 
 //=============================================================================

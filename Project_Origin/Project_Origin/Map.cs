@@ -71,10 +71,11 @@ namespace Project_Origin
 
         public override void Draw(GameTime gameTime)
         {
+            RasterizerState prevRs = this.device.RasterizerState;
             RasterizerState rs = new RasterizerState();
             rs.CullMode = CullMode.None;
             rs.FillMode = FillMode.WireFrame;
-            this.device.RasterizerState = rs;
+            //this.device.RasterizerState = rs;
 
             Viewport viewport = this.device.Viewport;
             this.defaultEfft.World = Matrix.CreateTranslation(new Vector3(-this.witdth/2, -this.heigh/2, -100.0f));
@@ -94,6 +95,8 @@ namespace Project_Origin
                 }
                 
             }
+
+            this.device.RasterizerState = prevRs;
             base.Draw(gameTime);
         }
     }
