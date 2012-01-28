@@ -17,9 +17,9 @@ namespace Project_Origin
     public class Shooter : Microsoft.Xna.Framework.Game
     {
         GraphicsDeviceManager graphics;
+        public bool bIntro { get; set; } 
         //SpriteBatch spriteBatch;
         KeyboardState prevKeyboardState = Keyboard.GetState();
-
 
         private Map gameMap;
         private Player gamePlayer;

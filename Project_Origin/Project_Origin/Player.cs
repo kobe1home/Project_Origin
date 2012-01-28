@@ -26,10 +26,20 @@ namespace Project_Origin
         private int height;
         private DefaultEffect defaultEfft;
         KeyboardState prevKeyboardState = Keyboard.GetState();
-        Vector3 playerGreenPosition = new Vector3(20.0f, -20.0f, 110.0f);
-
+        Vector3 playerGreenPosition = new Vector3(30.0f, -20.0f, 10.0f);
+        
         SpriteBatch spriteBatch;
-        Vector2 playerPosition = new Vector2(100.0f, 29.0f);
+        Vector2 introPosition;
+        Vector2 introCenter;
+
+        Texture2D introTexture;
+        enum GameStatus
+        {
+            Intro,
+            Start
+        }
+
+        GameStatus gameStatus = GameStatus.Intro;
 
         public Player(Game game, int width, int height)
             : base(game)
@@ -57,6 +67,11 @@ namespace Project_Origin
             spriteBatch = new SpriteBatch(GraphicsDevice);
             playerGreen = game.Content.Load<Model>("Models\\playerGreen");
             playerRed = game.Content.Load<Model>("Models\\playerRed");
+
+            introTexture = game.Content.Load<Texture2D>("Models\\Intro");
+            introPosition = new Vector2(game.GraphicsDevice.Viewport.Width/2, game.GraphicsDevice.Viewport.Height/2);
+            introCenter = new Vector2(introTexture.Width/2, introTexture.Height/2);
+
             base.LoadContent();
         }
 
@@ -73,6 +88,11 @@ namespace Project_Origin
                 playerGreenPosition.X -= 0.1f;
             if (keyboard.IsKeyDown(Keys.Right))
                 playerGreenPosition.X += 0.1f;
+
+            if (keyboard.IsKeyDown(Keys.Enter))
+                gameStatus = GameStatus.Start;
+            if (keyboard.IsKeyDown(Keys.M))
+                gameStatus = GameStatus.Intro;
 
             prevKeyboardState = keyboard;
             base.Update(gameTime);
@@ -95,7 +115,7 @@ namespace Project_Origin
                 {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index] * world;
-                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 250), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
+                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 150), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
                     effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
                                                                               game.GraphicsDevice.Viewport.AspectRatio,
                                                                               5.0f,
@@ -104,6 +124,37 @@ namespace Project_Origin
 
                     mesh.Draw();
                 }
+            }
+
+
+            BasicEffect lineEffect = new BasicEffect(this.GraphicsDevice);
+            lineEffect.VertexColorEnabled = true;
+            lineEffect.View = Matrix.CreateLookAt(new Vector3(0, 0, 150), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
+            lineEffect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
+                                                                      game.GraphicsDevice.Viewport.AspectRatio,
+                                                                      5.0f,
+                                                                      1000.0f);
+            lineEffect.Alpha = playerAlpha;
+            foreach (EffectPass pass in lineEffect.CurrentTechnique.Passes)
+            {
+                rotationZ = Matrix.CreateRotationZ(MathHelper.Pi / 8);
+                lineEffect.World = rotationZ * world;
+                pass.Apply();
+                VertexPositionColor[] temp = new VertexPositionColor[2];
+                temp[0].Position = new Vector3(0, 0, 0);
+                temp[0].Color = Color.Green;
+                temp[1].Position = new Vector3(0, 65, 0);
+                temp[1].Color = Color.Green;
+                this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
+                                            temp, 0, 1,
+                                            VertexPositionColor.VertexDeclaration);
+
+                rotationZ = Matrix.CreateRotationZ(-MathHelper.Pi / 8);
+                lineEffect.World = rotationZ * world;
+                pass.Apply();
+                this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
+                                            temp, 0, 1,
+                                            VertexPositionColor.VertexDeclaration);
             }
         }
 
@@ -114,8 +165,8 @@ namespace Project_Origin
 
             Matrix world, scale, rotationZ, translation;
             scale = Matrix.CreateScale(1.0f, 1.0f, 1.0f);
-            translation = Matrix.CreateTranslation(-20.0f, 30.0f, 110.0f);
-            rotationZ = Matrix.CreateRotationZ(MathHelper.Pi);
+            translation = Matrix.CreateTranslation(-30.0f, 35.0f, 10.0f);
+            rotationZ = Matrix.CreateRotationZ(-MathHelper.Pi / 4 * 3);
             world = scale * rotationZ * translation;
             foreach (ModelMesh mesh in playerRed.Meshes)
             {
@@ -123,7 +174,7 @@ namespace Project_Origin
                 {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index] * world;
-                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 250), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
+                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 150), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
                     effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
                                                                               game.GraphicsDevice.Viewport.AspectRatio,
                                                                               5.0f,
@@ -133,31 +184,68 @@ namespace Project_Origin
                     mesh.Draw();
                 }
             }
+
+
+            BasicEffect lineEffect = new BasicEffect(this.GraphicsDevice);
+            lineEffect.VertexColorEnabled = true;
+            lineEffect.View = Matrix.CreateLookAt(new Vector3(0, 0, 150), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
+            lineEffect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
+                                                                      game.GraphicsDevice.Viewport.AspectRatio,
+                                                                      5.0f,
+                                                                      1000.0f);
+            lineEffect.Alpha = playerAlpha;
+            foreach (EffectPass pass in lineEffect.CurrentTechnique.Passes)
+            {
+                rotationZ = Matrix.CreateRotationZ(MathHelper.Pi / 8);
+                lineEffect.World = rotationZ * world;
+                pass.Apply();
+                VertexPositionColor[] temp = new VertexPositionColor[2];
+                temp[0].Position = new Vector3(0, 0, 0);
+                temp[0].Color = Color.Red;
+                temp[1].Position = new Vector3(0, 110, 0);
+                temp[1].Color = Color.Red;
+                this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
+                                            temp, 0, 1,
+                                            VertexPositionColor.VertexDeclaration);
+
+                rotationZ = Matrix.CreateRotationZ(-MathHelper.Pi / 8);
+                lineEffect.World = rotationZ * world;
+                pass.Apply();
+                temp[1].Position = new Vector3(0, 80, 0);
+                this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
+                                            temp, 0, 1,
+                                            VertexPositionColor.VertexDeclaration);
+            }
         }
         public override void Draw(GameTime gameTime)
         {
-            //spriteBatch.Begin();
-            //spriteBatch.Draw(playerTexture, playerPosition, null, Color.White,
-            //    0.0f, playerCenter, 0.1f, SpriteEffects.None, 0.0f);
-            //spriteBatch.End();
-            float timeElapse = (float)gameTime.ElapsedGameTime.Milliseconds;
-            if (playerAlphaTimer > 1000) //2s
+            if (gameStatus == GameStatus.Intro)
             {
-                playerAlphaTimer = 1000;
-                playerAlphaSpeed *= -1;
+                spriteBatch.Begin();
+                spriteBatch.Draw(introTexture, introPosition, null, Color.White,
+                    0.0f, introCenter, 1.0f, SpriteEffects.None, 0.0f);
+                spriteBatch.End();
             }
-            if (playerAlphaTimer < 0) //2s
+            else
             {
-                playerAlphaTimer = 0;
-                playerAlphaSpeed *= -1;
+                float timeElapse = (float)gameTime.ElapsedGameTime.Milliseconds;
+                if (playerAlphaTimer > 1000) //1s
+                {
+                    playerAlphaTimer = 1000;
+                    playerAlphaSpeed *= -1;
+                }
+                if (playerAlphaTimer < 0) //1s
+                {
+                    playerAlphaTimer = 0;
+                    playerAlphaSpeed *= -1;
+                }
+                playerAlphaTimer += timeElapse * playerAlphaSpeed;
+                playerAlpha = 0.6f + (float)playerAlphaTimer / 1000.0f;
+
+                DrawGreenPlayer(gameTime);
+                DrawRedPlayer(gameTime);
+                base.Draw(gameTime);
             }
-            playerAlphaTimer += timeElapse * playerAlphaSpeed;
-            playerAlpha = (float)playerAlphaTimer / 1000.0f;
-
-            DrawGreenPlayer(gameTime);
-            DrawRedPlayer(gameTime);
-
-            base.Draw(gameTime);
         }
     }
 }
