@@ -107,6 +107,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WayPoint.cs" />
     <Compile Include="DefaultEffect.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -20,6 +20,7 @@ namespace Project_Origin
         private Game game;
 
         private static int GridWidth = 2;
+        private static Color DefaultColor = Color.White;
 
         public Map(Game game, Vector3 start, int width, int heigh)
             : base(game)
@@ -50,8 +51,8 @@ namespace Project_Origin
                     temp[col * 2 + 1].Position = new Vector3(this.start.X + (Map.GridWidth * col),
                                                          this.start.Y + (this.start.Y + Map.GridWidth * row) +  Map.GridWidth,
                                                          this.start.Z);
-                    temp[col * 2].Color = Color.White;
-                    temp[col * 2 + 1].Color = Color.White;
+                    temp[col * 2].Color = Map.DefaultColor;
+                    temp[col * 2 + 1].Color = Map.DefaultColor;
                 }
                 this.pointMatrics[row] = temp;
             }
@@ -96,5 +97,7 @@ namespace Project_Origin
             }
             base.Draw(gameTime);
         }
+
+        
     }
 }
