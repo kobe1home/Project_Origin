@@ -21,8 +21,12 @@ namespace Project_Origin
         //SpriteBatch spriteBatch;
         KeyboardState prevKeyboardState = Keyboard.GetState();
 
+
+        private Camera camera;
         private Map gameMap;
         private Player gamePlayer;
+
+
         public Shooter()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -43,6 +47,14 @@ namespace Project_Origin
         /// </summary>
         protected override void Initialize()
         {
+            this.camera = new Camera(this , new Vector3(0,0,100), 
+                                        new Vector3(1,0, 0), 
+                                        new Vector3(0, 1, 0), 
+                                        new Vector3(0,0,0));
+
+            this.Components.Add(this.camera);
+            this.Services.AddService(typeof(ICameraService), this.camera);
+
             this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
             this.Components.Add(this.gameMap);
 

@@ -24,7 +24,7 @@ namespace Project_Origin
         private float playerAlpha;
         private int witdth;
         private int height;
-        private DefaultEffect defaultEfft;
+        private ICameraService camera;
         KeyboardState prevKeyboardState = Keyboard.GetState();
         Vector3 playerGreenPosition = new Vector3(30.0f, -20.0f, 10.0f);
         
@@ -48,6 +48,12 @@ namespace Project_Origin
             this.game = game;
             this.witdth = width;
             this.height = height;
+            this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
+
+            if (this.camera == null)
+            {
+                throw new InvalidOperationException("ICameraService not found.");
+            }
         }
 
         /// <summary>
@@ -115,11 +121,9 @@ namespace Project_Origin
                 {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index] * world;
-                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 150), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                                                                              game.GraphicsDevice.Viewport.AspectRatio,
-                                                                              5.0f,
-                                                                              1000.0f);
+                    effect.View = this.camera.ViewMatrix;
+                    effect.Projection = this.camera.ProjectMatrix;
+                                                                    
                     effect.Alpha = playerAlpha;
 
                     mesh.Draw();
@@ -129,11 +133,10 @@ namespace Project_Origin
 
             BasicEffect lineEffect = new BasicEffect(this.GraphicsDevice);
             lineEffect.VertexColorEnabled = true;
-            lineEffect.View = Matrix.CreateLookAt(new Vector3(0, 0, 150), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-            lineEffect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                                                                      game.GraphicsDevice.Viewport.AspectRatio,
-                                                                      5.0f,
-                                                                      1000.0f);
+            lineEffect.View = this.camera.ViewMatrix;
+            lineEffect.Projection = this.camera.ProjectMatrix; 
+                                                               
+                                                               
             lineEffect.Alpha = playerAlpha;
             foreach (EffectPass pass in lineEffect.CurrentTechnique.Passes)
             {
@@ -174,11 +177,8 @@ namespace Project_Origin
                 {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index] * world;
-                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 150), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                                                                              game.GraphicsDevice.Viewport.AspectRatio,
-                                                                              5.0f,
-                                                                              1000.0f);
+                    effect.View = this.camera.ViewMatrix; 
+                    effect.Projection = this.camera.ProjectMatrix; 
                     effect.Alpha = playerAlpha;
 
                     mesh.Draw();
@@ -188,11 +188,9 @@ namespace Project_Origin
 
             BasicEffect lineEffect = new BasicEffect(this.GraphicsDevice);
             lineEffect.VertexColorEnabled = true;
-            lineEffect.View = Matrix.CreateLookAt(new Vector3(0, 0, 150), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-            lineEffect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                                                                      game.GraphicsDevice.Viewport.AspectRatio,
-                                                                      5.0f,
-                                                                      1000.0f);
+            lineEffect.View = this.camera.ViewMatrix;
+            lineEffect.Projection = this.camera.ProjectMatrix; 
+
             lineEffect.Alpha = playerAlpha;
             foreach (EffectPass pass in lineEffect.CurrentTechnique.Passes)
             {
