@@ -17,11 +17,12 @@ namespace Project_Origin
     public class Shooter : Microsoft.Xna.Framework.Game
     {
         GraphicsDeviceManager graphics;
+        public bool bIntro { get; set; } 
         //SpriteBatch spriteBatch;
         KeyboardState prevKeyboardState = Keyboard.GetState();
 
-
         private Map gameMap;
+        private Player gamePlayer;
         public Shooter()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -45,6 +46,8 @@ namespace Project_Origin
             this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
             this.Components.Add(this.gameMap);
 
+            this.gamePlayer = new Player(this, 100, 60);
+            this.Components.Add(this.gamePlayer);
             base.Initialize();
         }
 
@@ -98,7 +101,7 @@ namespace Project_Origin
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.White);
           
             base.Draw(gameTime);
         }

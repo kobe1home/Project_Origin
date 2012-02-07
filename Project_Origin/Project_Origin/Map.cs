@@ -15,7 +15,7 @@ namespace Project_Origin
         private int heigh;
         private Vector3 start;
         private VertexPositionColor[][] pointMatrics;
-        private DefaultEffect defaultEfft;
+        private BasicEffect defaultEfft;
         private GraphicsDevice device;
         private Game game;
 
@@ -61,7 +61,7 @@ namespace Project_Origin
         }
         protected override void LoadContent()
         {
-            this.defaultEfft = new DefaultEffect(base.Game.Content.Load<Effect>("Effects/Default"));
+            //this.defaultEfft = new DefaultEffect(base.Game.Content.Load<Effect>("Effects/Default"));
             base.LoadContent();
         }
 
@@ -72,17 +72,24 @@ namespace Project_Origin
 
         public override void Draw(GameTime gameTime)
         {
+            RasterizerState prevRs = this.device.RasterizerState;
             RasterizerState rs = new RasterizerState();
             rs.CullMode = CullMode.None;
             rs.FillMode = FillMode.WireFrame;
-            this.device.RasterizerState = rs;
+            //this.device.RasterizerState = rs;
 
             Viewport viewport = this.device.Viewport;
-            this.defaultEfft.World = Matrix.CreateTranslation(new Vector3(-this.witdth/2, -this.heigh/2, -100.0f));
-            this.defaultEfft.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
+            this.defaultEfft = new BasicEffect(this.GraphicsDevice);
+
+            defaultEfft.VertexColorEnabled = true;
+            defaultEfft.World = Matrix.CreateTranslation(new Vector3(-this.witdth/2, -this.heigh/2, 0.0f));
+            defaultEfft.View = Matrix.CreateLookAt(new Vector3(0,0, 100), new Vector3(0,0, 0), new Vector3(0, 1, 0)); 
+            defaultEfft.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
                                                                               viewport.AspectRatio,
-                                                                              5.0f,
-                                                                              200.0f);
+                                                                              0.1f,
+                                                                              2000.0f);
+            
+
 
             foreach (EffectPass pass in this.defaultEfft.CurrentTechnique.Passes)
             {
@@ -95,6 +102,8 @@ namespace Project_Origin
                 }
                 
             }
+
+            this.device.RasterizerState = prevRs;
             base.Draw(gameTime);
         }
 
