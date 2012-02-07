@@ -39,6 +39,7 @@ namespace Project_Origin
             Start
         }
 
+
         GameStatus gameStatus = GameStatus.Intro;
 
         public Player(Game game, int width, int height)

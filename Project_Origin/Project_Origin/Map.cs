@@ -92,7 +92,6 @@ namespace Project_Origin
             defaultEfft.Projection = this.camera.ProjectMatrix;
             
 
-
             foreach (EffectPass pass in defaultEfft.CurrentTechnique.Passes)
             {
                 pass.Apply();
