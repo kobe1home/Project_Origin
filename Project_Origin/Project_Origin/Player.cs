@@ -25,7 +25,7 @@ namespace Project_Origin
         private int witdth;
         private int height;
         private ICameraService camera;
-        KeyboardState prevKeyboardState = Keyboard.GetState();
+        KeyboardState prevKeyboardState;
         Vector3 playerGreenPosition = new Vector3(30.0f, -20.0f, 10.0f);
         
         SpriteBatch spriteBatch;
@@ -48,6 +48,7 @@ namespace Project_Origin
             this.game = game;
             this.witdth = width;
             this.height = height;
+            this.prevKeyboardState = Keyboard.GetState();
             this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
 
             if (this.camera == null)
@@ -62,7 +63,7 @@ namespace Project_Origin
         /// </summary>
         public override void Initialize()
         {
-            // TODO: Add your initialization code here
+            
             playerAlphaTimer = 0;
             playerAlphaSpeed = 1;
             base.Initialize();
@@ -87,7 +88,6 @@ namespace Project_Origin
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            // TODO: Add your update code here
             KeyboardState keyboard = Keyboard.GetState();
 
             if (keyboard.IsKeyDown(Keys.Left))
@@ -215,6 +215,7 @@ namespace Project_Origin
                                             VertexPositionColor.VertexDeclaration);
             }
         }
+
         public override void Draw(GameTime gameTime)
         {
             if (gameStatus == GameStatus.Intro)

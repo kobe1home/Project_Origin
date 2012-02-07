@@ -20,7 +20,7 @@ namespace Project_Origin
         private Game game;
 
         private static int GridWidth = 2;
-        private static Color DefaultColor = Color.Black;
+        private static Color DefaultColor = Color.Blue;
 
         public Map(Game game, Vector3 start, int width, int heigh)
             : base(game)
@@ -67,7 +67,6 @@ namespace Project_Origin
         }
         protected override void LoadContent()
         {
-            //this.defaultEfft = new DefaultEffect(base.Game.Content.Load<Effect>("Effects/Default"));
             base.LoadContent();
         }
 
