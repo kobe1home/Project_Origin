@@ -15,12 +15,12 @@ namespace Project_Origin
         private int heigh;
         private Vector3 start;
         private VertexPositionColor[][] pointMatrics;
-        private BasicEffect defaultEfft;
+        private ICameraService camera;
         private GraphicsDevice device;
         private Game game;
 
         private static int GridWidth = 2;
-        private static Color DefaultColor = Color.White;
+        private static Color DefaultColor = Color.Black;
 
         public Map(Game game, Vector3 start, int width, int heigh)
             : base(game)
@@ -31,6 +31,12 @@ namespace Project_Origin
             this.heigh = heigh;
             this.game = game;
             this.device = this.game.GraphicsDevice;
+            this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
+
+            if (this.camera == null)
+            {
+                throw new InvalidOperationException("ICameraService not found.");
+            }
         }
 
         public override void Initialize()
@@ -76,22 +82,19 @@ namespace Project_Origin
             RasterizerState rs = new RasterizerState();
             rs.CullMode = CullMode.None;
             rs.FillMode = FillMode.WireFrame;
-            //this.device.RasterizerState = rs;
+            this.device.RasterizerState = rs;
 
             Viewport viewport = this.device.Viewport;
-            this.defaultEfft = new BasicEffect(this.GraphicsDevice);
+            BasicEffect defaultEfft = new BasicEffect(this.GraphicsDevice);
 
             defaultEfft.VertexColorEnabled = true;
             defaultEfft.World = Matrix.CreateTranslation(new Vector3(-this.witdth/2, -this.heigh/2, 0.0f));
-            defaultEfft.View = Matrix.CreateLookAt(new Vector3(0,0, 100), new Vector3(0,0, 0), new Vector3(0, 1, 0)); 
-            defaultEfft.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4,
-                                                                              viewport.AspectRatio,
-                                                                              0.1f,
-                                                                              2000.0f);
+            defaultEfft.View = this.camera.ViewMatrix;
+            defaultEfft.Projection = this.camera.ProjectMatrix;
             
 
 
-            foreach (EffectPass pass in this.defaultEfft.CurrentTechnique.Passes)
+            foreach (EffectPass pass in defaultEfft.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 foreach (VertexPositionColor[] row in this.pointMatrics)
