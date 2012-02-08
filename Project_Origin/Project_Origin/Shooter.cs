@@ -19,7 +19,7 @@ namespace Project_Origin
         GraphicsDeviceManager graphics;
         public bool bIntro { get; set; } 
         //SpriteBatch spriteBatch;
-        KeyboardState prevKeyboardState = Keyboard.GetState();
+        KeyboardState prevKeyboardState;
 
 
         private Camera camera;
@@ -36,6 +36,7 @@ namespace Project_Origin
             Window.Title = "Shooter Game";
             Window.AllowUserResizing = true;
             //Window.ClientSizeChanged += OnClientSizeChanged;
+            this.prevKeyboardState = Keyboard.GetState();
             
         }
 
@@ -58,8 +59,8 @@ namespace Project_Origin
             this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
             this.Components.Add(this.gameMap);
 
-            this.gamePlayer = new Player(this, 100, 60);
-            this.Components.Add(this.gamePlayer);
+            //this.gamePlayer = new Player(this, 100, 60);
+            //this.Components.Add(this.gamePlayer);
             base.Initialize();
         }
 

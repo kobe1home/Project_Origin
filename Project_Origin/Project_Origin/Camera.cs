@@ -31,7 +31,7 @@ namespace Project_Origin
 
 
         private static float nearPlane = 5.0f;
-        private static float farPlane = 100.0f;
+        private static float farPlane = 1000.0f;
         private static float cameraSpeed = 0.5f;
 
         public Camera(Game game, Vector3 cameraPosition, Vector3 cameraRight, Vector3 cameraUp, Vector3 cameraLook)

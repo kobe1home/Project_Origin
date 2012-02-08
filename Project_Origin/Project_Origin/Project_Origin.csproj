@@ -108,7 +108,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="CubePrimitive.cs" />
+    <Compile Include="GeometricPrimitive.cs" />
     <Compile Include="ICameraService.cs" />
+    <Compile Include="VertexPositionNormal.cs" />
     <Compile Include="WayPoint.cs" />
     <Compile Include="DefaultEffect.cs" />
     <Compile Include="Map.cs" />

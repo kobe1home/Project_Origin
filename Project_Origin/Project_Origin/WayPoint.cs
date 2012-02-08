@@ -9,15 +9,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Project_Origin
 {
-    class WayPoint
+    public class WayPoint : CubePrimitive
     {
         private Vector3 centerPos;
-        private VertexPositionColor[] cubPoints;
 
+        public const float CubeSize = 1.0f;
 
-        private static float CubeSize = 0.5f;
-
-        public WayPoint(Vector3 centerPos)
+        public WayPoint(GraphicsDevice graphicDevice, Vector3 centerPos):base(graphicDevice,WayPoint.CubeSize)
         {
             this.centerPos = centerPos;
         }
@@ -28,12 +26,10 @@ namespace Project_Origin
             set { centerPos = value; }
         }
 
-        private void initializeCubePoints()
+        public void Draw(Matrix view, Matrix projection, Color color)
         {
-            this.cubPoints = new VertexPositionColor[4];
-
-            this.cubPoints[0].Position = new Vector3(this.centerPos.X);
-
+            Matrix world = Matrix.CreateTranslation(this.centerPos);
+            base.Draw(world, view, projection, color);
         }
     }
 }

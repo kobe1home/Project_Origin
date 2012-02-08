@@ -45,7 +45,6 @@ namespace Project_Origin
         public Player(Game game, int width, int height)
             : base(game)
         {
-            // TODO: Construct any child components here
             this.game = game;
             this.witdth = width;
             this.height = height;
@@ -91,11 +90,12 @@ namespace Project_Origin
         {
             KeyboardState keyboard = Keyboard.GetState();
 
+            /*
             if (keyboard.IsKeyDown(Keys.Left))
                 playerGreenPosition.X -= 0.1f;
             if (keyboard.IsKeyDown(Keys.Right))
                 playerGreenPosition.X += 0.1f;
-
+            */
             if (keyboard.IsKeyDown(Keys.Enter))
                 gameStatus = GameStatus.Start;
             if (keyboard.IsKeyDown(Keys.M))
