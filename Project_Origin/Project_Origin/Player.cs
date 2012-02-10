@@ -25,6 +25,7 @@ namespace Project_Origin
         private int witdth;
         private int height;
         private ICameraService camera;
+        private Path path;
         KeyboardState prevKeyboardState;
         Vector3 playerGreenPosition = new Vector3(30.0f, -20.0f, 10.0f);
         
@@ -50,11 +51,17 @@ namespace Project_Origin
             this.height = height;
             this.prevKeyboardState = Keyboard.GetState();
             this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
-
             if (this.camera == null)
             {
                 throw new InvalidOperationException("ICameraService not found.");
             }
+
+            this.path = this.game.Services.GetService(typeof(Path)) as Path;
+            if (this.path == null)
+            {
+                throw new InvalidOperationException("Path not found.");
+            }
+            
         }
 
         /// <summary>
@@ -66,6 +73,7 @@ namespace Project_Origin
             
             playerAlphaTimer = 0;
             playerAlphaSpeed = 1;
+
             base.Initialize();
         }
 

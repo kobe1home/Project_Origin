@@ -18,13 +18,15 @@ namespace Project_Origin
     {
         GraphicsDeviceManager graphics;
         public bool bIntro { get; set; } 
-        //SpriteBatch spriteBatch;
+        //private SpriteBatch spriteBatch;
         KeyboardState prevKeyboardState;
 
 
         private Camera camera;
         private Map gameMap;
         private Player gamePlayer;
+        private Path path;
+        private FPS fps;
 
 
         public Shooter()
@@ -32,6 +34,7 @@ namespace Project_Origin
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            IsFixedTimeStep = false;
 
             Window.Title = "Shooter Game";
             Window.AllowUserResizing = true;
@@ -58,9 +61,14 @@ namespace Project_Origin
 
             this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
             this.Components.Add(this.gameMap);
+            this.Services.AddService(typeof(Map), this.gameMap);
 
-            this.gamePlayer = new Player(this, 100, 60);
-            this.Components.Add(this.gamePlayer);
+            this.path = new Path(this);
+            this.Components.Add(this.path);
+            this.Services.AddService(typeof(Path), this.path);
+
+            this.fps = new FPS(this);
+            this.Components.Add(fps);
             base.Initialize();
         }
 
