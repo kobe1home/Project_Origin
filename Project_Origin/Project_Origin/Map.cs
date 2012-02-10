@@ -19,6 +19,7 @@ namespace Project_Origin
         private ICameraService camera;
         private GraphicsDevice device;
         private Game game;
+        private Shooter shooter;
 
         //private MouseState previousState;
         BasicEffect defaultEfft;
@@ -70,7 +71,11 @@ namespace Project_Origin
                 this.pointMatrics[row] = temp;
             }
 
-
+            this.shooter = this.Game.Services.GetService(typeof(Shooter)) as Shooter;
+            if (this.shooter == null)
+            {
+                throw new InvalidOperationException("Shooter not found.");
+            }
             base.Initialize();
         }
         protected override void LoadContent()
@@ -86,26 +91,29 @@ namespace Project_Origin
 
         public override void Draw(GameTime gameTime)
         {
-            /*
-            RasterizerState prevRs = this.device.RasterizerState;
-            RasterizerState rs = new RasterizerState();
-            rs.CullMode = CullMode.None;
-            rs.FillMode = FillMode.WireFrame;
-            this.device.RasterizerState = rs;
-            */
-            this.defaultEfft.VertexColorEnabled = true;
-            this.defaultEfft.World = Matrix.CreateTranslation(new Vector3(-this.witdth / 2, -this.heigh / 2, 0.0f));
-            this.defaultEfft.View = this.camera.ViewMatrix;
-            this.defaultEfft.Projection = this.camera.ProjectMatrix;
-
-            foreach (EffectPass pass in defaultEfft.CurrentTechnique.Passes)
+            if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start)
             {
-                pass.Apply();
-                foreach (VertexPositionColor[] row in this.pointMatrics)
+                /*
+                RasterizerState prevRs = this.device.RasterizerState;
+                RasterizerState rs = new RasterizerState();
+                rs.CullMode = CullMode.None;
+                rs.FillMode = FillMode.WireFrame;
+                this.device.RasterizerState = rs;
+                */
+                this.defaultEfft.VertexColorEnabled = true;
+                this.defaultEfft.World = Matrix.CreateTranslation(new Vector3(-this.witdth / 2, -this.heigh / 2, 0.0f));
+                this.defaultEfft.View = this.camera.ViewMatrix;
+                this.defaultEfft.Projection = this.camera.ProjectMatrix;
+
+                foreach (EffectPass pass in defaultEfft.CurrentTechnique.Passes)
                 {
-                    this.device.DrawUserPrimitives(PrimitiveType.TriangleStrip,
-                                                row, 0, row.Length - 2,
-                                                VertexPositionColor.VertexDeclaration);
+                    pass.Apply();
+                    foreach (VertexPositionColor[] row in this.pointMatrics)
+                    {
+                        this.device.DrawUserPrimitives(PrimitiveType.TriangleStrip,
+                                                    row, 0, row.Length - 2,
+                                                    VertexPositionColor.VertexDeclaration);
+                    }
                 }
             }
             

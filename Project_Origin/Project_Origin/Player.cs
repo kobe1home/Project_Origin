@@ -18,6 +18,11 @@ namespace Project_Origin
     public class Player : Microsoft.Xna.Framework.DrawableGameComponent
     {
         private Game game;
+        private ICameraService camera;
+        private Path path;
+        private Shooter shooter;
+
+
         private Model playerGreen, playerRed;
         private float playerAlphaTimer;
         private float playerAlphaSpeed;
@@ -26,8 +31,6 @@ namespace Project_Origin
         private int height;
         private double moveSpeed;
         private BasicEffect lineEffect;
-        private ICameraService camera;
-        private Path path;
         KeyboardState prevKeyboardState;
         private Vector3 playerGreenPosition;
         private float playerGreenZRoatation = 0.0f; //Facing direction
@@ -36,18 +39,9 @@ namespace Project_Origin
         private int movingDestinationPointIndex = 0;
         private Vector3 movingDirection;
         private float movingCurrentDistance;
-        private float movingSpeed = 0.01f;
+        private float movingSpeed = 0.02f;
 
         SpriteBatch spriteBatch;
-        Vector2 introPosition;
-        Vector2 introCenter;
-
-        Texture2D introTexture;
-        enum GameStatus
-        {
-            Intro,
-            Start
-        }
 
         public enum PlayerMode
         {
@@ -57,8 +51,6 @@ namespace Project_Origin
 
         PlayerMode playerMode = PlayerMode.Normal; 
 
-        GameStatus gameStatus = GameStatus.Intro;
-
         public Player(Game game, int width, int height)
             : base(game)
         {
@@ -66,17 +58,8 @@ namespace Project_Origin
             this.witdth = width;
             this.height = height;
             this.prevKeyboardState = Keyboard.GetState();
-            this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
-            if (this.camera == null)
-            {
-                throw new InvalidOperationException("ICameraService not found.");
-            }
 
-            this.path = this.game.Services.GetService(typeof(Path)) as Path;
-            if (this.path == null)
-            {
-                throw new InvalidOperationException("Path not found.");
-            }
+
             
         }
 
@@ -92,6 +75,22 @@ namespace Project_Origin
             lineEffect = new BasicEffect(this.Game.GraphicsDevice);
             lineEffect.VertexColorEnabled = true;
 
+            this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
+            if (this.camera == null)
+            {
+                throw new InvalidOperationException("ICameraService not found.");
+            }
+
+            this.path = this.game.Services.GetService(typeof(Path)) as Path;
+            if (this.path == null)
+            {
+                throw new InvalidOperationException("Path not found.");
+            }
+            this.shooter = this.game.Services.GetService(typeof(Shooter)) as Shooter;
+            if (this.shooter == null)
+            {
+                throw new InvalidOperationException("Shooter not found.");
+            }
             base.Initialize();
         }
 
@@ -102,10 +101,6 @@ namespace Project_Origin
             playerRed = game.Content.Load<Model>("Models\\playerRed");
 
             playerGreenPosition = new Vector3(0.0f, 0.0f, 2.0f);
-
-            introTexture = game.Content.Load<Texture2D>("Models\\Intro");
-            introPosition = new Vector2(game.GraphicsDevice.Viewport.Width/2, game.GraphicsDevice.Viewport.Height/2);
-            introCenter = new Vector2(introTexture.Width/2, introTexture.Height/2);
 
             base.LoadContent();
         }
@@ -124,10 +119,6 @@ namespace Project_Origin
             if (keyboard.IsKeyDown(Keys.Right))
                 playerGreenPosition.X += 0.1f;
             */
-            if (keyboard.IsKeyDown(Keys.Enter))
-                gameStatus = GameStatus.Start;
-            if (keyboard.IsKeyDown(Keys.M))
-                gameStatus = GameStatus.Intro;
             if (keyboard.IsKeyDown(Keys.C))
                 if(playerMode != PlayerMode.Moving)
                     path.CleanWayPoints();
@@ -290,14 +281,7 @@ namespace Project_Origin
 
         public override void Draw(GameTime gameTime)
         {
-            if (gameStatus == GameStatus.Intro)
-            {
-                spriteBatch.Begin();
-                spriteBatch.Draw(introTexture, introPosition, null, Color.White,
-                    0.0f, introCenter, 1.0f, SpriteEffects.None, 0.0f);
-                spriteBatch.End();
-            }
-            else
+            if ( shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start)
             {
                 float timeElapse = (float)gameTime.ElapsedGameTime.Milliseconds;
                 if (playerAlphaTimer > 1000) //1s

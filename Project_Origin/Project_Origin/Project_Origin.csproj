@@ -112,6 +112,7 @@
     <Compile Include="FPS.cs" />
     <Compile Include="GeometricPrimitive.cs" />
     <Compile Include="ICameraService.cs" />
+    <Compile Include="MainMenu.cs" />
     <Compile Include="Path.cs" />
     <Compile Include="VertexPositionNormal.cs" />
     <Compile Include="WayPoint.cs" />

@@ -20,6 +20,7 @@ namespace Project_Origin
         private ICameraService camera;
         private Map gameMap;
         private Player player;
+        private Shooter shooter;
 
         BasicEffect defaultEfft;
 
@@ -62,6 +63,13 @@ namespace Project_Origin
             {
                 throw new InvalidOperationException("Player not found.");
             }
+
+            this.shooter = this.Game.Services.GetService(typeof(Shooter)) as Shooter;
+            if (this.shooter == null)
+            {
+                throw new InvalidOperationException("Shooter not found.");
+            }
+
             base.Initialize();
         }
 
@@ -78,8 +86,10 @@ namespace Project_Origin
 
         public override void Draw(GameTime gameTime)
         {
-            this.drawAllWayPoints();
-
+            if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start)
+            {
+                this.drawAllWayPoints();
+            }
             //this.device.RasterizerState = prevRs;
             base.Draw(gameTime);
         }
@@ -166,7 +176,6 @@ namespace Project_Origin
         private void drawAllLines()
         {
             
-
             defaultEfft.VertexColorEnabled = true;
             defaultEfft.World = Matrix.Identity;
             defaultEfft.View = this.camera.ViewMatrix;
