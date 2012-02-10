@@ -59,8 +59,8 @@ namespace Project_Origin
             this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
             this.Components.Add(this.gameMap);
 
-            //this.gamePlayer = new Player(this, 100, 60);
-            //this.Components.Add(this.gamePlayer);
+            this.gamePlayer = new Player(this, 100, 60);
+            this.Components.Add(this.gamePlayer);
             base.Initialize();
         }
 
