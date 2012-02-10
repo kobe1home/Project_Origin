@@ -137,6 +137,29 @@ namespace Project_Origin
             base.Update(gameTime);
         }
 
+        public float CalcPlayerRotationFromMovingDirection(Vector3 movingDirection)
+        {
+            float zRotation = 0.0f;
+            if (movingDirection.X > 0 && movingDirection.Y > 0)
+            {
+                zRotation = 2 * MathHelper.Pi - (float)Math.Atan((movingDirection.X / movingDirection.Y));
+            }
+            else if(movingDirection.X > 0 && movingDirection.Y < 0)
+            {
+                zRotation = MathHelper.Pi - (float)Math.Atan((movingDirection.X / movingDirection.Y));
+            }
+            else if (movingDirection.X < 0 && movingDirection.Y < 0)
+            {
+                zRotation = MathHelper.Pi + (float)Math.Atan((-movingDirection.X / movingDirection.Y));
+            }
+            else if (movingDirection.X < 0 && movingDirection.Y > 0)
+            {
+                zRotation = (float)Math.Atan((-movingDirection.X / movingDirection.Y));
+            }
+
+            return zRotation;
+        }
+
         public void UpdatePlayerPosition(GameTime gameTime)
         {
             if (playerMode == PlayerMode.Moving)
@@ -147,7 +170,8 @@ namespace Project_Origin
                 float d = movingDirection.Length();
                 movingDirection.Normalize();
                 movingCurrentDistance += (float)gameTime.ElapsedGameTime.Milliseconds * movingSpeed;
-                playerGreenZRoatation = (float)Math.Atan((movingDirection.X / movingDirection.Y));
+                playerGreenZRoatation = CalcPlayerRotationFromMovingDirection(movingDirection);
+                
                 //Destination = Source + d * Direction
                 if (movingCurrentDistance < d)
                 {
@@ -180,7 +204,7 @@ namespace Project_Origin
             scale = Matrix.CreateScale(0.5f, 0.5f, 0.5f);
             Vector3 position = playerGreenPosition;
             translation = Matrix.CreateTranslation(position);//Matrix.CreateTranslation(20.0f, -20.0f, 110.0f);
-            rotationZ = Matrix.CreateRotationZ(-playerGreenZRoatation);
+            rotationZ = Matrix.CreateRotationZ(playerGreenZRoatation);
             world = scale * rotationZ * translation;//* ;
             foreach (ModelMesh mesh in playerGreen.Meshes)
             {
