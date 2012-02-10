@@ -67,6 +67,10 @@ namespace Project_Origin
             this.Components.Add(this.path);
             this.Services.AddService(typeof(Path), this.path);
 
+            this.gamePlayer = new Player(this, 100, 60);
+            this.Components.Add(this.gamePlayer);
+            this.Services.AddService(typeof(Player), this.gamePlayer);
+
             this.fps = new FPS(this);
             this.Components.Add(fps);
             base.Initialize();

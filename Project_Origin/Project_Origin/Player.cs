@@ -24,11 +24,20 @@ namespace Project_Origin
         private float playerAlpha;
         private int witdth;
         private int height;
+        private double moveSpeed;
+        private BasicEffect lineEffect;
         private ICameraService camera;
         private Path path;
         KeyboardState prevKeyboardState;
-        Vector3 playerGreenPosition = new Vector3(30.0f, -20.0f, 10.0f);
-        
+        private Vector3 playerGreenPosition;
+        private float playerGreenZRoatation = 0.0f; //Facing direction
+        private List<WayPoint> movingWayPoints; //Store all the way points during moving
+        //private Vector3 movingSourcePoint;
+        private int movingDestinationPointIndex = 0;
+        private Vector3 movingDirection;
+        private float movingCurrentDistance;
+        private float movingSpeed = 0.01f;
+
         SpriteBatch spriteBatch;
         Vector2 introPosition;
         Vector2 introCenter;
@@ -40,6 +49,13 @@ namespace Project_Origin
             Start
         }
 
+        public enum PlayerMode
+        {
+            Normal,
+            Moving
+        }
+
+        PlayerMode playerMode = PlayerMode.Normal; 
 
         GameStatus gameStatus = GameStatus.Intro;
 
@@ -73,6 +89,8 @@ namespace Project_Origin
             
             playerAlphaTimer = 0;
             playerAlphaSpeed = 1;
+            lineEffect = new BasicEffect(this.Game.GraphicsDevice);
+            lineEffect.VertexColorEnabled = true;
 
             base.Initialize();
         }
@@ -82,6 +100,8 @@ namespace Project_Origin
             spriteBatch = new SpriteBatch(GraphicsDevice);
             playerGreen = game.Content.Load<Model>("Models\\playerGreen");
             playerRed = game.Content.Load<Model>("Models\\playerRed");
+
+            playerGreenPosition = new Vector3(0.0f, 0.0f, 2.0f);
 
             introTexture = game.Content.Load<Texture2D>("Models\\Intro");
             introPosition = new Vector2(game.GraphicsDevice.Viewport.Width/2, game.GraphicsDevice.Viewport.Height/2);
@@ -108,22 +128,69 @@ namespace Project_Origin
                 gameStatus = GameStatus.Start;
             if (keyboard.IsKeyDown(Keys.M))
                 gameStatus = GameStatus.Intro;
+            if (keyboard.IsKeyDown(Keys.C))
+                if(playerMode != PlayerMode.Moving)
+                    path.CleanWayPoints();
+            if (keyboard.IsKeyDown(Keys.R))
+            {
+                movingWayPoints = path.GetWayPoints();
+                if (movingWayPoints.Count > 1)
+                {
+                    movingDestinationPointIndex = 1;
+                    playerMode = PlayerMode.Moving;
+                }
+            }
+            
 
             prevKeyboardState = keyboard;
             base.Update(gameTime);
         }
 
+        public void UpdatePlayerPosition(GameTime gameTime)
+        {
+            if (playerMode == PlayerMode.Moving)
+            {
+                Vector3 movingSourcePoint = movingWayPoints[movingDestinationPointIndex - 1].CenterPos;
+                Vector3 movingDestinationPoint = movingWayPoints[movingDestinationPointIndex].CenterPos;
+                movingDirection = movingDestinationPoint - movingSourcePoint;
+                float d = movingDirection.Length();
+                movingDirection.Normalize();
+                movingCurrentDistance += (float)gameTime.ElapsedGameTime.Milliseconds * movingSpeed;
+                playerGreenZRoatation = (float)Math.Atan((movingDirection.X / movingDirection.Y));
+                //Destination = Source + d * Direction
+                if (movingCurrentDistance < d)
+                {
+                    Vector3 position = movingSourcePoint + movingCurrentDistance * movingDirection;
+                    playerGreenPosition = new Vector3(position.X, position.Y, playerGreenPosition.Z);
+                }
+                else
+                {
+                    playerGreenPosition = new Vector3(movingDestinationPoint.X, movingDestinationPoint.Y, playerGreenPosition.Z);
+                    movingDestinationPointIndex++;
+                    movingCurrentDistance = 0;
+                }
+
+                if (movingDestinationPointIndex >= movingWayPoints.Count)
+                {
+                    path.CleanWayPoints();
+                    this.playerMode = PlayerMode.Normal;
+                }
+            }
+        }
+
         public void DrawGreenPlayer(GameTime gameTime)
         {
+            UpdatePlayerPosition(gameTime);
+
             Matrix[] transforms = new Matrix[playerGreen.Bones.Count];
             playerGreen.CopyAbsoluteBoneTransformsTo(transforms);
 
             Matrix world, scale, rotationZ, translation;
-            scale = Matrix.CreateScale(1.0f, 1.0f, 1.0f);
+            scale = Matrix.CreateScale(0.5f, 0.5f, 0.5f);
             Vector3 position = playerGreenPosition;
             translation = Matrix.CreateTranslation(position);//Matrix.CreateTranslation(20.0f, -20.0f, 110.0f);
-            rotationZ = Matrix.CreateRotationZ(MathHelper.Pi/2);
-            world = scale * translation;//* rotationZ;
+            rotationZ = Matrix.CreateRotationZ(-playerGreenZRoatation);
+            world = scale * rotationZ * translation;//* ;
             foreach (ModelMesh mesh in playerGreen.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)
@@ -140,12 +207,10 @@ namespace Project_Origin
             }
 
 
-            BasicEffect lineEffect = new BasicEffect(this.GraphicsDevice);
-            lineEffect.VertexColorEnabled = true;
-            lineEffect.View = this.camera.ViewMatrix;
+            
+            /*lineEffect.View = this.camera.ViewMatrix;
             lineEffect.Projection = this.camera.ProjectMatrix; 
-                                                               
-                                                               
+                                                                                                                
             lineEffect.Alpha = playerAlpha;
             foreach (EffectPass pass in lineEffect.CurrentTechnique.Passes)
             {
@@ -167,7 +232,7 @@ namespace Project_Origin
                 this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
                                             temp, 0, 1,
                                             VertexPositionColor.VertexDeclaration);
-            }
+            }*/
         }
 
         public void DrawRedPlayer(GameTime gameTime)
@@ -176,7 +241,7 @@ namespace Project_Origin
             playerRed.CopyAbsoluteBoneTransformsTo(transforms);
 
             Matrix world, scale, rotationZ, translation;
-            scale = Matrix.CreateScale(1.0f, 1.0f, 1.0f);
+            scale = Matrix.CreateScale(0.5f, 0.5f, 0.5f);
             translation = Matrix.CreateTranslation(-30.0f, 35.0f, 10.0f);
             rotationZ = Matrix.CreateRotationZ(-MathHelper.Pi / 4 * 3);
             world = scale * rotationZ * translation;
@@ -195,8 +260,6 @@ namespace Project_Origin
             }
 
 
-            BasicEffect lineEffect = new BasicEffect(this.GraphicsDevice);
-            lineEffect.VertexColorEnabled = true;
             lineEffect.View = this.camera.ViewMatrix;
             lineEffect.Projection = this.camera.ProjectMatrix; 
 
@@ -254,6 +317,16 @@ namespace Project_Origin
                 DrawRedPlayer(gameTime);
                 base.Draw(gameTime);
             }
+        }
+
+        public Vector3 GetPlayerGreenPosition()
+        {
+            return playerGreenPosition;
+        }
+
+        public PlayerMode GetPlayerMode()
+        {
+            return playerMode;
         }
     }
 }
