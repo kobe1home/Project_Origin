@@ -199,6 +199,7 @@ namespace Project_Origin
             GraphicsDevice device = basicEffect.GraphicsDevice;
             device.DepthStencilState = DepthStencilState.Default;
 
+            BlendState prevState = device.BlendState;
             if (color.A < 255) 
             {
                 // Set renderstates for alpha blended rendering.
@@ -212,6 +213,8 @@ namespace Project_Origin
 
             // Draw the model, using BasicEffect.
             Draw(basicEffect);
+            //Restore previous blendState
+            device.BlendState = prevState;
         }
 
 
