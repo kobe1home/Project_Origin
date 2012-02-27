@@ -25,7 +25,7 @@ namespace Project_Origin
         BasicEffect defaultEfft;
 
         private static int GridWidth = 2;
-        private static Color DefaultColor = Color.Blue;
+        private static Color DefaultColor = Color.Gray;
 
         public Map(Game game, Vector3 start, int width, int heigh)
             : base(game)

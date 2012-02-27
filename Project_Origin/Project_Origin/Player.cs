@@ -40,13 +40,17 @@ namespace Project_Origin
         private Vector3 movingDirection;
         private float movingCurrentDistance;
         private float movingSpeed = 0.02f;
+        private SoundEffect soundEffectWalk;
+        private SoundEffect soundEffectShoot;
+        private Color playerDiffuseColor = Color.White;
 
         SpriteBatch spriteBatch;
 
         public enum PlayerMode
         {
             Normal,
-            Moving
+            Moving,
+            Shooting
         }
 
         PlayerMode playerMode = PlayerMode.Normal; 
@@ -72,6 +76,7 @@ namespace Project_Origin
             
             playerAlphaTimer = 0;
             playerAlphaSpeed = 1;
+            playerAlpha = 1.0f;
             lineEffect = new BasicEffect(this.Game.GraphicsDevice);
             lineEffect.VertexColorEnabled = true;
 
@@ -100,6 +105,8 @@ namespace Project_Origin
             playerGreen = game.Content.Load<Model>("Models\\playerGreen");
             playerRed = game.Content.Load<Model>("Models\\playerRed");
 
+            soundEffectWalk = this.Game.Content.Load<SoundEffect>("Sounds\\move");
+            soundEffectShoot = this.Game.Content.Load<SoundEffect>("Sounds\\rifleShoot");
             playerGreenPosition = new Vector3(0.0f, 0.0f, 2.0f);
 
             base.LoadContent();
@@ -127,6 +134,7 @@ namespace Project_Origin
                 movingWayPoints = path.GetWayPoints();
                 if (movingWayPoints.Count > 1)
                 {
+                    //soundEffectWalk.Play(1.0f, 0.0f, 0.0f);
                     movingDestinationPointIndex = 1;
                     playerMode = PlayerMode.Moving;
                 }
@@ -189,8 +197,31 @@ namespace Project_Origin
                 {
                     path.CleanWayPoints();
                     this.playerMode = PlayerMode.Normal;
+                    MediaPlayer.Stop();
                 }
             }
+        }
+
+        public bool CheckIfEnemyInSight()
+        {
+            bool bEnemyInSight = false;
+            if (playerMode != PlayerMode.Shooting)
+            {
+                Vector2 posDir = new Vector2(-40.0f, 20.0f) - new Vector2(playerGreenPosition.X, playerGreenPosition.Y);
+                posDir.Normalize();
+
+                Vector2 sightDir = new Vector2(0, 1);
+                sightDir = Vector2.Transform(sightDir, Matrix.CreateRotationZ(playerGreenZRoatation));
+                sightDir.Normalize();
+
+                float ConeThirtyDegreesDotProduct = (float)Math.Cos(MathHelper.ToRadians(30f / 2f));
+                if (Vector2.Dot(posDir, sightDir) > ConeThirtyDegreesDotProduct)
+                {
+                    bEnemyInSight = true ;
+                }
+                
+            }
+            return bEnemyInSight;
         }
 
         public void DrawGreenPlayer(GameTime gameTime)
@@ -201,7 +232,7 @@ namespace Project_Origin
             playerGreen.CopyAbsoluteBoneTransformsTo(transforms);
 
             Matrix world, scale, rotationZ, translation;
-            scale = Matrix.CreateScale(0.5f, 0.5f, 0.5f);
+            scale = Matrix.CreateScale(0.02f, 0.02f, 0.02f);
             Vector3 position = playerGreenPosition;
             translation = Matrix.CreateTranslation(position);//Matrix.CreateTranslation(20.0f, -20.0f, 110.0f);
             rotationZ = Matrix.CreateRotationZ(playerGreenZRoatation);
@@ -214,14 +245,22 @@ namespace Project_Origin
                     effect.World = transforms[mesh.ParentBone.Index] * world;
                     effect.View = this.camera.ViewMatrix;
                     effect.Projection = this.camera.ProjectMatrix;
-                                                                    
-                    effect.Alpha = playerAlpha;
+
+                    effect.Alpha = 1.0f; // playerAlpha;
 
                     mesh.Draw();
                 }
             }
 
+            if (CheckIfEnemyInSight() == true && playerMode == PlayerMode.Moving)
+            {
+                path.CleanWayPoints();
+                this.playerMode = PlayerMode.Normal;
+                MediaPlayer.Stop();
 
+                soundEffectShoot.Play(1.0f, 0.0f, 0.0f);
+                //playerDiffuseColor = Color.Red;
+            }
             
             /*lineEffect.View = this.camera.ViewMatrix;
             lineEffect.Projection = this.camera.ProjectMatrix; 
@@ -256,10 +295,10 @@ namespace Project_Origin
             playerRed.CopyAbsoluteBoneTransformsTo(transforms);
 
             Matrix world, scale, rotationZ, translation;
-            scale = Matrix.CreateScale(0.5f, 0.5f, 0.5f);
-            translation = Matrix.CreateTranslation(-30.0f, 35.0f, 10.0f);
-            rotationZ = Matrix.CreateRotationZ(-MathHelper.Pi / 4 * 3);
-            world = scale * rotationZ * translation;
+            scale = Matrix.CreateScale(0.02f, 0.02f, 0.02f);
+            translation = Matrix.CreateTranslation(-40.0f, 20.0f, 2.0f);
+            //rotationZ = Matrix.CreateRotationZ(-MathHelper.Pi / 4 * 3);
+            world = scale /** rotationZ*/ * translation;
             foreach (ModelMesh mesh in playerRed.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)
@@ -268,13 +307,14 @@ namespace Project_Origin
                     effect.World = transforms[mesh.ParentBone.Index] * world;
                     effect.View = this.camera.ViewMatrix; 
                     effect.Projection = this.camera.ProjectMatrix; 
-                    effect.Alpha = playerAlpha;
+                    effect.Alpha = 1.0f;
+                    effect.DiffuseColor = playerDiffuseColor.ToVector3();
 
                     mesh.Draw();
                 }
             }
 
-
+            /*
             lineEffect.View = this.camera.ViewMatrix;
             lineEffect.Projection = this.camera.ProjectMatrix; 
 
@@ -300,14 +340,15 @@ namespace Project_Origin
                 this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
                                             temp, 0, 1,
                                             VertexPositionColor.VertexDeclaration);
-            }
+            }*/
         }
 
         public override void Draw(GameTime gameTime)
         {
             if ( shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start)
             {
-                float timeElapse = (float)gameTime.ElapsedGameTime.Milliseconds;
+
+                /*float timeElapse = (float)gameTime.ElapsedGameTime.Milliseconds;
                 if (playerAlphaTimer > 1000) //1s
                 {
                     playerAlphaTimer = 1000;
@@ -319,7 +360,7 @@ namespace Project_Origin
                     playerAlphaSpeed *= -1;
                 }
                 playerAlphaTimer += timeElapse * playerAlphaSpeed;
-                playerAlpha = 0.6f + (float)playerAlphaTimer / 1000.0f;
+                playerAlpha = 0.6f + (float)playerAlphaTimer / 1000.0f;*/
 
                 DrawGreenPlayer(gameTime);
                 DrawRedPlayer(gameTime);
