@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project_Origin", "Project_Origin\Project_Origin\Project_Origin.csproj", "{A645F062-F321-4166-AF7E-85D66F61886D}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "Project_OriginContent", "Project_Origin\Project_OriginContent\Project_OriginContent.contentproj", "{EFC8F1DA-FAA6-4964-B74B-46AFE8E6A538}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project_OriginContent", "Project_Origin\Project_OriginContent\Project_OriginContent.contentproj", "{EFC8F1DA-FAA6-4964-B74B-46AFE8E6A538}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project_Origin_Server", "Project_Origin_Server\Project_Origin_Server.csproj", "{E9E7A55F-60CA-4B0C-978E-BDA24FA00614}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,10 @@ Global
 		{A645F062-F321-4166-AF7E-85D66F61886D}.Release|x86.Build.0 = Release|x86
 		{EFC8F1DA-FAA6-4964-B74B-46AFE8E6A538}.Debug|x86.ActiveCfg = Debug|x86
 		{EFC8F1DA-FAA6-4964-B74B-46AFE8E6A538}.Release|x86.ActiveCfg = Release|x86
+		{E9E7A55F-60CA-4B0C-978E-BDA24FA00614}.Debug|x86.ActiveCfg = Debug|x86
+		{E9E7A55F-60CA-4B0C-978E-BDA24FA00614}.Debug|x86.Build.0 = Debug|x86
+		{E9E7A55F-60CA-4B0C-978E-BDA24FA00614}.Release|x86.ActiveCfg = Release|x86
+		{E9E7A55F-60CA-4B0C-978E-BDA24FA00614}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -28,6 +28,7 @@ namespace Project_Origin
         private Path path;
         private FPS fps;
         private MainMenu mainMenu;
+        private NetworkingClient networkingClient;
 
         public enum GameStatus
         {
@@ -79,6 +80,10 @@ namespace Project_Origin
             this.gamePlayer = new Player(this, 100, 60);
             this.Components.Add(this.gamePlayer);
             this.Services.AddService(typeof(Player), this.gamePlayer);
+
+            this.networkingClient = new NetworkingClient(this);
+            this.Components.Add(this.networkingClient);
+            this.Services.AddService(typeof(NetworkingClient), this.networkingClient);
 
             this.fps = new FPS(this);
             this.Components.Add(fps);

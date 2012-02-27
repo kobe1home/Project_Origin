@@ -40,7 +40,7 @@ namespace Project_Origin
         private Vector3 movingDirection;
         private float movingCurrentDistance;
         private float movingSpeed = 0.02f;
-        private SoundEffect soundEffectWalk;
+        //private SoundEffect soundEffectWalk;
         private SoundEffect soundEffectShoot;
         private Color playerDiffuseColor = Color.White;
 
@@ -52,8 +52,8 @@ namespace Project_Origin
             Moving,
             Shooting
         }
-
         PlayerMode playerMode = PlayerMode.Normal; 
+
 
         public Player(Game game, int width, int height)
             : base(game)
@@ -105,7 +105,7 @@ namespace Project_Origin
             playerGreen = game.Content.Load<Model>("Models\\playerGreen");
             playerRed = game.Content.Load<Model>("Models\\playerRed");
 
-            soundEffectWalk = this.Game.Content.Load<SoundEffect>("Sounds\\move");
+            //soundEffectWalk = this.Game.Content.Load<SoundEffect>("Sounds\\move");
             soundEffectShoot = this.Game.Content.Load<SoundEffect>("Sounds\\rifleShoot");
             playerGreenPosition = new Vector3(0.0f, 0.0f, 2.0f);
 
