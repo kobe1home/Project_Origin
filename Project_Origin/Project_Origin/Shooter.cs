@@ -22,13 +22,13 @@ namespace Project_Origin
         KeyboardState prevKeyboardState;
 
 
-        private Camera camera;
-        private Map gameMap;
-        private Player gamePlayer;
-        private Path path;
-        private FPS fps;
-        private MainMenu mainMenu;
-        private NetworkingClient networkingClient;
+        public Camera camera;
+        public Map gameMap;
+        public Player gamePlayer;
+        public Path path;
+        public FPS fps;
+        public MainMenu mainMenu;
+        public NetworkingClient networkingClient;
 
         public enum GameStatus
         {
@@ -61,11 +61,14 @@ namespace Project_Origin
         /// </summary>
         protected override void Initialize()
         {
-            this.camera = new Camera(this , new Vector3(0,0,100), 
-                                        new Vector3(1,0, 0), 
-                                        new Vector3(0, 1, 0), 
-                                        new Vector3(0,0,0));
+            this.networkingClient = new NetworkingClient(this);
+            this.Components.Add(this.networkingClient);
+            this.Services.AddService(typeof(NetworkingClient), this.networkingClient);
 
+            this.camera = new Camera(this, new Vector3(0, 0, 100),
+                            new Vector3(1, 0, 0),
+                            new Vector3(0, 1, 0),
+                            new Vector3(0, 0, 0));
             this.Components.Add(this.camera);
             this.Services.AddService(typeof(ICameraService), this.camera);
 
@@ -77,13 +80,9 @@ namespace Project_Origin
             this.Components.Add(this.path);
             this.Services.AddService(typeof(Path), this.path);
 
-            this.gamePlayer = new Player(this, 100, 60);
+            this.gamePlayer = new Player(this);
             this.Components.Add(this.gamePlayer);
             this.Services.AddService(typeof(Player), this.gamePlayer);
-
-            this.networkingClient = new NetworkingClient(this);
-            this.Components.Add(this.networkingClient);
-            this.Services.AddService(typeof(NetworkingClient), this.networkingClient);
 
             this.fps = new FPS(this);
             this.Components.Add(fps);

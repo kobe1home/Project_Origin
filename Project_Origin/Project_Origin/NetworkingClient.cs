@@ -18,13 +18,50 @@ namespace Project_Origin
     /// </summary>
     public class NetworkingClient : Microsoft.Xna.Framework.DrawableGameComponent
     {
+        public enum IncomingMessageType
+        {
+            CommandChangeStatusToPlan,
+            CommandChangeStatusToCommit,
+
+            DataSelfPlayerInfo,
+            DataOtherPlayerInfo
+        }
+
+        public enum OutgoingMessageType
+        {
+            CommandFinishPlan,
+
+            DataPlayerInfo
+        }
+
+        public struct PlayerInfo
+        {
+            public PlayerInfo(Vector3 pos, float ori)
+            {
+                position = pos;
+                orientation = ori;
+            }
+            public Vector3 position;
+            public float orientation;
+        }
+        public PlayerInfo otherPlayerInfo = new PlayerInfo(new Vector3(0, 0, 0), 0);
+
+
+        Shooter game;
+
         NetClient client;
-        public Dictionary<long, Vector2> positions = new Dictionary<long, Vector2>();
+        
+
+
+        //Below is the column that save player information
+        Project_Origin.Player.PlayerId playerId = Project_Origin.Player.PlayerId.Red;
+
 
         public NetworkingClient(Game game)
             : base(game)
         {
             // TODO: Construct any child components here
+            this.game = (Shooter)game;
             NetPeerConfiguration config = new NetPeerConfiguration("projectorigin");
             config.EnableMessageType(NetIncomingMessageType.DiscoveryResponse);
 
@@ -40,6 +77,7 @@ namespace Project_Origin
         {
             // TODO: Add your initialization code here
             client.DiscoverLocalPeers(14242);
+
             base.Initialize();
         }
 
@@ -50,14 +88,20 @@ namespace Project_Origin
         public override void Update(GameTime gameTime)
         {
             // TODO: Add your update code here
+            
             if(true)
             {
                 //
                 // If there's input; send it to server
                 //
                 NetOutgoingMessage om = client.CreateMessage();
-                om.Write(10);
-                om.Write(20);
+                om.Write((byte)OutgoingMessageType.DataPlayerInfo);
+                Vector3 tempPos = this.game.gamePlayer.GetPlayerPosition();
+                float tempOri = this.game.gamePlayer.GetPlayerOrientation();
+                om.Write(tempPos.X);
+                om.Write(tempPos.Y);
+                om.Write(tempPos.Z);
+                om.Write(tempOri);
                 client.SendMessage(om, NetDeliveryMethod.Unreliable);
 
             }
@@ -71,14 +115,25 @@ namespace Project_Origin
                     case NetIncomingMessageType.DiscoveryResponse:
                         //just connect to first server discovered
                         client.Connect(msg.SenderEndpoint);
+                        playerId = (Project_Origin.Player.PlayerId)(msg.ReadInt32());
+                        this.game.gamePlayer.SetPlayId();
                         break;
                     case NetIncomingMessageType.Data:
                         //server sent a position update
-                        long who = msg.ReadInt64();
+                        IncomingMessageType imt = (IncomingMessageType)msg.ReadByte();
+                        if (imt == IncomingMessageType.DataOtherPlayerInfo)
+                        {
+                            otherPlayerInfo.position.X = msg.ReadFloat();
+                            otherPlayerInfo.position.Y = msg.ReadFloat();
+                            otherPlayerInfo.position.Z = msg.ReadFloat();
+                            otherPlayerInfo.orientation = msg.ReadFloat();
+                        }
+                        break;
+                        /*long who = msg.ReadInt64();
                         int x = msg.ReadInt32();
                         int y = msg.ReadInt32();
                         positions[who] = new Vector2(x, y);
-                        break;
+                        break;*/
                 }
             }
             base.Update(gameTime);
@@ -88,6 +143,11 @@ namespace Project_Origin
         {
             client.Shutdown("bye");
             base.UnloadContent();
+        }
+
+        public Project_Origin.Player.PlayerId GetPlayerId()
+        {
+            return playerId;
         }
     }
 }

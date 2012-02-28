@@ -91,11 +91,11 @@ namespace Project_Origin
             MouseState currentMouseState = Mouse.GetState();
             if (currentMouseState.ScrollWheelValue < previousMouseState.ScrollWheelValue)
             {
-                this.Position.Z += Camera.cameraSpeed * 2;
+                this.Position.Z += Camera.cameraSpeed * 4;
             }
             if (currentMouseState.ScrollWheelValue > previousMouseState.ScrollWheelValue)
             {
-                this.Position.Z -= Camera.cameraSpeed * 2;
+                this.Position.Z -= Camera.cameraSpeed * 4;
             }
             if (currentMouseState.MiddleButton == ButtonState.Pressed)
             {

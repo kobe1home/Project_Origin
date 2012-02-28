@@ -80,10 +80,9 @@ namespace Project_Origin
             spriteBatch.Begin();
             spriteBatch.DrawString(fpsFont, "Frames Per Second: "+fps, new Vector2(10, 10), Color.White);
             //spriteBatch.DrawString(fpsFont, "Frames Per Second: " + mouse.Y, new Vector2(10, 30), Color.White);
-            foreach (var kvp in client.positions)
             {
                 //use player unique identifier to choose an image
-                spriteBatch.DrawString(fpsFont, "" + kvp.Key + ": " + kvp.Value.X + " " + kvp.Value.Y, new Vector2(10, 30), Color.White);
+                spriteBatch.DrawString(fpsFont, "" + client.otherPlayerInfo.position + ": ", new Vector2(10, 30), Color.White);
             }
             spriteBatch.End();
             //this.device.RasterizerState = prevRs;

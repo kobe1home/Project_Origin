@@ -2,13 +2,50 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
 using System.Threading;
+using Microsoft.Xna.Framework;
 using Lidgren.Network;
 
 namespace Project_Origin_Server
 {
     class Program
     {
+        struct PlayerInfo
+        {
+            public PlayerInfo(Vector3 pos, float ori)
+            {
+                position = pos;
+                orientation = ori;
+            }
+            public Vector3 position;
+            public float orientation;
+        }
+
+        static Dictionary<IPEndPoint, PlayerInfo> playerInfoDict = new Dictionary<IPEndPoint, PlayerInfo>(); //key: senderEndpoint value: a list of position and orientation
+        
+        public enum PlayerId
+        {
+            Green,
+            Red
+        }
+
+        public enum OutgoingMessageType
+        {
+            CommandChangeStatusToPlan,
+            CommandChangeStatusToCommit,
+            
+            DataSelfPlayerInfo,
+            DataOtherPlayerInfo
+        }
+
+        public enum IncomingMessageType
+        {
+            CommandFinishPlan,
+            
+            DataPlayerInfo
+        }
+
         static void Main(string[] args)
         {
             NetPeerConfiguration config = new NetPeerConfiguration("projectorigin");
@@ -18,6 +55,7 @@ namespace Project_Origin_Server
             // Create and start server
             NetServer server = new NetServer(config);
             server.Start();
+            Console.WriteLine("Game Server starts");
 
             //Schedule initial sending of position updates
             double nextSendUpdates = NetTime.Now;
@@ -31,24 +69,54 @@ namespace Project_Origin_Server
                     switch (msg.MessageType)
                     {
                         case NetIncomingMessageType.DiscoveryRequest:
-                        //
-                        // Server received a discovery request from a client; send a discovery response (with no extra data attached)
-                        //
-                            server.SendDiscoveryResponse(null, msg.SenderEndpoint);
-                            Console.WriteLine("Connect to" + msg.SenderEndpoint);
+                            //
+                            // Server received a discovery request from a client; send a discovery response (with no extra data attached)
+                            //
+                            NetOutgoingMessage com = server.CreateMessage();
+                            switch (server.ConnectionsCount)
+                            {
+                                case 0:
+                                    com.Write((int)PlayerId.Green);
+                                    break;
+                                case 1:
+                                    com.Write((int)PlayerId.Red);
+                                    break;
+                            }
+                            server.SendDiscoveryResponse(com, msg.SenderEndpoint);
+                            Console.WriteLine("Connect to: " + msg.SenderEndpoint);
                             break;
                         case NetIncomingMessageType.Data:
-                        //
-                        // The client sent input to the server
-                        //
-                            int xinput = msg.ReadInt32();
-                            int yinput = msg.ReadInt32();
+                            //
+                            // The client sent input to the server
+                            //
+                            IncomingMessageType imt = (IncomingMessageType)msg.ReadByte();
+                            if (imt == IncomingMessageType.CommandFinishPlan)
+                            {
 
-                            int[] pos = msg.SenderConnection.Tag as int[];
+                            }
+                            else if (imt == IncomingMessageType.DataPlayerInfo)
+                            {
+                                Vector3 tempPos;
+                                tempPos.X = msg.ReadFloat();
+                                tempPos.Y = msg.ReadFloat();
+                                tempPos.Z = msg.ReadFloat();
 
-                            pos[0] = xinput;
-							pos[1] = yinput;
+                                float tempOrientation;
+                                tempOrientation = msg.ReadFloat();
+
+                                playerInfoDict[msg.SenderEndpoint] = new PlayerInfo(tempPos, tempOrientation);
+                            }
                             break;
+
+                            
+                            //int xinput = msg.ReadInt32();
+                            //int yinput = msg.ReadInt32();
+
+                            //int[] pos = msg.SenderConnection.Tag as int[];
+
+                            //pos[0] = xinput;
+                            //pos[1] = yinput;
+                            //break;
                     }
 
                     //
@@ -60,24 +128,36 @@ namespace Project_Origin_Server
                         // Yes, it's time to send position updates
 
                         // for each player...
-
                         foreach (NetConnection player in server.Connections)
                         {
-                            //send information about every other player(actually including self)
+                            if (!playerInfoDict.ContainsKey(player.RemoteEndpoint))
+                                playerInfoDict[player.RemoteEndpoint] = new PlayerInfo(new Vector3(0, 0, 0), 0);
+                        }
+                        foreach (NetConnection player in server.Connections)
+                        {
+                            //send information about every other player(not including self)
                             foreach(NetConnection otherPlayer in server.Connections)
                             {
+                                if (player.RemoteEndpoint == otherPlayer.RemoteEndpoint)
+                                    continue;
+
                                 // send position update about 'otherPlayer' to 'player'
                                 NetOutgoingMessage om = server.CreateMessage();
-
+                                om.Write((byte)OutgoingMessageType.DataOtherPlayerInfo);
                                 //Write who this position is for
-                                om.Write(otherPlayer.RemoteUniqueIdentifier);
+                                //om.Write(otherPlayer.RemoteUniqueIdentifier);
 
-                                if(otherPlayer.Tag == null)
-                                    otherPlayer.Tag = new int[2];
+                                //if(otherPlayer.Tag == null)
+                                //    otherPlayer.Tag = new int[2];
 
-                                int[] pos = otherPlayer.Tag as int[];
-                                om.Write(pos[0]);
-                                om.Write(pos[1]);
+                                //int[] pos = otherPlayer.Tag as int[];
+                                //om.Write(pos[0]);
+                                //om.Write(pos[1]);
+                                PlayerInfo playerInfo = playerInfoDict[otherPlayer.RemoteEndpoint];
+                                om.Write(playerInfo.position.X);
+                                om.Write(playerInfo.position.Y);
+                                om.Write(playerInfo.position.Z);
+                                om.Write(playerInfo.orientation);
 
                                 //send message
                                 server.SendMessage(om, player, NetDeliveryMethod.Unreliable);
