@@ -28,6 +28,13 @@ namespace Project_Origin
         Vector2 menuCenter;
         Texture2D menuTexture;
 
+        Vector2 backgroundPlayerPicPos;
+        Vector2 backgroundPlayerPicCenter;
+        Texture2D backgroundPlayerPicTexture;
+
+        Song soundEffect;
+
+
         public MainMenu(Game game)
             : base(game)
         {
@@ -49,6 +56,10 @@ namespace Project_Origin
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            backgroundPlayerPicTexture = this.Game.Content.Load<Texture2D>("Models\\backgroundPlayer");
+            backgroundPlayerPicPos = new Vector2(-20, this.Game.GraphicsDevice.Viewport.Height / 2- 50);
+            backgroundPlayerPicCenter = new Vector2(0, 0);
+
             backgroundPicTexture = this.Game.Content.Load<Texture2D>("Models\\background");
             backgroundPicPos = new Vector2(this.Game.GraphicsDevice.Viewport.Width / 2, this.Game.GraphicsDevice.Viewport.Height / 2);
             backgroundPicCenter = new Vector2(backgroundPicTexture.Width / 2, backgroundPicTexture.Height / 2);
@@ -57,12 +68,13 @@ namespace Project_Origin
             menuPos = new Vector2(this.Game.GraphicsDevice.Viewport.Width / 2, this.Game.GraphicsDevice.Viewport.Height / 4 * 3);
             menuCenter = new Vector2(menuTexture.Width / 2, menuTexture.Height / 2);
 
+            soundEffect = this.Game.Content.Load<Song>("Sounds\\bgm");
             this.shooter = this.Game.Services.GetService(typeof(Shooter)) as Shooter;
             if (this.shooter == null)
             {
                 throw new InvalidOperationException("Shooter not found.");
             }
-
+            MediaPlayer.Play(soundEffect);
             base.LoadContent();
         }
 
@@ -81,10 +93,17 @@ namespace Project_Origin
         {
             if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.MainMenu)
             {
+                //soundEffect.Play();
                 spriteBatch.Begin();
+               
+
                 //Draw background
                 spriteBatch.Draw(backgroundPicTexture, backgroundPicPos, null, Color.White,
                     0.0f, backgroundPicCenter, 1.0f, SpriteEffects.None, 0.0f);
+
+                //Draw background player image
+                spriteBatch.Draw(backgroundPlayerPicTexture, backgroundPlayerPicPos, null, Color.White,
+                    0.0f, backgroundPlayerPicCenter, 0.7f, SpriteEffects.None, 0.0f);
 
                 //Draw main menu
                 spriteBatch.Draw(menuTexture, menuPos, null, Color.White,
@@ -92,6 +111,8 @@ namespace Project_Origin
 
                 spriteBatch.End();
             }
+            else
+                MediaPlayer.Stop();
         }
     }
 }

@@ -28,6 +28,7 @@ namespace Project_Origin
 
         
         private KeyboardState previousState;
+        public MouseState previousMouseState;
 
 
         private static float nearPlane = 5.0f;
@@ -52,6 +53,7 @@ namespace Project_Origin
         public override void Initialize()
         {
             this.previousState = Keyboard.GetState();
+            this.previousMouseState = Mouse.GetState();
             base.Initialize();
         }
 
@@ -61,6 +63,7 @@ namespace Project_Origin
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
+            //Keyboard State
             KeyboardState currentState = Keyboard.GetState();
             if (currentState.IsKeyDown(Keys.Right))
             {
@@ -84,6 +87,41 @@ namespace Project_Origin
             }
             this.previousState = currentState;
 
+            //Mouse State
+            MouseState currentMouseState = Mouse.GetState();
+            if (currentMouseState.ScrollWheelValue < previousMouseState.ScrollWheelValue)
+            {
+                this.Position.Z += Camera.cameraSpeed * 4;
+            }
+            if (currentMouseState.ScrollWheelValue > previousMouseState.ScrollWheelValue)
+            {
+                this.Position.Z -= Camera.cameraSpeed * 4;
+            }
+            if (currentMouseState.MiddleButton == ButtonState.Pressed)
+            {
+                if (currentMouseState.X > previousMouseState.X)
+                {
+                    this.Position.X -= Camera.cameraSpeed;
+                    this.cameraLook.X -= Camera.cameraSpeed;
+                }
+                if (currentMouseState.X < previousMouseState.X)
+                {
+                    this.Position.X += Camera.cameraSpeed;
+                    this.cameraLook.X += Camera.cameraSpeed;
+                }
+                if (currentMouseState.Y < previousMouseState.Y)
+                {
+                    this.Position.Y -= Camera.cameraSpeed;
+                    this.cameraLook.Y -= Camera.cameraSpeed;
+                }
+                if (currentMouseState.Y > previousMouseState.Y)
+                {
+                    this.Position.Y += Camera.cameraSpeed;
+                    this.cameraLook.Y += Camera.cameraSpeed;
+                }
+            }
+            this.previousMouseState = currentMouseState;
+            
             this.setupViewProjection();
 
             base.Update(gameTime);

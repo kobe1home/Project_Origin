@@ -113,7 +113,7 @@ namespace Project_Origin
                 {
                     if (this.points.Count == 0 && this.lines.Count == 0) //Add player's position as first waypoint
                     {
-                        Vector3 playerPosition = player.GetPlayerGreenPosition();
+                        Vector3 playerPosition = player.GetPlayerPosition();
                         playerPosition.Z = WayPoint.CubeSize / 2;
                         WayPoint firstWaypoint = new WayPoint(this.Game.GraphicsDevice, playerPosition);
                         this.points.Add(firstWaypoint);
