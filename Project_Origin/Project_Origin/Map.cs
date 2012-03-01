@@ -15,6 +15,8 @@ namespace Project_Origin
         private int witdth;
         private int heigh;
         private Vector3 start;
+
+
         private VertexPositionColor[][] pointMatrics;
         private ICameraService camera;
         private GraphicsDevice device;
@@ -122,6 +124,7 @@ namespace Project_Origin
         }
 
         //Get methods
+        /*
         public int getWitdth()
         {
             return this.witdth;
@@ -134,7 +137,19 @@ namespace Project_Origin
         {
             return this.start;
         }
+        */
+        public int Witdth
+        {
+            get { return witdth; }
+        }
+        public int Heigh
+        {
+            get { return heigh; }
+        }
 
-
+        public Vector3 Start
+        {
+            get { return start; }
+        }
     }
 }
