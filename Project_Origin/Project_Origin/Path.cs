@@ -19,6 +19,8 @@ namespace Project_Origin
     {
         private ICameraService camera;
         private Map gameMap;
+        private Player player;
+        private Shooter shooter;
 
         BasicEffect defaultEfft;
 
@@ -32,6 +34,16 @@ namespace Project_Origin
             this.defaultEfft =  new BasicEffect(game.GraphicsDevice);
             this.previousState = Mouse.GetState();
             // TODO: Construct any child components here
+            
+        }
+
+        /// <summary>
+        /// Allows the game component to perform any initialization it needs to before starting
+        /// to run.  This is where it can query for any required services and load content.
+        /// </summary>
+        public override void Initialize()
+        {
+            // TODO: Add your initialization code here
             this.camera = this.Game.Services.GetService(typeof(ICameraService)) as ICameraService;
 
             if (this.camera == null)
@@ -45,15 +57,18 @@ namespace Project_Origin
             {
                 throw new InvalidOperationException("Map not found.");
             }
-        }
 
-        /// <summary>
-        /// Allows the game component to perform any initialization it needs to before starting
-        /// to run.  This is where it can query for any required services and load content.
-        /// </summary>
-        public override void Initialize()
-        {
-            // TODO: Add your initialization code here
+            this.player = this.Game.Services.GetService(typeof(Player)) as Player;
+            if (this.player == null)
+            {
+                throw new InvalidOperationException("Player not found.");
+            }
+
+            this.shooter = this.Game.Services.GetService(typeof(Shooter)) as Shooter;
+            if (this.shooter == null)
+            {
+                throw new InvalidOperationException("Shooter not found.");
+            }
 
             base.Initialize();
         }
@@ -71,13 +86,18 @@ namespace Project_Origin
 
         public override void Draw(GameTime gameTime)
         {
-            this.drawAllWayPoints();
-
+            if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start)
+            {
+                this.drawAllWayPoints();
+            }
             //this.device.RasterizerState = prevRs;
             base.Draw(gameTime);
         }
         private void CheckMouseClick()
         {
+            if (player.GetPlayerMode() == Project_Origin.Player.PlayerMode.Moving)
+                return;
+
             MouseState mouseState = Mouse.GetState();
 
 
@@ -91,6 +111,15 @@ namespace Project_Origin
                 Nullable<float> result = pickRay.Intersects(box);
                 if (result.HasValue == true)
                 {
+                    if (this.points.Count == 0 && this.lines.Count == 0) //Add player's position as first waypoint
+                    {
+                        Vector3 playerPosition = player.GetPlayerGreenPosition();
+                        playerPosition.Z = WayPoint.CubeSize / 2;
+                        WayPoint firstWaypoint = new WayPoint(this.Game.GraphicsDevice, playerPosition);
+                        this.points.Add(firstWaypoint);
+                        this.lines.Add(new VertexPositionColor(firstWaypoint.CenterPos, Color.White));
+                    }
+
                     Vector3 selectedPoint = pickRay.Position + pickRay.Direction * result.Value;
                     WayPoint waypoint = new WayPoint(this.Game.GraphicsDevice, selectedPoint + new Vector3(0.0f, 0.0f, WayPoint.CubeSize / 2));
                     this.points.Add(waypoint);
@@ -147,7 +176,6 @@ namespace Project_Origin
         private void drawAllLines()
         {
             
-
             defaultEfft.VertexColorEnabled = true;
             defaultEfft.World = Matrix.Identity;
             defaultEfft.View = this.camera.ViewMatrix;
@@ -161,6 +189,17 @@ namespace Project_Origin
                                                                     this.lines.Count - 1);
             }
 
+        }
+
+        public void CleanWayPoints()
+        {
+            this.points.Clear();
+            this.lines.Clear();
+        }
+
+        public List<WayPoint> GetWayPoints()
+        {
+            return points;
         }
     }
 }

@@ -18,30 +18,38 @@ namespace Project_Origin
     public class Player : Microsoft.Xna.Framework.DrawableGameComponent
     {
         private Game game;
+        private ICameraService camera;
+        private Path path;
+        private Shooter shooter;
+
+
         private Model playerGreen, playerRed;
         private float playerAlphaTimer;
         private float playerAlphaSpeed;
         private float playerAlpha;
         private int witdth;
         private int height;
-        private ICameraService camera;
-        private Path path;
+        private double moveSpeed;
+        private BasicEffect lineEffect;
         KeyboardState prevKeyboardState;
-        Vector3 playerGreenPosition = new Vector3(30.0f, -20.0f, 10.0f);
-        
-        SpriteBatch spriteBatch;
-        Vector2 introPosition;
-        Vector2 introCenter;
+        private Vector3 playerGreenPosition;
+        private float playerGreenZRoatation = 0.0f; //Facing direction
+        private List<WayPoint> movingWayPoints; //Store all the way points during moving
+        //private Vector3 movingSourcePoint;
+        private int movingDestinationPointIndex = 0;
+        private Vector3 movingDirection;
+        private float movingCurrentDistance;
+        private float movingSpeed = 0.02f;
 
-        Texture2D introTexture;
-        enum GameStatus
+        SpriteBatch spriteBatch;
+
+        public enum PlayerMode
         {
-            Intro,
-            Start
+            Normal,
+            Moving
         }
 
-
-        GameStatus gameStatus = GameStatus.Intro;
+        PlayerMode playerMode = PlayerMode.Normal; 
 
         public Player(Game game, int width, int height)
             : base(game)
@@ -50,17 +58,8 @@ namespace Project_Origin
             this.witdth = width;
             this.height = height;
             this.prevKeyboardState = Keyboard.GetState();
-            this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
-            if (this.camera == null)
-            {
-                throw new InvalidOperationException("ICameraService not found.");
-            }
 
-            this.path = this.game.Services.GetService(typeof(Path)) as Path;
-            if (this.path == null)
-            {
-                throw new InvalidOperationException("Path not found.");
-            }
+
             
         }
 
@@ -73,7 +72,25 @@ namespace Project_Origin
             
             playerAlphaTimer = 0;
             playerAlphaSpeed = 1;
+            lineEffect = new BasicEffect(this.Game.GraphicsDevice);
+            lineEffect.VertexColorEnabled = true;
 
+            this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
+            if (this.camera == null)
+            {
+                throw new InvalidOperationException("ICameraService not found.");
+            }
+
+            this.path = this.game.Services.GetService(typeof(Path)) as Path;
+            if (this.path == null)
+            {
+                throw new InvalidOperationException("Path not found.");
+            }
+            this.shooter = this.game.Services.GetService(typeof(Shooter)) as Shooter;
+            if (this.shooter == null)
+            {
+                throw new InvalidOperationException("Shooter not found.");
+            }
             base.Initialize();
         }
 
@@ -83,9 +100,7 @@ namespace Project_Origin
             playerGreen = game.Content.Load<Model>("Models\\playerGreen");
             playerRed = game.Content.Load<Model>("Models\\playerRed");
 
-            introTexture = game.Content.Load<Texture2D>("Models\\Intro");
-            introPosition = new Vector2(game.GraphicsDevice.Viewport.Width/2, game.GraphicsDevice.Viewport.Height/2);
-            introCenter = new Vector2(introTexture.Width/2, introTexture.Height/2);
+            playerGreenPosition = new Vector3(0.0f, 0.0f, 2.0f);
 
             base.LoadContent();
         }
@@ -104,26 +119,93 @@ namespace Project_Origin
             if (keyboard.IsKeyDown(Keys.Right))
                 playerGreenPosition.X += 0.1f;
             */
-            if (keyboard.IsKeyDown(Keys.Enter))
-                gameStatus = GameStatus.Start;
-            if (keyboard.IsKeyDown(Keys.M))
-                gameStatus = GameStatus.Intro;
+            if (keyboard.IsKeyDown(Keys.C))
+                if(playerMode != PlayerMode.Moving)
+                    path.CleanWayPoints();
+            if (keyboard.IsKeyDown(Keys.R))
+            {
+                movingWayPoints = path.GetWayPoints();
+                if (movingWayPoints.Count > 1)
+                {
+                    movingDestinationPointIndex = 1;
+                    playerMode = PlayerMode.Moving;
+                }
+            }
+            
 
             prevKeyboardState = keyboard;
             base.Update(gameTime);
         }
 
+        public float CalcPlayerRotationFromMovingDirection(Vector3 movingDirection)
+        {
+            float zRotation = 0.0f;
+            if (movingDirection.X > 0 && movingDirection.Y > 0)
+            {
+                zRotation = 2 * MathHelper.Pi - (float)Math.Atan((movingDirection.X / movingDirection.Y));
+            }
+            else if(movingDirection.X > 0 && movingDirection.Y < 0)
+            {
+                zRotation = MathHelper.Pi - (float)Math.Atan((movingDirection.X / movingDirection.Y));
+            }
+            else if (movingDirection.X < 0 && movingDirection.Y < 0)
+            {
+                zRotation = MathHelper.Pi + (float)Math.Atan((-movingDirection.X / movingDirection.Y));
+            }
+            else if (movingDirection.X < 0 && movingDirection.Y > 0)
+            {
+                zRotation = (float)Math.Atan((-movingDirection.X / movingDirection.Y));
+            }
+
+            return zRotation;
+        }
+
+        public void UpdatePlayerPosition(GameTime gameTime)
+        {
+            if (playerMode == PlayerMode.Moving)
+            {
+                Vector3 movingSourcePoint = movingWayPoints[movingDestinationPointIndex - 1].CenterPos;
+                Vector3 movingDestinationPoint = movingWayPoints[movingDestinationPointIndex].CenterPos;
+                movingDirection = movingDestinationPoint - movingSourcePoint;
+                float d = movingDirection.Length();
+                movingDirection.Normalize();
+                movingCurrentDistance += (float)gameTime.ElapsedGameTime.Milliseconds * movingSpeed;
+                playerGreenZRoatation = CalcPlayerRotationFromMovingDirection(movingDirection);
+                
+                //Destination = Source + d * Direction
+                if (movingCurrentDistance < d)
+                {
+                    Vector3 position = movingSourcePoint + movingCurrentDistance * movingDirection;
+                    playerGreenPosition = new Vector3(position.X, position.Y, playerGreenPosition.Z);
+                }
+                else
+                {
+                    playerGreenPosition = new Vector3(movingDestinationPoint.X, movingDestinationPoint.Y, playerGreenPosition.Z);
+                    movingDestinationPointIndex++;
+                    movingCurrentDistance = 0;
+                }
+
+                if (movingDestinationPointIndex >= movingWayPoints.Count)
+                {
+                    path.CleanWayPoints();
+                    this.playerMode = PlayerMode.Normal;
+                }
+            }
+        }
+
         public void DrawGreenPlayer(GameTime gameTime)
         {
+            UpdatePlayerPosition(gameTime);
+
             Matrix[] transforms = new Matrix[playerGreen.Bones.Count];
             playerGreen.CopyAbsoluteBoneTransformsTo(transforms);
 
             Matrix world, scale, rotationZ, translation;
-            scale = Matrix.CreateScale(1.0f, 1.0f, 1.0f);
+            scale = Matrix.CreateScale(0.5f, 0.5f, 0.5f);
             Vector3 position = playerGreenPosition;
             translation = Matrix.CreateTranslation(position);//Matrix.CreateTranslation(20.0f, -20.0f, 110.0f);
-            rotationZ = Matrix.CreateRotationZ(MathHelper.Pi/2);
-            world = scale * translation;//* rotationZ;
+            rotationZ = Matrix.CreateRotationZ(playerGreenZRoatation);
+            world = scale * rotationZ * translation;//* ;
             foreach (ModelMesh mesh in playerGreen.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)
@@ -140,12 +222,10 @@ namespace Project_Origin
             }
 
 
-            BasicEffect lineEffect = new BasicEffect(this.GraphicsDevice);
-            lineEffect.VertexColorEnabled = true;
-            lineEffect.View = this.camera.ViewMatrix;
+            
+            /*lineEffect.View = this.camera.ViewMatrix;
             lineEffect.Projection = this.camera.ProjectMatrix; 
-                                                               
-                                                               
+                                                                                                                
             lineEffect.Alpha = playerAlpha;
             foreach (EffectPass pass in lineEffect.CurrentTechnique.Passes)
             {
@@ -167,7 +247,7 @@ namespace Project_Origin
                 this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
                                             temp, 0, 1,
                                             VertexPositionColor.VertexDeclaration);
-            }
+            }*/
         }
 
         public void DrawRedPlayer(GameTime gameTime)
@@ -176,7 +256,7 @@ namespace Project_Origin
             playerRed.CopyAbsoluteBoneTransformsTo(transforms);
 
             Matrix world, scale, rotationZ, translation;
-            scale = Matrix.CreateScale(1.0f, 1.0f, 1.0f);
+            scale = Matrix.CreateScale(0.5f, 0.5f, 0.5f);
             translation = Matrix.CreateTranslation(-30.0f, 35.0f, 10.0f);
             rotationZ = Matrix.CreateRotationZ(-MathHelper.Pi / 4 * 3);
             world = scale * rotationZ * translation;
@@ -195,8 +275,6 @@ namespace Project_Origin
             }
 
 
-            BasicEffect lineEffect = new BasicEffect(this.GraphicsDevice);
-            lineEffect.VertexColorEnabled = true;
             lineEffect.View = this.camera.ViewMatrix;
             lineEffect.Projection = this.camera.ProjectMatrix; 
 
@@ -227,14 +305,7 @@ namespace Project_Origin
 
         public override void Draw(GameTime gameTime)
         {
-            if (gameStatus == GameStatus.Intro)
-            {
-                spriteBatch.Begin();
-                spriteBatch.Draw(introTexture, introPosition, null, Color.White,
-                    0.0f, introCenter, 1.0f, SpriteEffects.None, 0.0f);
-                spriteBatch.End();
-            }
-            else
+            if ( shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start)
             {
                 float timeElapse = (float)gameTime.ElapsedGameTime.Milliseconds;
                 if (playerAlphaTimer > 1000) //1s
@@ -254,6 +325,16 @@ namespace Project_Origin
                 DrawRedPlayer(gameTime);
                 base.Draw(gameTime);
             }
+        }
+
+        public Vector3 GetPlayerGreenPosition()
+        {
+            return playerGreenPosition;
+        }
+
+        public PlayerMode GetPlayerMode()
+        {
+            return playerMode;
         }
     }
 }

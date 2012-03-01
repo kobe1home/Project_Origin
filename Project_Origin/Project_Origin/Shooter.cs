@@ -27,7 +27,16 @@ namespace Project_Origin
         private Player gamePlayer;
         private Path path;
         private FPS fps;
+        private MainMenu mainMenu;
 
+        public enum GameStatus
+        {
+            MainMenu,
+            Intro,
+            Start
+        }
+        
+        private GameStatus gameStatus = GameStatus.MainMenu;
 
         public Shooter()
         {
@@ -67,8 +76,18 @@ namespace Project_Origin
             this.Components.Add(this.path);
             this.Services.AddService(typeof(Path), this.path);
 
+            this.gamePlayer = new Player(this, 100, 60);
+            this.Components.Add(this.gamePlayer);
+            this.Services.AddService(typeof(Player), this.gamePlayer);
+
             this.fps = new FPS(this);
             this.Components.Add(fps);
+
+            this.mainMenu = new MainMenu(this);
+            this.Components.Add(mainMenu);
+
+            this.Services.AddService(typeof(Shooter), this);
+
             base.Initialize();
         }
 
@@ -111,6 +130,13 @@ namespace Project_Origin
             if (keyboard.IsKeyDown(Keys.F11) && prevKeyboardState.IsKeyUp(Keys.F11))
                 this.IsFullScreen = !this.IsFullScreen;
 
+            if (keyboard.IsKeyDown(Keys.D1) && gameStatus == GameStatus.MainMenu)
+                gameStatus = GameStatus.Intro;
+            if (keyboard.IsKeyDown(Keys.D2) && gameStatus == GameStatus.MainMenu)
+                gameStatus = GameStatus.Start;
+            if (keyboard.IsKeyDown(Keys.M) && gameStatus != GameStatus.MainMenu)
+                gameStatus = GameStatus.MainMenu;
+
             prevKeyboardState = keyboard;
 
             base.Update(gameTime);
@@ -142,6 +168,11 @@ namespace Project_Origin
                     graphics.ApplyChanges();
                 }
             }
+        }
+
+        public GameStatus GetGameStatus()
+        {
+            return gameStatus;
         }
        
     }
