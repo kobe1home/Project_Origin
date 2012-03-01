@@ -114,6 +114,7 @@
     <Compile Include="ICameraService.cs" />
     <Compile Include="MainMenu.cs" />
     <Compile Include="Path.cs" />
+    <Compile Include="Room.cs" />
     <Compile Include="VertexPositionNormal.cs" />
     <Compile Include="WayPoint.cs" />
     <Compile Include="DefaultEffect.cs" />
