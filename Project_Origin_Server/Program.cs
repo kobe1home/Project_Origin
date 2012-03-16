@@ -160,12 +160,12 @@ namespace Project_Origin_Server
                                 om.Write(playerInfo.orientation);
 
                                 //send message
-                                server.SendMessage(om, player, NetDeliveryMethod.Unreliable);
+                                server.SendMessage(om, player, NetDeliveryMethod.ReliableOrdered);
                             }
 
                         }
                         //schedule next update
-                        nextSendUpdates += (1.0 / 30.0);
+                        nextSendUpdates += (1.0 / 10.0);
 
                     }
                 }

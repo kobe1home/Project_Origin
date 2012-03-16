@@ -30,6 +30,9 @@ namespace Project_Origin
         static float greenPlayerZRoatation = 0.0f;
         static Vector3 redPlayerPosition = new Vector3(-45.0f, 25.0f, 2.0f);
         static float redPlayerZRoatation = MathHelper.Pi;
+        static Color greenPlayerColor = Color.Green;
+        static Color redPlayerColor = Color.Red;
+
 
         #endregion default properties of two kinds of player
 
@@ -39,6 +42,7 @@ namespace Project_Origin
         private Vector3 opponentPosition;
         private float opponentZRoatation; //Facing direction
 
+        private Color playerDiffuseColor = Color.White;
         private float sightDistance = 30;
         private float playerAlphaTimer;
         private float playerAlphaSpeed;
@@ -57,7 +61,6 @@ namespace Project_Origin
         private float movingSpeed = 0.02f;
         //private SoundEffect soundEffectWalk;
         private SoundEffect soundEffectShoot;
-        private Color playerDiffuseColor = Color.White;
 
         SpriteBatch spriteBatch;
 
@@ -149,6 +152,7 @@ namespace Project_Origin
                 player = game.Content.Load<Model>("Models\\playerGreen");
                 playerPosition = greenPlayerPosition;
                 playerZRoatation = greenPlayerZRoatation;
+                playerDiffuseColor = greenPlayerColor;
 
                 opponent = game.Content.Load<Model>("Models\\playerRed");
                 opponentPosition = redPlayerPosition;
@@ -159,6 +163,7 @@ namespace Project_Origin
                 player = game.Content.Load<Model>("Models\\playerRed");
                 playerPosition = redPlayerPosition;
                 playerZRoatation = redPlayerZRoatation;
+                playerDiffuseColor = redPlayerColor;
 
                 opponent = game.Content.Load<Model>("Models\\playerGreen");
                 opponentPosition = greenPlayerPosition;
@@ -255,12 +260,50 @@ namespace Project_Origin
             }
         }
 
+        public bool CheckIfWallBlockExist()
+        {
+            //Use DDA algorithm to calculate the line from player to enemy
+
+            bool bBlockExist = false;
+
+            float increx, increy, x, y;
+            int steps, i;
+
+            if (Math.Abs(opponentPosition.X - playerPosition.X) > Math.Abs(opponentPosition.Y - playerPosition.Y))
+            {
+                steps = (int)Math.Abs(opponentPosition.X - playerPosition.X);
+                increx = 2;
+                increy = (float)(opponentPosition.Y - playerPosition.Y) / steps;
+            }
+            else
+            {
+                steps = (int)Math.Abs(opponentPosition.Y - playerPosition.Y);
+                increx = (float)(opponentPosition.X - playerPosition.X) / steps;
+                increy = 2;
+            }
+            x = playerPosition.X;
+            y = playerPosition.Y;
+
+            for (i = 1; i <= steps; ++i)
+            {
+                //Check if block(x, y) is a wall
+                x += increx;
+                y += increx;
+            }
+
+            return bBlockExist;
+        }
+
         public bool CheckIfEnemyInSight()
         {
             bool bEnemyInSight = false;
             if (playerMode != PlayerMode.Shooting)
             {
-                Vector2 posDir = new Vector2(-40.0f, 20.0f) - new Vector2(playerPosition.X, playerPosition.Y);
+                //Check if enemy is in line of sight
+                Vector2 posDir = new Vector2(opponentPosition.X, opponentPosition.Y) - new Vector2(playerPosition.X, playerPosition.Y);
+                if (posDir.Length() > sightDistance / 4.0 * 3.0)
+                    return bEnemyInSight;
+
                 posDir.Normalize();
 
                 Vector2 sightDir = new Vector2(0, 1);
@@ -270,7 +313,9 @@ namespace Project_Origin
                 float ConeThirtyDegreesDotProduct = (float)Math.Cos(MathHelper.ToRadians(30f / 2f));
                 if (Vector2.Dot(posDir, sightDir) > ConeThirtyDegreesDotProduct)
                 {
-                    bEnemyInSight = true ;
+                    //If in line of sight, then check if there are some blocks between player and enemy
+                    
+                    bEnemyInSight = ! CheckIfWallBlockExist();
                 }
                 
             }
@@ -298,7 +343,7 @@ namespace Project_Origin
                     effect.World = transforms[mesh.ParentBone.Index] * world;
                     effect.View = this.camera.ViewMatrix;
                     effect.Projection = this.camera.ProjectMatrix;
-
+                    effect.DiffuseColor = playerDiffuseColor.ToVector3();
                     effect.Alpha = 1.0f; // playerAlpha;
 
                     mesh.Draw();
