@@ -113,14 +113,18 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="CubePrimitive.cs" />
+    <Compile Include="Empty.cs" />
     <Compile Include="FPS.cs" />
     <Compile Include="GeometricPrimitive.cs" />
     <Compile Include="ICameraService.cs" />
+    <Compile Include="InternalMap.cs" />
     <Compile Include="MainMenu.cs" />
     <Compile Include="NetworkingClient.cs" />
+    <Compile Include="Node.cs" />
     <Compile Include="Path.cs" />
     <Compile Include="Room.cs" />
     <Compile Include="VertexPositionNormal.cs" />
+    <Compile Include="Wall.cs" />
     <Compile Include="WayPoint.cs" />
     <Compile Include="DefaultEffect.cs" />
     <Compile Include="Map.cs" />
