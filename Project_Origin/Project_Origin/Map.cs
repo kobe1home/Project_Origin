@@ -15,17 +15,20 @@ namespace Project_Origin
         private int witdth;
         private int heigh;
         private Vector3 start;
+
+        private InternalMap internalMap;
+
         private VertexPositionColor[][] pointMatrics;
         private ICameraService camera;
         private GraphicsDevice device;
         private Game game;
         private Shooter shooter;
 
-        //private MouseState previousState;
-        BasicEffect defaultEfft;
-
-        private static int GridWidth = 2;
+        private BasicEffect defaultEfft;
         private static Color DefaultColor = Color.Orange;
+
+
+        public static int GridWidth = 2;
 
         public Map(Game game, Vector3 start, int width, int heigh)
             : base(game)
@@ -44,7 +47,8 @@ namespace Project_Origin
                 throw new InvalidOperationException("ICameraService not found.");
             }
 
-           
+            this.internalMap = new InternalMap(this.game, this.witdth, this.heigh, 5, 5);
+            this.internalMap.GenerateRandomMap();
         }
 
         public override void Initialize()
@@ -78,6 +82,7 @@ namespace Project_Origin
             }
             base.Initialize();
         }
+
         protected override void LoadContent()
         {
             base.LoadContent();
@@ -100,8 +105,10 @@ namespace Project_Origin
                 rs.FillMode = FillMode.WireFrame;
                 this.device.RasterizerState = rs;
                 */
+                
+                Vector3 mapPos = new Vector3(-this.witdth / 2, -this.heigh / 2, 0.0f);
                 this.defaultEfft.VertexColorEnabled = true;
-                this.defaultEfft.World = Matrix.CreateTranslation(new Vector3(-this.witdth / 2, -this.heigh / 2, 0.0f));
+                this.defaultEfft.World = Matrix.CreateTranslation(mapPos);
                 this.defaultEfft.View = this.camera.ViewMatrix;
                 this.defaultEfft.Projection = this.camera.ProjectMatrix;
 
@@ -115,26 +122,25 @@ namespace Project_Origin
                                                     VertexPositionColor.VertexDeclaration);
                     }
                 }
+                this.internalMap.DisplayMap(new Vector3(-(this.witdth / 2 + 5 * 2 + 1), this.heigh / 2 + 4 * 2 + 1, mapPos.Z + 0.5f));
+                //this.device.RasterizerState = prevRs;
             }
             
-            //this.device.RasterizerState = prevRs;
             base.Draw(gameTime);
         }
 
-        //Get methods
-        public int getWitdth()
+        public int Witdth
         {
-            return this.witdth;
+            get { return witdth; }
         }
-        public int getHeigh()
+        public int Heigh
         {
-            return this.heigh;
-        }
-        public Vector3 getStart()
-        {
-            return this.start;
+            get { return heigh; }
         }
 
-
+        public Vector3 Start
+        {
+            get { return start; }
+        }
     }
 }

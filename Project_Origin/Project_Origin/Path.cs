@@ -106,7 +106,7 @@ namespace Project_Origin
 
                 Ray pickRay = GetPickRay(mouseState);
 
-                BoundingBox box = new BoundingBox(this.gameMap.getStart() - new Vector3(this.gameMap.getWitdth() / 2, this.gameMap.getHeigh() / 2, 0.0f), this.gameMap.getStart() + new Vector3(this.gameMap.getWitdth() / 2, this.gameMap.getHeigh() / 2, 0.0f));
+                BoundingBox box = new BoundingBox(this.gameMap.Start - new Vector3(this.gameMap.Witdth / 2, this.gameMap.Heigh / 2, 0.0f), this.gameMap.Start + new Vector3(this.gameMap.Witdth / 2, this.gameMap.Heigh / 2, 0.0f));
 
                 Nullable<float> result = pickRay.Intersects(box);
                 if (result.HasValue == true)
