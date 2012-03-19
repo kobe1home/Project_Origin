@@ -74,6 +74,10 @@ namespace Project_Origin
 
             for (int index = 0; index < 5; index++)
             {
+                if (orientation == WallNode.WallDirection.Horizontal)
+                    Position.X = Position.X + InternalMap.GridSize;
+                else
+                    Position.Y = Position.Y - InternalMap.GridSize;
 
                 for (int height = 0; height < Wall.WallHeight; height++)
                 {
@@ -81,10 +85,6 @@ namespace Project_Origin
                     world = Matrix.CreateTranslation(Position);
                     this.wallCube.Draw(world, view, project, Color.Blue);
                 }
-                if (orientation == WallNode.WallDirection.Horizontal)
-                    Position.X = Position.X + InternalMap.GridSize;
-                else
-                    Position.Y = Position.Y - InternalMap.GridSize;
                 Position.Z = z;
             }
             base.Draw(gameTime);

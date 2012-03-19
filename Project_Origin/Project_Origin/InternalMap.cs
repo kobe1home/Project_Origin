@@ -40,24 +40,25 @@ namespace Project_Origin
 
             this.numNodesH = this.numGridsH / nodeWidth;
             this.numNodesV = this.numGridsV / nodeHeight;
-            this.internalMapStruct = new Node[this.numNodesH, this.numGridsV];
-            this.detailedInternalMapStruct = new Boolean[this.numGridsH, this.numGridsV];
+            this.internalMapStruct = new Node[this.numNodesV, this.numGridsH];
+            this.detailedInternalMapStruct = new Boolean[this.numGridsV, this.numGridsH];
+            this.initializeDetailedMap();
 
-            Console.WriteLine("NodeH: {0} Node: {1} GridsH: {2} GridsV: {3}", this.numNodesH, this.numNodesV, this.numGridsH, this.numGridsV);
+            //Console.WriteLine("NodeH: {0} Node: {1} GridsH: {2} GridsV: {3}", this.numNodesH, this.numNodesV, this.numGridsH, this.numGridsV);
         }
 
         public void GenerateRandomMap()
         {
             Random randNum = new Random();
 
-            for (int row = 0; row < this.numNodesH; row++)
+            for (int row = 0; row < this.numNodesV; row++)
             {
-                for (int col = 0; col < this.numNodesV; col++)
+                for (int col = 0; col < this.numNodesH; col++)
                 {
                     int randomType = randNum.Next(3);
                     if (randomType == 0)
                     {
-                        this.internalMapStruct[row, col] = new EmptyNode();
+                        this.internalMapStruct[row, col] = new RoomNode();
                     }
                     else if (randomType == 1)
                     {
@@ -65,28 +66,110 @@ namespace Project_Origin
                     }
                     else
                     {
-                        this.internalMapStruct[row, col] = new WallNode(); ;
+                        this.internalMapStruct[row, col] = new RoomNode(); ;
                     }
                 }
             }
-            this.internalMapStruct[0, 0] = new EmptyNode();
-            this.internalMapStruct[this.numNodesH - 1, this.numNodesV - 1] = new EmptyNode();
+            this.internalMapStruct[0, 0] = new WallNode();
+            this.internalMapStruct[this.numNodesV - 1, this.numNodesH - 1] = new WallNode();
+            this.GenerateDetailMap();
         }
 
         private void GenerateDetailMap()
         {
-            for (int row = 0; row < this.numNodesH; row++)
+            this.initializeDetailedMap();
+            for (int row = 0; row < this.numNodesV; row++)
             {
-                for (int col = 0; col < this.numNodesV; col++)
+                for (int col = 0; col < this.numNodesH; col++)
                 {
-                    
+                    Node tempNode = this.internalMapStruct[row, col];
+                    int rowIndex = row * tempNode.Height;
+                    int colIndex = col * tempNode.Width;
+
+                    if (tempNode is RoomNode)
+                    {
+                        RoomNode room = (RoomNode)tempNode;
+                        this.setRoomInDetailedMap(room, rowIndex, colIndex);
+                    }
+                    else if (tempNode is WallNode)
+                    {
+                        WallNode wall = (WallNode)tempNode;
+                        this.setWallInDetailedMap(wall, rowIndex, colIndex);
+                    }
+                    if (tempNode is EmptyNode)
+                    {
+                        EmptyNode empty = (EmptyNode)tempNode;
+                    }
                 }
             }
-
         }
 
-        public void DisplayMap(Vector3 startPos)
+        private void initializeDetailedMap()
         {
+            for (int row = 0; row < this.numGridsV; row++)
+            {
+                for (int col = 0; col < this.numGridsH; col++)
+                {
+                    this.detailedInternalMapStruct[row, col] = true;
+                }
+            }
+        }
+
+        private void setRoomInDetailedMap(RoomNode room, int rowIndex, int colIndex)
+        {
+            int row = rowIndex;
+            int col = colIndex;
+            int index = 0;
+
+            for (; col < colIndex + room.Width; col++)
+            {
+                if (index != 2)
+                {
+                    this.detailedInternalMapStruct[row, col] = false;
+                    this.detailedInternalMapStruct[row + room.Height - 1, col] = false;
+                }
+                index++;
+            }
+            col--;
+            index = 0;
+            for (; row < rowIndex + room.Height - 1; row++)
+            {
+                if (index != 2)
+                {
+                    this.detailedInternalMapStruct[row, col] = false;
+                    this.detailedInternalMapStruct[row, col - room.Width + 1] = false;
+                }
+                index++;
+            }
+        }
+
+
+        private void setWallInDetailedMap(WallNode wall, int rowIndex, int colIndex)
+        {
+            int row = rowIndex;
+            int col = colIndex;
+            
+
+            if (wall.Orientation == WallNode.WallDirection.Horizontal)
+            {
+                row = row + wall.Position;
+                for (; col < colIndex + wall.Width; col++)
+                {
+                    this.detailedInternalMapStruct[row, col] = false;
+                }
+            }
+            else
+            {
+                col = col + wall.Position;
+                for (; row < rowIndex + wall.Height; row++)
+                {
+                    this.detailedInternalMapStruct[row, col] = false;
+                }
+            }
+        }
+        
+        //public void DisplayMap(Vector3 startPos)
+        //{
             /*
             Vector3 pos = new Vector3(startPos.X, startPos.Y, startPos.Z);
             for (int row = 0; row < this.numNodesH; row++)
@@ -101,6 +184,52 @@ namespace Project_Origin
                 pos.Y = y;
             }
              * */
+       // }
+
+        public void printMaps()
+        {
+
+            for (int row = 0; row < this.numGridsV; row++)
+            {
+                for (int col = 0; col < this.numGridsH; col++)
+                {
+                    if (this.detailedInternalMapStruct[row, col])
+                    {
+                        Console.Write("T ");
+                    }
+                    else
+                    {
+                        Console.Write("F ");
+                    }
+                    //Console.Write("{0} ", this.detailedInternalMapStruct[row, col]);
+                }
+                Console.WriteLine("");
+            }
+
+            for (int row = 0; row < this.numNodesV; row++)
+            {
+                for (int col = 0; col < this.numNodesH; col++)
+                {
+                    Node tempNode = this.internalMapStruct[row, col];
+
+                    if (tempNode is RoomNode)
+                    {
+                        RoomNode room = (RoomNode)tempNode;
+                        Console.Write("R ");
+                    }
+                    else if (tempNode is WallNode)
+                    {
+                        WallNode wall = (WallNode)tempNode;
+                        Console.Write("W ");
+                    }
+                    if (tempNode is EmptyNode)
+                    {
+                        EmptyNode empty = (EmptyNode)tempNode;
+                        Console.Write("E ");
+                    }
+                }
+                Console.WriteLine("");
+            }
         }
 
         

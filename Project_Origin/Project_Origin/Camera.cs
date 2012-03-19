@@ -65,22 +65,22 @@ namespace Project_Origin
         {
             //Keyboard State
             KeyboardState currentState = Keyboard.GetState();
-            if (currentState.IsKeyDown(Keys.Right))
+            if (currentState.IsKeyDown(Keys.D))
             {
                 this.Position.X += Camera.cameraSpeed;
                 this.cameraLook.X += Camera.cameraSpeed;
             }
-            if (currentState.IsKeyDown(Keys.Left))
+            if (currentState.IsKeyDown(Keys.A))
             {
                 this.Position.X -= Camera.cameraSpeed;
                 this.cameraLook.X -= Camera.cameraSpeed;
             }
-            if (currentState.IsKeyDown(Keys.Up))
+            if (currentState.IsKeyDown(Keys.W))
             {
                 this.Position.Y += Camera.cameraSpeed;
                 this.cameraLook.Y += Camera.cameraSpeed;
             }
-            if (currentState.IsKeyDown(Keys.Down))
+            if (currentState.IsKeyDown(Keys.S))
             {
                 this.Position.Y -= Camera.cameraSpeed;
                 this.cameraLook.Y -= Camera.cameraSpeed;

@@ -41,7 +41,7 @@ namespace Project_Origin
 
         private void Intialize(int pos, WallDirection dir)
         {
-            position = pos;
+            position = 0;
             orientation = dir;
         }
 
