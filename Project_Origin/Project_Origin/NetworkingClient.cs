@@ -102,7 +102,7 @@ namespace Project_Origin
                 om.Write(tempPos.Y);
                 om.Write(tempPos.Z);
                 om.Write(tempOri);
-                client.SendMessage(om, NetDeliveryMethod.Unreliable);
+                client.SendMessage(om, NetDeliveryMethod.ReliableOrdered);
 
             }
 

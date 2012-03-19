@@ -73,6 +73,18 @@ namespace Project_Origin
             this.internalMapStruct[this.numNodesH - 1, this.numNodesV - 1] = new EmptyNode();
         }
 
+        private void GenerateDetailMap()
+        {
+            for (int row = 0; row < this.numNodesH; row++)
+            {
+                for (int col = 0; col < this.numNodesV; col++)
+                {
+                    
+                }
+            }
+
+        }
+
         public void DisplayMap(Vector3 startPos)
         {
             /*
@@ -91,11 +103,7 @@ namespace Project_Origin
              * */
         }
 
-        private void GenerateDetailMap()
-        {
-
-
-        }
+        
 
         public int NumGridsWidth
         {

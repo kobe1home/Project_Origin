@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 namespace Project_Origin
 {
-    class WallNode : Node
+    public class WallNode : Node
     {
         private int position;
         private WallDirection orientation;

@@ -9,6 +9,15 @@ using Lidgren.Network;
 
 namespace Project_Origin_Server
 {
+    //TODO: Just show example how to serialize and deserialize class, remove in future
+    class dummyClass
+    {
+        public dummyClass()
+        {
+            ;
+        }
+    }
+
     class Program
     {
         struct PlayerInfo
@@ -36,14 +45,16 @@ namespace Project_Origin_Server
             CommandChangeStatusToCommit,
             
             DataSelfPlayerInfo,
-            DataOtherPlayerInfo
+            DataOtherPlayerInfo,
         }
 
         public enum IncomingMessageType
         {
             CommandFinishPlan,
             
-            DataPlayerInfo
+            DataPlayerInfo,
+
+            DummyObjectData
         }
 
         static void Main(string[] args)
@@ -106,6 +117,13 @@ namespace Project_Origin_Server
 
                                 playerInfoDict[msg.SenderEndpoint] = new PlayerInfo(tempPos, tempOrientation);
                             }
+                            else if (imt == IncomingMessageType.DummyObjectData)
+                            {
+                                //TODO: Just an example to show deserialize object, remove this in future
+                                int objDataSize = msg.ReadInt32();
+                                byte[] objData = new byte[objDataSize];
+                                dummyClass obj = Serializer<dummyClass>.DeserializeObject<dummyClass>(objData);
+                            }
                             break;
 
                             
@@ -159,13 +177,19 @@ namespace Project_Origin_Server
                                 om.Write(playerInfo.position.Z);
                                 om.Write(playerInfo.orientation);
 
+                                //TODO: send dummy class, remove in future
+                                dummyClass obj = new dummyClass();
+                                byte[] objData = Serializer<dummyClass>.SerializeObject(obj);
+                                om.Write(objData.Length); //Write object size
+                                om.Write(objData); //Write object data
+
                                 //send message
-                                server.SendMessage(om, player, NetDeliveryMethod.Unreliable);
+                                server.SendMessage(om, player, NetDeliveryMethod.ReliableOrdered);
                             }
 
                         }
                         //schedule next update
-                        nextSendUpdates += (1.0 / 30.0);
+                        nextSendUpdates += (1.0 / 10.0);
 
                     }
                 }

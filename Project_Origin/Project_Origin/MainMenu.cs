@@ -32,6 +32,10 @@ namespace Project_Origin
         Vector2 backgroundPlayerPicCenter;
         Texture2D backgroundPlayerPicTexture;
 
+        Vector2 titlePos;
+        Vector2 titleCenter;
+        Texture2D titleTexture;
+
         Song soundEffect;
 
 
@@ -67,6 +71,10 @@ namespace Project_Origin
             menuTexture = this.Game.Content.Load<Texture2D>("Models\\mainMenu");
             menuPos = new Vector2(this.Game.GraphicsDevice.Viewport.Width / 2, this.Game.GraphicsDevice.Viewport.Height / 4 * 3);
             menuCenter = new Vector2(menuTexture.Width / 2, menuTexture.Height / 2);
+
+            titleTexture = this.Game.Content.Load<Texture2D>("Models\\title");
+            titlePos = new Vector2(this.Game.GraphicsDevice.Viewport.Width / 5 * 2, this.Game.GraphicsDevice.Viewport.Height / 4);
+            titleCenter = new Vector2(titleTexture.Width / 2, titleTexture.Height / 2);
 
             soundEffect = this.Game.Content.Load<Song>("Sounds\\bgm");
             this.shooter = this.Game.Services.GetService(typeof(Shooter)) as Shooter;
@@ -108,6 +116,10 @@ namespace Project_Origin
                 //Draw main menu
                 spriteBatch.Draw(menuTexture, menuPos, null, Color.White,
                     0.0f, menuCenter, 0.7f, SpriteEffects.None, 0.0f);
+
+                //Draw title
+                spriteBatch.Draw(titleTexture, titlePos, null, Color.White,
+                    0.0f, menuCenter, 1.0f, SpriteEffects.None, 0.0f);
 
                 spriteBatch.End();
             }

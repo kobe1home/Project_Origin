@@ -28,10 +28,11 @@ namespace Project_Origin
         private static int WallHeight = 3;
 
 
-        public Wall(Game game, WallNode wallnode, Vector3 postion)
+        public Wall(Game game, WallNode wallnode, Vector3 position)
             : base(game)
         {
             this.wall = wallnode;
+            this.position = position;
             this.game = game;
             this.gdevice = this.game.GraphicsDevice;
             this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;

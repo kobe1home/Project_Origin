@@ -124,8 +124,11 @@
     <Compile Include="Node.cs" />
     <Compile Include="Path.cs" />
     <Compile Include="Room.cs" />
+<<<<<<< HEAD
     <Compile Include="RoomNode.cs" />
+=======
     <Compile Include="Serializer.cs" />
+>>>>>>> d45c349d5ec76450a171e0f577c23e5a656ba534
     <Compile Include="VertexPositionNormal.cs" />
     <Compile Include="Wall.cs" />
     <Compile Include="WallNode.cs" />

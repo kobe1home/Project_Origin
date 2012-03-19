@@ -29,6 +29,7 @@ namespace Project_Origin
         public Room(Game game, RoomNode roomNode, Vector3 position)
             : base(game)
         {
+            this.position = position;
             this.game = game;
             this.room = roomNode;
             this.Initialize();
