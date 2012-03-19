@@ -12,8 +12,8 @@ namespace Project_Origin
 {
     public class Map : Microsoft.Xna.Framework.DrawableGameComponent
     {
-        private int witdth;
-        private int heigh;
+        //private int witdth;
+        //private int heigh;
         private Vector3 start;
 
         private InternalMap internalMap;
@@ -28,15 +28,19 @@ namespace Project_Origin
         private static Color DefaultColor = Color.Orange;
 
 
-        public static int GridWidth = 2;
+        private InternalMap internalMapNode;
+        private DrawableGameComponent[,] drawableMapNode;
+
+
+        //public static int GridWidth = 2;
 
         public Map(Game game, Vector3 start, int width, int heigh)
             : base(game)
         {
             
             this.start = start;
-            this.witdth = width;
-            this.heigh = heigh;
+            //this.witdth = width;
+            //this.heigh = heigh;
             this.game = game;
             this.device = this.game.GraphicsDevice;
             this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
@@ -47,15 +51,16 @@ namespace Project_Origin
                 throw new InvalidOperationException("ICameraService not found.");
             }
 
-            this.internalMap = new InternalMap(this.game, this.witdth, this.heigh, 5, 5);
+            this.internalMap = new InternalMap(width, heigh, 5, 5);
             this.internalMap.GenerateRandomMap();
+            
         }
 
         public override void Initialize()
         {
 
-            int widthNum = this.witdth / Map.GridWidth;
-            int heightNum = this.heigh / Map.GridWidth;
+            int widthNum = this.internalMap.NumGridsWidth;//his.witdth / Map.GridWidth;
+            int heightNum = this.internalMap.NumGridsHeight;//this.heigh / Map.GridWidth;
             this.pointMatrics = new VertexPositionColor[heightNum][];
  
             for (int row = 0; row < heightNum; row++)
@@ -63,11 +68,11 @@ namespace Project_Origin
                 VertexPositionColor[] temp = new VertexPositionColor[widthNum * 2 + 2];
                 for (int col = 0; col <= widthNum; col++)
                 {
-                    temp[col * 2].Position = new Vector3(this.start.X + (Map.GridWidth * col),
-                                                     this.start.Y + (this.start.Y + Map.GridWidth * row) ,
+                    temp[col * 2].Position = new Vector3(this.start.X + (InternalMap.GridSize * col),
+                                                     this.start.Y + (this.start.Y + InternalMap.GridSize * row) ,
                                                      this.start.Z);
-                    temp[col * 2 + 1].Position = new Vector3(this.start.X + (Map.GridWidth * col),
-                                                         this.start.Y + (this.start.Y + Map.GridWidth * row) +  Map.GridWidth,
+                    temp[col * 2 + 1].Position = new Vector3(this.start.X + (InternalMap.GridSize * col),
+                                                         this.start.Y + (this.start.Y + InternalMap.GridSize * row) +  InternalMap.GridSize,
                                                          this.start.Z);
                     temp[col * 2].Color = Map.DefaultColor;
                     temp[col * 2 + 1].Color = Map.DefaultColor;
@@ -90,8 +95,7 @@ namespace Project_Origin
 
         public override void Update(GameTime gameTime)
         {
-            
-
+            base.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)
@@ -106,7 +110,8 @@ namespace Project_Origin
                 this.device.RasterizerState = rs;
                 */
                 
-                Vector3 mapPos = new Vector3(-this.witdth / 2, -this.heigh / 2, 0.0f);
+                Vector3 mapPos = new Vector3(-this.internalMap.MapPixelWidth / 2, -this.internalMap.MapPixelHeight / 2, 0.0f);
+                //Vector3 mapPos = new Vector3(0, 0, 0.0f);
                 this.defaultEfft.VertexColorEnabled = true;
                 this.defaultEfft.World = Matrix.CreateTranslation(mapPos);
                 this.defaultEfft.View = this.camera.ViewMatrix;
@@ -122,7 +127,7 @@ namespace Project_Origin
                                                     VertexPositionColor.VertexDeclaration);
                     }
                 }
-                this.internalMap.DisplayMap(new Vector3(-(this.witdth / 2 + 5 * 2 + 1), this.heigh / 2 + 4 * 2 + 1, mapPos.Z + 0.5f));
+                this.internalMap.DisplayMap(new Vector3(-(this.internalMap.MapPixelWidth / 2 + 1), (this.internalMap.MapPixelHeight / 2 - 1), 0.0f));
                 //this.device.RasterizerState = prevRs;
             }
             
@@ -131,11 +136,11 @@ namespace Project_Origin
 
         public int Witdth
         {
-            get { return witdth; }
+            get { return internalMap.MapPixelWidth; }
         }
         public int Heigh
         {
-            get { return heigh; }
+            get { return internalMap.MapPixelHeight; }
         }
 
         public Vector3 Start

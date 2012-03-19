@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Project_Origin
 {
-    class Empty : Node
+    class EmptyNode : Node
     {
-        public Empty()
+        public EmptyNode()
             : base()
         {
         }

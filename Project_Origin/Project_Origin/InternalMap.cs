@@ -9,23 +9,20 @@ namespace Project_Origin
 {
     public class InternalMap
     {
-
-        private Game game;
         private int pixelwidth;
         private int pixelheight;
         private int numGridsH; // number of small grids in the map
-        private int numGridsV; 
+        private int numGridsV;
         private int numNodesH; // number of node in the map
         private int numNodesV;
 
         private Node[,] internalMapStruct;
         private Boolean[,] detailedInternalMapStruct;
 
+        public static int GridSize = 2;
 
-
-        public InternalMap(Game game, int pixelWidth, int pixelHeight, int nodeWidth, int nodeHeight)
+        public InternalMap(int pixelWidth, int pixelHeight, int nodeWidth, int nodeHeight)
         {
-            this.game = game;
             this.CheckMapSize(pixelWidth, pixelHeight, nodeWidth, nodeHeight);
             this.pixelwidth = pixelWidth;
             this.pixelheight = pixelHeight;
@@ -33,8 +30,8 @@ namespace Project_Origin
 
         private void CheckMapSize(int width, int height, int nodeWidth, int nodeHeight)
         {
-            this.numGridsH = width / Map.GridWidth;
-            this.numGridsV = height / Map.GridWidth;
+            this.numGridsH = width / InternalMap.GridSize;
+            this.numGridsV = height / InternalMap.GridSize;
 
             if (this.numGridsH % nodeWidth != 0 || this.numGridsV % nodeHeight != 0)
             {
@@ -60,42 +57,80 @@ namespace Project_Origin
                     int randomType = randNum.Next(3);
                     if (randomType == 0)
                     {
-                        this.internalMapStruct[row, col] = new Empty();
+                        this.internalMapStruct[row, col] = new EmptyNode();
                     }
                     else if (randomType == 1)
                     {
-                        this.internalMapStruct[row, col] = new Room(this.game);
+                        this.internalMapStruct[row, col] = new RoomNode();
                     }
                     else
                     {
-                        this.internalMapStruct[row, col] = new Wall(this.game); ;
+                        this.internalMapStruct[row, col] = new WallNode(); ;
                     }
                 }
             }
-            this.internalMapStruct[0, 0] = new Empty();
-            this.internalMapStruct[this.numNodesH - 1, this.numNodesV - 1] = new Empty();
+            this.internalMapStruct[0, 0] = new EmptyNode();
+            this.internalMapStruct[this.numNodesH - 1, this.numNodesV - 1] = new EmptyNode();
         }
 
         public void DisplayMap(Vector3 startPos)
         {
+            /*
             Vector3 pos = new Vector3(startPos.X, startPos.Y, startPos.Z);
             for (int row = 0; row < this.numNodesH; row++)
             {
-                pos.X = pos.X + (5 * Map.GridWidth);
                 float y = pos.Y;
                 for (int col = 0; col < this.numNodesV; col++)
                 {
-                    pos.Y = pos.Y - (5 * Map.GridWidth);
                     this.internalMapStruct[row, col].Display(pos);
+                    pos.Y = pos.Y - (5 * InternalMap.GridSize);
                 }
+                pos.X = pos.X + (5 * InternalMap.GridSize);
                 pos.Y = y;
             }
+             * */
         }
 
         private void GenerateDetailMap()
         {
 
 
+        }
+
+        public int NumGridsWidth
+        {
+            get { return numGridsH; }
+            set { numGridsH = value; }
+        }
+
+        public int NumGridsHeight
+        {
+            get { return numGridsV; }
+            set { numGridsV = value; }
+        }
+
+        public int MapPixelWidth
+        {
+            get { return pixelwidth; }
+            set { pixelwidth = value; }
+        }
+
+        public int MapPixelHeight
+        {
+            get { return pixelheight; }
+            set { pixelheight = value; }
+        }
+
+        public int MapNodeWidth
+        {
+            get { return numNodesH; }
+            set { numNodesH = value; }
+        }
+
+        public int MapNodeHeight
+        {
+            get { return numNodesV; }
+            set { numNodesV = value; }
         }
 
         public Node[,] InternalMapStruct

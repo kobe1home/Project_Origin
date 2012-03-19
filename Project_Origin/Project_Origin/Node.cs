@@ -35,11 +35,5 @@ namespace Project_Origin
             get { return height; }
             set { height = value; }
         }
-
-        public virtual void Display(Vector3 Position)
-        {
-
-
-        }
     }
 }
