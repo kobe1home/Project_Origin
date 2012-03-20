@@ -40,7 +40,11 @@ namespace Project_Origin
         VertexBuffer vertexBuffer;
         IndexBuffer indexBuffer;
         BasicEffect basicEffect;
+        Plane floorPlane;
+        Matrix shadow;
 
+        DepthStencilState dss;
+        BlendState bs;
 
         #endregion
 
@@ -104,7 +108,27 @@ namespace Project_Origin
             // Create a BasicEffect, which will be used to render the primitive.
             basicEffect = new BasicEffect(graphicsDevice);
 
-            basicEffect.EnableDefaultLighting();            
+            basicEffect.EnableDefaultLighting();
+            basicEffect.DirectionalLight0.Direction = new Vector3(-0.5f, -0.5f, -1.0f);
+
+
+            dss = new DepthStencilState();
+            dss.StencilEnable = true;
+            dss.ReferenceStencil = 0;
+            dss.StencilFunction = CompareFunction.Equal;
+            dss.StencilPass = StencilOperation.Increment;
+
+
+            bs = new BlendState();
+            bs.AlphaBlendFunction = BlendFunction.Add;
+            bs.AlphaSourceBlend = Blend.SourceAlpha;
+            bs.AlphaDestinationBlend = Blend.InverseSourceAlpha;
+
+            this.floorPlane = new Plane(new Vector3(-1, 1, 0),
+                           new Vector3(1, 1, 0),
+                           new Vector3(-1, -1, 0));
+            shadow = Matrix.CreateShadow(basicEffect.DirectionalLight0.Direction, floorPlane) *
+                Matrix.CreateTranslation(floorPlane.Normal / 100);
         }
 
 
@@ -157,7 +181,7 @@ namespace Project_Origin
         /// and color, this method does not set any renderstates, so you must make
         /// sure all states are set to sensible values before you call it.
         /// </summary>
-        public void Draw(Effect effect)
+        public void Draw(BasicEffect effect)
         {
             GraphicsDevice graphicsDevice = effect.GraphicsDevice;
 
@@ -177,6 +201,7 @@ namespace Project_Origin
                                                      vertices.Count, 0, primitiveCount);
 
             }
+            this.DrawShadows(effect);
         }
 
 
@@ -190,6 +215,7 @@ namespace Project_Origin
         public void Draw(Matrix world, Matrix view, Matrix projection, Color color)
         {
             // Set BasicEffect parameters.
+            //basicEffect.EnableDefaultLighting();
             basicEffect.World = world;
             basicEffect.View = view;
             basicEffect.Projection = projection;
@@ -217,6 +243,39 @@ namespace Project_Origin
             device.BlendState = prevState;
         }
 
+        private void DrawShadows(BasicEffect effect)
+        {
+            GraphicsDevice device = effect.GraphicsDevice;
+            DepthStencilState prevDss = device.DepthStencilState;
+            BlendState prevBs = device.BlendState;
+
+
+            device.Clear(ClearOptions.Stencil, Color.Black, 0, 0);
+            device.DepthStencilState = this.dss;
+            device.BlendState = bs;
+
+            //device.SetVertexBuffer(vertexBuffer);
+
+            //device.Indices = indexBuffer;
+
+            this.basicEffect.DirectionalLight0.Enabled = false;
+            this.basicEffect.DirectionalLight1.Enabled = false;
+            this.basicEffect.DirectionalLight2.Enabled = false;
+            this.basicEffect.Alpha = 0.7f;
+            this.basicEffect.AmbientLightColor = Vector3.Zero;
+            this.basicEffect.World = this.basicEffect.World * this.shadow;
+
+            foreach (EffectPass effectPass in basicEffect.CurrentTechnique.Passes)
+            {
+                effectPass.Apply();
+                int primitiveCount = indices.Count / 3;
+                device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
+                                                     vertices.Count, 0, primitiveCount);
+            }
+            this.basicEffect.DirectionalLight0.Enabled = true;
+            device.DepthStencilState = prevDss;
+            device.BlendState = prevBs;
+        }
 
         #endregion
     }

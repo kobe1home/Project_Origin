@@ -130,16 +130,10 @@ namespace Project_Origin
                                                     VertexPositionColor.VertexDeclaration);
                     }
                 }
-                if (this.internalMap != null)
-                {
-                    for (int row = 0; row < this.internalMap.MapNodeHeight; row++)
-                    {
-                        for (int col = 0; col < this.internalMap.MapNodeWidth; col++)
-                        {
-                            this.drawableMapNode[row, col].Draw(gameTime);
-                        }
-                    }
-                }
+                this.DrawMapWalls(gameTime);
+                
+                
+                
                 //this.internalMap.DisplayMap(new Vector3(-(this.internalMap.MapPixelWidth / 2 + 1), (this.internalMap.MapPixelHeight / 2 - 1), 0.0f));
                 //this.device.RasterizerState = prevRs;
             }
@@ -147,12 +141,27 @@ namespace Project_Origin
             base.Draw(gameTime);
         }
 
+        private void DrawMapWalls(GameTime gameTime)
+        {
+            if (this.internalMap != null)
+            {
+                for (int row = 0; row < this.internalMap.MapNodeHeight; row++)
+                {
+                    for (int col = 0; col < this.internalMap.MapNodeWidth; col++)
+                    {
+                        this.drawableMapNode[row, col].Draw(gameTime);
+                    }
+                }
+            }
+
+        }
+
         private void convertMapNodes()
         {
             this.drawableMapNode = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
             Node[,] tempMap = this.internalMap.InternalMapStruct;
 
-            Vector3 startPosition = new Vector3(-(this.internalMap.MapPixelWidth / 2 + 1), (this.internalMap.MapPixelHeight / 2 - 1), 0.0f);
+            Vector3 startPosition = new Vector3(-(this.internalMap.MapPixelWidth / 2 + 1), (this.internalMap.MapPixelHeight / 2 - 1), 0.1f);
 
             for (int row = 0; row < this.internalMap.MapNodeHeight; row++)
             {
@@ -182,6 +191,8 @@ namespace Project_Origin
                 startPosition.Y = startPosition.Y - 5 * InternalMap.GridSize;
             }
         }
+
+
 
         public int Witdth
         {

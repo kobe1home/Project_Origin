@@ -62,16 +62,16 @@ namespace Project_Origin
                     }
                     else if (randomType == 1)
                     {
-                        this.internalMapStruct[row, col] = new RoomNode();
+                        this.internalMapStruct[row, col] = new WallNode();
                     }
                     else
                     {
-                        this.internalMapStruct[row, col] = new RoomNode(); ;
+                        this.internalMapStruct[row, col] = new EmptyNode(); ;
                     }
                 }
             }
-            this.internalMapStruct[0, 0] = new WallNode();
-            this.internalMapStruct[this.numNodesV - 1, this.numNodesH - 1] = new WallNode();
+            this.internalMapStruct[0, 0] = new EmptyNode();
+            this.internalMapStruct[this.numNodesV - 1, this.numNodesH - 1] = new EmptyNode();
             this.GenerateDetailMap();
         }
 

@@ -19,12 +19,14 @@ namespace Project_Origin
     /// </summary>
     public class CubePrimitive : GeometricPrimitive
     {
+
         /// <summary>
         /// Constructs a new cube primitive, using default settings.
         /// </summary>
         public CubePrimitive(GraphicsDevice graphicsDevice)
             : this(graphicsDevice, 1)
         {
+
         }
 
 

@@ -42,6 +42,7 @@ namespace Project_Origin
         public Shooter()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             IsFixedTimeStep = false;
@@ -92,6 +93,7 @@ namespace Project_Origin
 
             this.Services.AddService(typeof(Shooter), this);
 
+            
             base.Initialize();
         }
 
@@ -153,7 +155,7 @@ namespace Project_Origin
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-          
+            
             base.Draw(gameTime);
         }
 
@@ -178,6 +180,8 @@ namespace Project_Origin
         {
             return gameStatus;
         }
-       
+
+     
+
     }
 }
