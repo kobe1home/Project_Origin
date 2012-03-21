@@ -12,11 +12,7 @@ namespace Project_Origin
 {
     public class Map : Microsoft.Xna.Framework.DrawableGameComponent
     {
-        //private int witdth;
-        //private int heigh;
         private Vector3 start;
-
-        
 
         private VertexPositionColor[][] pointMatrics;
         private ICameraService camera;
@@ -28,20 +24,15 @@ namespace Project_Origin
         private static Color DefaultColor = Color.Orange;
 
 
-        //private InternalMap internalMapNode;
         private InternalMap internalMap; // Map got from Server
-        private DrawableGameComponent[,] drawableMapNode; // converted from internalMap, so that it can be drawn.
+        private DrawableGameComponent[,] drawableRandomMapNode; // converted from internalMap, so that it can be drawn.
 
-
-        //public static int GridWidth = 2;
 
         public Map(Game game, Vector3 start, int width, int heigh)
             : base(game)
         {
             
             this.start = start;
-            //this.witdth = width;
-            //this.heigh = heigh;
             this.game = game;
             this.device = this.game.GraphicsDevice;
             this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
@@ -62,8 +53,8 @@ namespace Project_Origin
         public override void Initialize()
         {
 
-            int widthNum = this.internalMap.NumGridsWidth;//his.witdth / Map.GridWidth;
-            int heightNum = this.internalMap.NumGridsHeight;//this.heigh / Map.GridWidth;
+            int widthNum = this.internalMap.NumGridsWidth;
+            int heightNum = this.internalMap.NumGridsHeight;
             this.pointMatrics = new VertexPositionColor[heightNum][];
  
             for (int row = 0; row < heightNum; row++)
@@ -113,8 +104,10 @@ namespace Project_Origin
                 this.device.RasterizerState = rs;
                 */
                 
-                Vector3 mapPos = new Vector3(-this.internalMap.MapPixelWidth / 2, -this.internalMap.MapPixelHeight / 2, 0.0f);
-                //Vector3 mapPos = new Vector3(0, 0, 0.0f);
+                // center the map to (0,0,0) point
+                Vector3 mapPos = new Vector3(-this.internalMap.MapPixelWidth / 2, 
+                                             -this.internalMap.MapPixelHeight / 2, 
+                                             0.0f);
                 this.defaultEfft.VertexColorEnabled = true;
                 this.defaultEfft.World = Matrix.CreateTranslation(mapPos);
                 this.defaultEfft.View = this.camera.ViewMatrix;
@@ -146,7 +139,7 @@ namespace Project_Origin
                 {
                     for (int col = 0; col < this.internalMap.MapNodeWidth; col++)
                     {
-                        this.drawableMapNode[row, col].Draw(gameTime);
+                        this.drawableRandomMapNode[row, col].Draw(gameTime);
                     }
                 }
             }
@@ -154,44 +147,44 @@ namespace Project_Origin
 
         private void convertMapNodes()
         {
-            this.drawableMapNode = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
+            this.drawableRandomMapNode = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
             Node[,] tempMap = this.internalMap.InternalMapStruct;
 
             Vector3 startPosition = new Vector3(-(this.internalMap.MapPixelWidth / 2) + (InternalMap.GridSize / 2),
                                                  (this.internalMap.MapPixelHeight / 2 - InternalMap.GridSize / 2),
                                                  InternalMap.GridSize / 2);
             Console.WriteLine(startPosition);
-
+            Node tempNode = tempMap[0, 0];
             for (int row = 0; row < this.internalMap.MapNodeHeight; row++)
             {
                 float x = startPosition.X;
                 for (int col = 0; col < this.internalMap.MapNodeWidth; col++)
                 {
-                    Node tempNode = tempMap[row, col];
+                    tempNode = tempMap[row, col];
 
                     if (tempNode is RoomNode)
                     {
-                        Room room = new Room(this.game, (RoomNode)tempNode, new Vector3(startPosition.X, startPosition.Y, startPosition.Z));
-                        this.drawableMapNode[row, col] = room;
+                        Room room = new Room(this.game, (RoomNode)tempNode, 
+                                             new Vector3(startPosition.X, startPosition.Y, startPosition.Z));
+                        this.drawableRandomMapNode[row, col] = room;
                     }
                     else if (tempNode is WallNode)
                     {
-                        Wall wall = new Wall(this.game, (WallNode)tempNode, new Vector3(startPosition.X, startPosition.Y, startPosition.Z));
-                        this.drawableMapNode[row, col] = wall;
+                        Wall wall = new Wall(this.game, (WallNode)tempNode, 
+                                             new Vector3(startPosition.X, startPosition.Y, startPosition.Z));
+                        this.drawableRandomMapNode[row, col] = wall;
                     }
                     if (tempNode is EmptyNode)
                     {
                         EmptySpace empty = new EmptySpace(this.game);
-                        this.drawableMapNode[row, col] = empty;
+                        this.drawableRandomMapNode[row, col] = empty;
                     }
-                    startPosition.X = startPosition.X + 8 * InternalMap.GridSize;
+                    startPosition.X = startPosition.X + tempNode.Width * InternalMap.GridSize;
                 }
                 startPosition.X = x;
-                startPosition.Y = startPosition.Y - 8 * InternalMap.GridSize;
+                startPosition.Y = startPosition.Y - tempNode.Width * InternalMap.GridSize;
             }
         }
-
-
 
         public int Witdth
         {

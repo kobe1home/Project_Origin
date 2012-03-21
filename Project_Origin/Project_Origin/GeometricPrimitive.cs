@@ -112,20 +112,6 @@ namespace Project_Origin
             basicEffect.PreferPerPixelLighting = true;
             basicEffect.DirectionalLight0.Direction = new Vector3(-0.5f, -0.5f, -1.0f);
 
-            /*
-            dss = new DepthStencilState();
-            dss.StencilEnable = true;
-            dss.ReferenceStencil = 0;
-            dss.StencilFunction = CompareFunction.Equal;
-            dss.StencilPass = StencilOperation.Increment;
-
-
-            bs = new BlendState();
-            bs.AlphaBlendFunction = BlendFunction.Add;
-            bs.AlphaSourceBlend = Blend.SourceAlpha;
-            bs.AlphaDestinationBlend = Blend.InverseSourceAlpha;
-            */
-
             this.floorPlane = new Plane(new Vector3(-1, 1, 0),
                            new Vector3(1, 1, 0),
                            new Vector3(-1, -1, 0));
@@ -249,15 +235,9 @@ namespace Project_Origin
         private void DrawShadows(BasicEffect effect)
         {
             GraphicsDevice device = effect.GraphicsDevice;
-            
-            //DepthStencilState prevDss = device.DepthStencilState;
-            //BlendState prevBs = device.BlendState;
-
-
             device.Clear(ClearOptions.Stencil, Color.Black, 0, 0);
-            //device.DepthStencilState = this.dss;
-            //device.BlendState = this.bs;
-            
+
+            //disable all lighting
             this.basicEffect.DirectionalLight0.Enabled = false;
             this.basicEffect.DirectionalLight1.Enabled = false;
             this.basicEffect.DirectionalLight2.Enabled = false;
@@ -273,8 +253,6 @@ namespace Project_Origin
                                                      vertices.Count, 0, primitiveCount);
             }
             this.basicEffect.DirectionalLight0.Enabled = true;
-            //device.DepthStencilState = prevDss;
-            //device.BlendState = prevBs;
         }
 
         #endregion
