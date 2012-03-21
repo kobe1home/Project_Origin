@@ -41,8 +41,8 @@ namespace Project_Origin
 
         private void Intialize(int pos, WallDirection dir)
         {
-            position = 0;
-            orientation = WallDirection.Vertial;
+            position = pos;
+            orientation = dir;
         }
 
         public int Position

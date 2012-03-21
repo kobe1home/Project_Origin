@@ -185,8 +185,12 @@ namespace Project_Origin
                 playerPosition.X += 0.1f;
             */
             if (keyboard.IsKeyDown(Keys.C))
-                if(playerMode != PlayerMode.Moving)
+            {
+                if (playerMode != PlayerMode.Moving)
+                {
                     path.CleanWayPoints();
+                }
+            }
             if (keyboard.IsKeyDown(Keys.R))
             {
                 movingWayPoints = path.GetWayPoints();
@@ -196,6 +200,10 @@ namespace Project_Origin
                     movingDestinationPointIndex = 1;
                     playerMode = PlayerMode.Moving;
                 }
+            }
+            if (keyboard.IsKeyDown(Keys.Delete) && prevKeyboardState.IsKeyUp(Keys.Delete))
+            {
+                path.removeLastWayPoints();
             }
             
 
