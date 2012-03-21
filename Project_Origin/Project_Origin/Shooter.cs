@@ -73,7 +73,7 @@ namespace Project_Origin
             this.Components.Add(this.camera);
             this.Services.AddService(typeof(ICameraService), this.camera);
 
-            this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
+            this.gameMap = new Map(this, new Vector3(0, 0, 0), 160, 80);
             this.Components.Add(this.gameMap);
             this.Services.AddService(typeof(Map), this.gameMap);
 

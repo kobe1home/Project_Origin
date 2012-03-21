@@ -14,8 +14,8 @@ namespace Project_Origin
 
         public Node()
         {
-            this.width = 5;
-            this.height = 5;
+            this.width = 8;
+            this.height = 8;
         }
 
         public Node(int width, int height)

@@ -17,6 +17,7 @@ namespace Project_Origin
         private int numNodesV;
 
         private Node[,] internalMapStruct;
+        private Node[,] optimizedMapStruct;
         private Boolean[,] detailedInternalMapStruct;
 
         public static int GridSize = 2;
@@ -43,8 +44,6 @@ namespace Project_Origin
             this.internalMapStruct = new Node[this.numNodesV, this.numGridsH];
             this.detailedInternalMapStruct = new Boolean[this.numGridsV, this.numGridsH];
             this.initializeDetailedMap();
-
-            //Console.WriteLine("NodeH: {0} Node: {1} GridsH: {2} GridsV: {3}", this.numNodesH, this.numNodesV, this.numGridsH, this.numGridsV);
         }
 
         public void GenerateRandomMap()
@@ -73,6 +72,12 @@ namespace Project_Origin
             this.internalMapStruct[0, 0] = new EmptyNode();
             this.internalMapStruct[this.numNodesV - 1, this.numNodesH - 1] = new EmptyNode();
             this.GenerateDetailMap();
+        }
+
+        public void OptimizeMap()
+        {
+
+
         }
 
         private void GenerateDetailMap()
@@ -143,7 +148,6 @@ namespace Project_Origin
             }
         }
 
-
         private void setWallInDetailedMap(WallNode wall, int rowIndex, int colIndex)
         {
             int row = rowIndex;
@@ -167,24 +171,6 @@ namespace Project_Origin
                 }
             }
         }
-        
-        //public void DisplayMap(Vector3 startPos)
-        //{
-            /*
-            Vector3 pos = new Vector3(startPos.X, startPos.Y, startPos.Z);
-            for (int row = 0; row < this.numNodesH; row++)
-            {
-                float y = pos.Y;
-                for (int col = 0; col < this.numNodesV; col++)
-                {
-                    this.internalMapStruct[row, col].Display(pos);
-                    pos.Y = pos.Y - (5 * InternalMap.GridSize);
-                }
-                pos.X = pos.X + (5 * InternalMap.GridSize);
-                pos.Y = y;
-            }
-             * */
-       // }
 
         public void printMaps()
         {
@@ -231,8 +217,6 @@ namespace Project_Origin
                 Console.WriteLine("");
             }
         }
-
-        
 
         public int NumGridsWidth
         {

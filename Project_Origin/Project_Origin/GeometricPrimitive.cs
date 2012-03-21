@@ -109,9 +109,10 @@ namespace Project_Origin
             basicEffect = new BasicEffect(graphicsDevice);
 
             basicEffect.EnableDefaultLighting();
+            basicEffect.PreferPerPixelLighting = true;
             basicEffect.DirectionalLight0.Direction = new Vector3(-0.5f, -0.5f, -1.0f);
 
-
+            /*
             dss = new DepthStencilState();
             dss.StencilEnable = true;
             dss.ReferenceStencil = 0;
@@ -123,6 +124,7 @@ namespace Project_Origin
             bs.AlphaBlendFunction = BlendFunction.Add;
             bs.AlphaSourceBlend = Blend.SourceAlpha;
             bs.AlphaDestinationBlend = Blend.InverseSourceAlpha;
+            */
 
             this.floorPlane = new Plane(new Vector3(-1, 1, 0),
                            new Vector3(1, 1, 0),
@@ -175,34 +177,7 @@ namespace Project_Origin
         #region Draw
 
 
-        /// <summary>
-        /// Draws the primitive model, using the specified effect. Unlike the other
-        /// Draw overload where you just specify the world/view/projection matrices
-        /// and color, this method does not set any renderstates, so you must make
-        /// sure all states are set to sensible values before you call it.
-        /// </summary>
-        public void Draw(BasicEffect effect)
-        {
-            GraphicsDevice graphicsDevice = effect.GraphicsDevice;
-
-            // Set our vertex declaration, vertex buffer, and index buffer.
-            graphicsDevice.SetVertexBuffer(vertexBuffer);
-
-            graphicsDevice.Indices = indexBuffer;            
-
-
-            foreach (EffectPass effectPass in effect.CurrentTechnique.Passes)
-            {
-                effectPass.Apply();
-
-                int primitiveCount = indices.Count / 3;
-
-                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
-                                                     vertices.Count, 0, primitiveCount);
-
-            }
-            this.DrawShadows(effect);
-        }
+        
 
 
         /// <summary>
@@ -236,35 +211,60 @@ namespace Project_Origin
                 // Set renderstates for opaque rendering.
                 device.BlendState = BlendState.Opaque;
             }
+            device.BlendState = BlendState.AlphaBlend;
 
-            // Draw the model, using BasicEffect.
-            Draw(basicEffect);
+            // Draw the model, using BasicEffect
             //Restore previous blendState
+            Draw(basicEffect);
             device.BlendState = prevState;
+        }
+
+        /// <summary>
+        /// Draws the primitive model, using the specified effect. Unlike the other
+        /// Draw overload where you just specify the world/view/projection matrices
+        /// and color, this method does not set any renderstates, so you must make
+        /// sure all states are set to sensible values before you call it.
+        /// </summary>
+        public void Draw(BasicEffect effect)
+        {
+            GraphicsDevice graphicsDevice = effect.GraphicsDevice;
+
+            // Set our vertex declaration, vertex buffer, and index buffer.
+            graphicsDevice.SetVertexBuffer(vertexBuffer);
+            graphicsDevice.Indices = indexBuffer;
+
+
+            foreach (EffectPass effectPass in effect.CurrentTechnique.Passes)
+            {
+                effectPass.Apply();
+
+                int primitiveCount = indices.Count / 3;
+
+                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
+                                                     vertices.Count, 0, primitiveCount);
+            }
+            this.DrawShadows(effect);
         }
 
         private void DrawShadows(BasicEffect effect)
         {
             GraphicsDevice device = effect.GraphicsDevice;
-            DepthStencilState prevDss = device.DepthStencilState;
-            BlendState prevBs = device.BlendState;
+            
+            //DepthStencilState prevDss = device.DepthStencilState;
+            //BlendState prevBs = device.BlendState;
 
 
             device.Clear(ClearOptions.Stencil, Color.Black, 0, 0);
-            device.DepthStencilState = this.dss;
-            device.BlendState = bs;
-
-            //device.SetVertexBuffer(vertexBuffer);
-
-            //device.Indices = indexBuffer;
-
+            //device.DepthStencilState = this.dss;
+            //device.BlendState = this.bs;
+            
             this.basicEffect.DirectionalLight0.Enabled = false;
             this.basicEffect.DirectionalLight1.Enabled = false;
             this.basicEffect.DirectionalLight2.Enabled = false;
-            this.basicEffect.Alpha = 0.7f;
+            this.basicEffect.Alpha = 0.75f;
             this.basicEffect.AmbientLightColor = Vector3.Zero;
             this.basicEffect.World = this.basicEffect.World * this.shadow;
-
+            
             foreach (EffectPass effectPass in basicEffect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
@@ -273,8 +273,8 @@ namespace Project_Origin
                                                      vertices.Count, 0, primitiveCount);
             }
             this.basicEffect.DirectionalLight0.Enabled = true;
-            device.DepthStencilState = prevDss;
-            device.BlendState = prevBs;
+            //device.DepthStencilState = prevDss;
+            //device.BlendState = prevBs;
         }
 
         #endregion

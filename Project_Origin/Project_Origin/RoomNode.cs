@@ -49,100 +49,18 @@ namespace Project_Origin
             this.Initialize(direction);
         }
 
+        public Boolean IsDoorIndex(int index)
+        {
+            if ((base.Width / 2) == index)
+                return true;
+            if ((base.Width / 2) - 1 == index)
+                return true;
+            return false;
+        }
+
         private void Initialize(DoorDirection direction)
         {
             this.direction = direction;
         }
-
-        /*
-        public override void Display(Vector3 Position)
-        {
-            Matrix world;
-            Matrix view = this.camera.ViewMatrix;
-            Matrix project = this.camera.ProjectMatrix;
-            float z = Position.Z;
-
-            for (int index = 0; index < base.Width; index++)
-            {
-                Position.X = Position.X + Map.GridWidth;
-                //if (this.direction == DoorDirection.North)
-                //{
-                    if (index == 2)
-                    {
-                        continue;
-                    }
-                //}
-                for (int height = 0; height < 3; height++)
-                {
-                    Position.Z = Position.Z + Map.GridWidth;
-                    world = Matrix.CreateTranslation(Position);
-                    wallcube.Draw(world, view, project, Color.Blue);
-                }
-                Position.Z = z;
-            }
-
-            for (int index = 1; index < base.Height; index++)
-            {
-                Position.Y = Position.Y - Map.GridWidth;
-                //if (this.direction == DoorDirection.East)
-                //{
-                    if (index == 2)
-                    {
-                        continue;
-                    }
-                //}
-                for (int height = 0; height < 3; height++)
-                {
-                    Position.Z = Position.Z + Map.GridWidth;
-                    world = Matrix.CreateTranslation(Position);
-                    wallcube.Draw(world, view, project, Color.Blue);
-                }
-                Position.Z = z;
-            }
-
-            for (int index = 1; index < base.Width; index++)
-            {
-                Position.X = Position.X - Map.GridWidth;
-                //if (this.direction == DoorDirection.South)
-                //{
-                    if (index == 2)
-                    {
-                        continue;
-                    }
-                //}
-                
-                for (int height = 0; height < 3; height++)
-                {
-                    Position.Z = Position.Z + Map.GridWidth;
-                    world = Matrix.CreateTranslation(Position);
-                    wallcube.Draw(world, view, project, Color.Blue);
-                }
-                Position.Z = z;
-            }
-
-            for (int index = 1; index < base.Height; index++)
-            {
-                Position.Y = Position.Y + Map.GridWidth;
-                //if (this.direction == DoorDirection.West)
-                //{
-                    if (index == 2)
-                    {
-                        continue;
-                    }
-                //}
-                
-                for (int height = 0; height < 3; height++)
-                {
-                    Position.Z = Position.Z + Map.GridWidth;
-                    world = Matrix.CreateTranslation(Position);
-                    wallcube.Draw(world, view, project, Color.Blue);
-                }
-                Position.Z = z;
-            }
-
-            base.Display(Position);
-        }
-        */
-  
     }
 }

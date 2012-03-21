@@ -52,7 +52,7 @@ namespace Project_Origin
                 throw new InvalidOperationException("ICameraService not found.");
             }
 
-            this.internalMap = new InternalMap(width, heigh, 5, 5);
+            this.internalMap = new InternalMap(width, heigh, 8, 8);
             this.internalMap.GenerateRandomMap();
             this.convertMapNodes();
             this.internalMap.printMaps();
@@ -132,9 +132,6 @@ namespace Project_Origin
                 }
                 this.DrawMapWalls(gameTime);
                 
-                
-                
-                //this.internalMap.DisplayMap(new Vector3(-(this.internalMap.MapPixelWidth / 2 + 1), (this.internalMap.MapPixelHeight / 2 - 1), 0.0f));
                 //this.device.RasterizerState = prevRs;
             }
             
@@ -153,7 +150,6 @@ namespace Project_Origin
                     }
                 }
             }
-
         }
 
         private void convertMapNodes()
@@ -161,7 +157,10 @@ namespace Project_Origin
             this.drawableMapNode = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
             Node[,] tempMap = this.internalMap.InternalMapStruct;
 
-            Vector3 startPosition = new Vector3(-(this.internalMap.MapPixelWidth / 2 + 1), (this.internalMap.MapPixelHeight / 2 - 1), 0.1f);
+            Vector3 startPosition = new Vector3(-(this.internalMap.MapPixelWidth / 2) + (InternalMap.GridSize / 2),
+                                                 (this.internalMap.MapPixelHeight / 2 - InternalMap.GridSize / 2),
+                                                 InternalMap.GridSize / 2);
+            Console.WriteLine(startPosition);
 
             for (int row = 0; row < this.internalMap.MapNodeHeight; row++)
             {
@@ -185,10 +184,10 @@ namespace Project_Origin
                         EmptySpace empty = new EmptySpace(this.game);
                         this.drawableMapNode[row, col] = empty;
                     }
-                    startPosition.X = startPosition.X + 5 * InternalMap.GridSize;
+                    startPosition.X = startPosition.X + 8 * InternalMap.GridSize;
                 }
                 startPosition.X = x;
-                startPosition.Y = startPosition.Y - 5 * InternalMap.GridSize;
+                startPosition.Y = startPosition.Y - 8 * InternalMap.GridSize;
             }
         }
 
