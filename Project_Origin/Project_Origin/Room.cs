@@ -26,6 +26,8 @@ namespace Project_Origin
         private ICameraService camera;
         private CubePrimitive wallcube;
 
+        private static int wallHeight = 3;
+
         public Room(Game game, RoomNode roomNode, Vector3 position)
             : base(game)
         {
@@ -63,79 +65,77 @@ namespace Project_Origin
 
             for (int index = 0; index < this.room.Width; index++)
             {
-                Position.X = Position.X + InternalMap.GridSize;
-                //if (this.direction == DoorDirection.North)
-                //{
-                if (index == 2)
+                if (this.room.IsDoorIndex(index))
                 {
+                    Position.X = Position.X + InternalMap.GridSize;
                     continue;
                 }
-                //}
-                for (int height = 0; height < 3; height++)
+
+                for (int height = 0; height < Room.wallHeight; height++)
                 {
-                    Position.Z = Position.Z + InternalMap.GridSize;
                     world = Matrix.CreateTranslation(Position);
                     wallcube.Draw(world, view, project, Color.Blue);
+                    Position.Z = Position.Z + InternalMap.GridSize;
                 }
+                Position.X = Position.X + InternalMap.GridSize;
                 Position.Z = z;
             }
+
+            Position.X = Position.X - InternalMap.GridSize;
+
 
             for (int index = 1; index < this.room.Height; index++)
             {
                 Position.Y = Position.Y - InternalMap.GridSize;
-                //if (this.direction == DoorDirection.East)
-                //{
-                if (index == 2)
+                if (this.room.IsDoorIndex(index))
                 {
                     continue;
                 }
-                //}
-                for (int height = 0; height < 3; height++)
+
+                for (int height = 0; height < Room.wallHeight; height++)
                 {
-                    Position.Z = Position.Z + InternalMap.GridSize;
                     world = Matrix.CreateTranslation(Position);
                     wallcube.Draw(world, view, project, Color.Blue);
+                    Position.Z = Position.Z + InternalMap.GridSize;
                 }
+                
                 Position.Z = z;
             }
 
             for (int index = 1; index < this.room.Width; index++)
             {
                 Position.X = Position.X - InternalMap.GridSize;
-                //if (this.direction == DoorDirection.South)
-                //{
-                if (index == 2)
+                if (this.room.IsDoorIndex(index))
                 {
                     continue;
                 }
-                //}
 
-                for (int height = 0; height < 3; height++)
+
+                for (int height = 0; height < Room.wallHeight; height++)
                 {
-                    Position.Z = Position.Z + InternalMap.GridSize;
                     world = Matrix.CreateTranslation(Position);
                     wallcube.Draw(world, view, project, Color.Blue);
+                    Position.Z = Position.Z + InternalMap.GridSize;
                 }
+
                 Position.Z = z;
             }
 
             for (int index = 1; index < this.room.Height; index++)
             {
                 Position.Y = Position.Y + InternalMap.GridSize;
-                //if (this.direction == DoorDirection.West)
-                //{
-                if (index == 2)
+                if (this.room.IsDoorIndex(index))
                 {
                     continue;
                 }
-                //}
 
-                for (int height = 0; height < 3; height++)
+                for (int height = 0; height < Room.wallHeight; height++)
                 {
-                    Position.Z = Position.Z + InternalMap.GridSize;
                     world = Matrix.CreateTranslation(Position);
                     wallcube.Draw(world, view, project, Color.Blue);
+                    Position.Z = Position.Z + InternalMap.GridSize;
                 }
+
                 Position.Z = z;
             }
 

@@ -51,7 +51,6 @@ namespace Project_Origin
         /// </summary>
         public override void Initialize()
         {
-
             base.Initialize();
         }
 
@@ -68,23 +67,22 @@ namespace Project_Origin
 
 
             if (orientation == WallNode.WallDirection.Horizontal)
-                Position.Y = Position.Y - InternalMap.GridSize * this.wall.Position;
+                Position.Y = Position.Y - InternalMap.GridSize * (this.wall.Position);
             else
-                Position.X = Position.X + InternalMap.GridSize * this.wall.Position;
+                Position.X = Position.X + InternalMap.GridSize * (this.wall.Position);
 
-            for (int index = 0; index < 5; index++)
+            for (int index = 0; index < this.wall.Width; index++)
             {
+                for (int height = 0; height < Wall.WallHeight; height++)
+                {
+                    world = Matrix.CreateTranslation(Position);
+                    this.wallCube.Draw(world, view, project, Color.Blue);
+                    Position.Z = Position.Z + InternalMap.GridSize;
+                }
                 if (orientation == WallNode.WallDirection.Horizontal)
                     Position.X = Position.X + InternalMap.GridSize;
                 else
                     Position.Y = Position.Y - InternalMap.GridSize;
-
-                for (int height = 0; height < Wall.WallHeight; height++)
-                {
-                    Position.Z = Position.Z + InternalMap.GridSize;
-                    world = Matrix.CreateTranslation(Position);
-                    this.wallCube.Draw(world, view, project, Color.Blue);
-                }
                 Position.Z = z;
             }
             base.Draw(gameTime);

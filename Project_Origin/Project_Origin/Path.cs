@@ -197,6 +197,15 @@ namespace Project_Origin
             this.lines.Clear();
         }
 
+        public void removeLastWayPoints()
+        {
+            if (this.points.Count > 0 && this.lines.Count > 0)
+            {
+                this.points.RemoveAt(this.points.Count - 1);
+                this.lines.RemoveAt(this.lines.Count - 1);
+            }
+        }
+
         public List<WayPoint> GetWayPoints()
         {
             return points;
