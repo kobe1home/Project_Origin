@@ -46,7 +46,7 @@ namespace Project_Origin
             this.internalMap = new InternalMap(width, heigh, 8, 8);
             this.internalMap.GenerateRandomMap();
             this.convertMapNodes();
-            this.internalMap.printMaps();
+            //this.internalMap.printMaps();
             
         }
 

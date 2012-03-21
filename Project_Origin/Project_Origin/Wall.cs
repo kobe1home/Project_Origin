@@ -25,6 +25,8 @@ namespace Project_Origin
         private GraphicsDevice gdevice;
         private ICameraService camera;
 
+        private static Color WallColor = Color.Blue;
+
         private static int WallHeight = 3;
 
 
@@ -63,6 +65,7 @@ namespace Project_Origin
             Matrix world;
             Matrix view = this.camera.ViewMatrix;
             Matrix project = this.camera.ProjectMatrix;
+            //Matrix scale = Matrix.CreateScale(new Vector3(0, 0, 3));
             float z = Position.Z;
 
 
@@ -76,7 +79,7 @@ namespace Project_Origin
                 for (int height = 0; height < Wall.WallHeight; height++)
                 {
                     world = Matrix.CreateTranslation(Position);
-                    this.wallCube.Draw(world, view, project, Color.Blue);
+                    this.wallCube.Draw(world, view, project, Wall.WallColor);
                     Position.Z = Position.Z + InternalMap.GridSize;
                 }
                 if (orientation == WallNode.WallDirection.Horizontal)

@@ -43,8 +43,8 @@ namespace Project_Origin
         Plane floorPlane;
         Matrix shadow;
 
-        DepthStencilState dss;
-        BlendState bs;
+        //DepthStencilState dss;
+        //BlendState bs;
 
         #endregion
 
@@ -184,7 +184,7 @@ namespace Project_Origin
             basicEffect.Alpha = color.A / 255.0f;
 
             GraphicsDevice device = basicEffect.GraphicsDevice;
-            device.DepthStencilState = DepthStencilState.Default;
+            //device.DepthStencilState = DepthStencilState.Default;
 
             BlendState prevState = device.BlendState;
             if (color.A < 255) 
@@ -223,9 +223,7 @@ namespace Project_Origin
             foreach (EffectPass effectPass in effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
-
                 int primitiveCount = indices.Count / 3;
-
                 graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
                                                      vertices.Count, 0, primitiveCount);
             }
@@ -235,15 +233,16 @@ namespace Project_Origin
         private void DrawShadows(BasicEffect effect)
         {
             GraphicsDevice device = effect.GraphicsDevice;
+            
             device.Clear(ClearOptions.Stencil, Color.Black, 0, 0);
-
+            device.DepthStencilState = DepthStencilState.Default;
             //disable all lighting
-            this.basicEffect.DirectionalLight0.Enabled = false;
-            this.basicEffect.DirectionalLight1.Enabled = false;
-            this.basicEffect.DirectionalLight2.Enabled = false;
-            this.basicEffect.Alpha = 0.75f;
-            this.basicEffect.AmbientLightColor = Vector3.Zero;
-            this.basicEffect.World = this.basicEffect.World * this.shadow;
+            //effect.DirectionalLight0.Enabled = false;
+            //effect.DirectionalLight1.Enabled = false;
+            //effect.DirectionalLight2.Enabled = false;
+            effect.Alpha = 1.0f;
+            effect.AmbientLightColor = Color.Yellow.ToVector3() * 0.8f;
+            effect.World = this.basicEffect.World * this.shadow;
             
             foreach (EffectPass effectPass in basicEffect.CurrentTechnique.Passes)
             {
@@ -252,7 +251,7 @@ namespace Project_Origin
                 device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
                                                      vertices.Count, 0, primitiveCount);
             }
-            this.basicEffect.DirectionalLight0.Enabled = true;
+            //this.basicEffect.DirectionalLight0.Enabled = true;
         }
 
         #endregion

@@ -128,7 +128,7 @@ namespace Project_Origin
 
             for (; col < colIndex + room.Width; col++)
             {
-                if (index != 2)
+                if (!room.IsDoorIndex(index))
                 {
                     this.detailedInternalMapStruct[row, col] = false;
                     this.detailedInternalMapStruct[row + room.Height - 1, col] = false;
@@ -139,7 +139,7 @@ namespace Project_Origin
             index = 0;
             for (; row < rowIndex + room.Height - 1; row++)
             {
-                if (index != 2)
+                if (!room.IsDoorIndex(index))
                 {
                     this.detailedInternalMapStruct[row, col] = false;
                     this.detailedInternalMapStruct[row, col - room.Width + 1] = false;
@@ -181,11 +181,11 @@ namespace Project_Origin
                 {
                     if (this.detailedInternalMapStruct[row, col])
                     {
-                        Console.Write("T ");
+                        Console.Write("  ");
                     }
                     else
                     {
-                        Console.Write("F ");
+                        Console.Write("* ");
                     }
                     //Console.Write("{0} ", this.detailedInternalMapStruct[row, col]);
                 }
