@@ -55,6 +55,7 @@ namespace Project_Origin
 
         //Below is the column that save player information
         Project_Origin.Player.PlayerId playerId = Project_Origin.Player.PlayerId.Red;
+        string map;
 
 
         public NetworkingClient(Game game)
@@ -88,23 +89,6 @@ namespace Project_Origin
         public override void Update(GameTime gameTime)
         {
             // TODO: Add your update code here
-            
-            if(true)
-            {
-                //
-                // If there's input; send it to server
-                //
-                NetOutgoingMessage om = client.CreateMessage();
-                om.Write((byte)OutgoingMessageType.DataPlayerInfo);
-                Vector3 tempPos = this.game.gamePlayer.GetPlayerPosition();
-                float tempOri = this.game.gamePlayer.GetPlayerOrientation();
-                om.Write(tempPos.X);
-                om.Write(tempPos.Y);
-                om.Write(tempPos.Z);
-                om.Write(tempOri);
-                client.SendMessage(om, NetDeliveryMethod.ReliableOrdered);
-
-            }
 
             //read message
             NetIncomingMessage msg;
@@ -116,6 +100,9 @@ namespace Project_Origin
                         //just connect to first server discovered
                         client.Connect(msg.SenderEndpoint);
                         playerId = (Project_Origin.Player.PlayerId)(msg.ReadInt32());
+                        map = (string)(msg.ReadString());
+                        this.game.bMapIsReady = true;
+                        this.game.BuildGameComponents();
                         this.game.gamePlayer.SetPlayId();
                         break;
                     case NetIncomingMessageType.Data:
@@ -135,6 +122,23 @@ namespace Project_Origin
                         positions[who] = new Vector2(x, y);
                         break;*/
                 }
+            }
+
+            if (this.game.bMapIsReady)
+            {
+                //
+                // If there's input; send it to server
+                //
+                NetOutgoingMessage om = client.CreateMessage();
+                om.Write((byte)OutgoingMessageType.DataPlayerInfo);
+                Vector3 tempPos = this.game.gamePlayer.GetPlayerPosition();
+                float tempOri = this.game.gamePlayer.GetPlayerOrientation();
+                om.Write(tempPos.X);
+                om.Write(tempPos.Y);
+                om.Write(tempPos.Z);
+                om.Write(tempOri);
+                client.SendMessage(om, NetDeliveryMethod.ReliableOrdered);
+
             }
             base.Update(gameTime);
         }

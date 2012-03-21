@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -21,6 +22,7 @@ namespace Project_Origin
         //private SpriteBatch spriteBatch;
         KeyboardState prevKeyboardState;
 
+        public bool bMapIsReady;
 
         public Camera camera;
         public Map gameMap;
@@ -46,6 +48,7 @@ namespace Project_Origin
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             IsFixedTimeStep = false;
+            bMapIsReady = false;
 
             Window.Title = "Shooter Game";
             Window.AllowUserResizing = true;
@@ -66,30 +69,30 @@ namespace Project_Origin
             this.Components.Add(this.networkingClient);
             this.Services.AddService(typeof(NetworkingClient), this.networkingClient);
 
-            this.camera = new Camera(this, new Vector3(0, 0, 100),
-                            new Vector3(1, 0, 0),
-                            new Vector3(0, 1, 0),
-                            new Vector3(0, 0, 0));
-            this.Components.Add(this.camera);
-            this.Services.AddService(typeof(ICameraService), this.camera);
+            //this.camera = new Camera(this, new Vector3(0, 0, 100),
+            //                new Vector3(1, 0, 0),
+            //                new Vector3(0, 1, 0),
+            //                new Vector3(0, 0, 0));
+            //this.Components.Add(this.camera);
+            //this.Services.AddService(typeof(ICameraService), this.camera);
 
-            this.gameMap = new Map(this, new Vector3(0, 0, 0), 160, 80);
-            this.Components.Add(this.gameMap);
-            this.Services.AddService(typeof(Map), this.gameMap);
+            //this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
+            //this.Components.Add(this.gameMap);
+            //this.Services.AddService(typeof(Map), this.gameMap);
 
-            this.path = new Path(this);
-            this.Components.Add(this.path);
-            this.Services.AddService(typeof(Path), this.path);
+            //this.path = new Path(this);
+            //this.Components.Add(this.path);
+            //this.Services.AddService(typeof(Path), this.path);
 
-            this.gamePlayer = new Player(this);
-            this.Components.Add(this.gamePlayer);
-            this.Services.AddService(typeof(Player), this.gamePlayer);
+            //this.gamePlayer = new Player(this);
+            //this.Components.Add(this.gamePlayer);
+            //this.Services.AddService(typeof(Player), this.gamePlayer);
 
-            this.fps = new FPS(this);
-            this.Components.Add(fps);
+            //this.fps = new FPS(this);
+            //this.Components.Add(fps);
 
-            this.mainMenu = new MainMenu(this);
-            this.Components.Add(mainMenu);
+            //this.mainMenu = new MainMenu(this);
+            //this.Components.Add(mainMenu);
 
             this.Services.AddService(typeof(Shooter), this);
 
@@ -124,6 +127,12 @@ namespace Project_Origin
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            if (!bMapIsReady) //if map data isn't received, just return
+            {
+                base.Update(gameTime);
+                return;
+            }
+
             // Allows the game to exit
             //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
             //    this.Exit();
@@ -181,7 +190,37 @@ namespace Project_Origin
             return gameStatus;
         }
 
-     
+        public void BuildGameComponents()
+        {
+            this.camera = new Camera(this, new Vector3(0, 0, 100),
+                            new Vector3(1, 0, 0),
+                            new Vector3(0, 1, 0),
+                            new Vector3(0, 0, 0));
+            
+            this.Services.AddService(typeof(ICameraService), this.camera);
 
+            this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
+            this.Services.AddService(typeof(Map), this.gameMap);
+
+            this.path = new Path(this);      
+            this.Services.AddService(typeof(Path), this.path);
+
+            this.gamePlayer = new Player(this);
+            this.Services.AddService(typeof(Player), this.gamePlayer);
+
+            this.fps = new FPS(this);
+
+            this.mainMenu = new MainMenu(this);
+
+
+            this.Components.Add(this.camera);
+            this.Components.Add(this.gameMap);
+            this.Components.Add(mainMenu);
+            this.Components.Add(fps);
+            this.Components.Add(this.path);
+            this.Components.Add(this.gamePlayer);
+
+            return;
+        }
     }
 }

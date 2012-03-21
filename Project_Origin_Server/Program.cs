@@ -71,6 +71,8 @@ namespace Project_Origin_Server
             //Schedule initial sending of position updates
             double nextSendUpdates = NetTime.Now;
             
+            //Generate a map and wait client to connect
+            string map = GenerateMap();
             //Run until escape is pressed
             while (!Console.KeyAvailable || Console.ReadKey().Key != ConsoleKey.Escape)
             {
@@ -88,9 +90,11 @@ namespace Project_Origin_Server
                             {
                                 case 0:
                                     com.Write((int)PlayerId.Green);
+                                    com.Write((string)map);
                                     break;
                                 case 1:
                                     com.Write((int)PlayerId.Red);
+                                    com.Write((string)map);
                                     break;
                             }
                             server.SendDiscoveryResponse(com, msg.SenderEndpoint);
@@ -198,6 +202,12 @@ namespace Project_Origin_Server
             }
 
             server.Shutdown("server exiting");
+        }
+
+        static string GenerateMap()
+        {
+            //TODO: Generate actual map
+            return "This is a map";
         }
     }
 }
