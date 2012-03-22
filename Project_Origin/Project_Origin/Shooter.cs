@@ -199,6 +199,7 @@ namespace Project_Origin
             
             this.Services.AddService(typeof(ICameraService), this.camera);
 
+            Console.WriteLine(" {0}  ", mapSeed);
             this.gameMap = new Map(this, new Vector3(0, 0, 0), mapSeed);
             this.Services.AddService(typeof(Map), this.gameMap);
 
