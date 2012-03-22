@@ -55,7 +55,7 @@ namespace Project_Origin
 
         //Below is the column that save player information
         Project_Origin.Player.PlayerId playerId = Project_Origin.Player.PlayerId.Red;
-        string map;
+        InternalMap map;
 
 
         public NetworkingClient(Game game)
@@ -100,9 +100,9 @@ namespace Project_Origin
                         //just connect to first server discovered
                         client.Connect(msg.SenderEndpoint);
                         playerId = (Project_Origin.Player.PlayerId)(msg.ReadInt32());
-                        map = (string)(msg.ReadString());
+                        map = (InternalMap)(msg.ReadString());
                         this.game.bMapIsReady = true;
-                        this.game.BuildGameComponents();
+                        this.game.BuildGameComponents(map);
                         this.game.gamePlayer.SetPlayId();
                         break;
                     case NetIncomingMessageType.Data:

@@ -28,7 +28,7 @@ namespace Project_Origin
         private DrawableGameComponent[,] drawableRandomMapNode; // converted from internalMap, so that it can be drawn.
 
 
-        public Map(Game game, Vector3 start, int width, int heigh)
+        public Map(Game game, Vector3 start, InternalMap internalMap)
             : base(game)
         {
             
@@ -43,18 +43,20 @@ namespace Project_Origin
                 throw new InvalidOperationException("ICameraService not found.");
             }
 
-            this.internalMap = new InternalMap(width, heigh, 8, 8);
-            this.internalMap.GenerateRandomMap();
+            this.internalMap = internalMap;//new InternalMap(width, heigh, 8, 8);
             this.convertMapNodes();
+            //this.internalMap.GenerateRandomMap();
             //this.internalMap.printMaps();
             
         }
 
         public override void Initialize()
         {
-
-            int widthNum = this.internalMap.NumGridsWidth;
-            int heightNum = this.internalMap.NumGridsHeight;
+            int widthNum;
+            int heightNum;
+            widthNum = this.internalMap.NumGridsWidth;
+            heightNum = this.internalMap.NumGridsHeight;
+            
             this.pointMatrics = new VertexPositionColor[heightNum][];
  
             for (int row = 0; row < heightNum; row++)
@@ -123,26 +125,13 @@ namespace Project_Origin
                                                     VertexPositionColor.VertexDeclaration);
                     }
                 }
-                this.DrawMapWalls(gameTime);
+                if (this.internalMap != null)
+                    this.DrawMapWalls(gameTime);
                 
                 //this.device.RasterizerState = prevRs;
             }
             
             base.Draw(gameTime);
-        }
-
-        private void DrawMapWalls(GameTime gameTime)
-        {
-            if (this.internalMap != null)
-            {
-                for (int row = 0; row < this.internalMap.MapNodeHeight; row++)
-                {
-                    for (int col = 0; col < this.internalMap.MapNodeWidth; col++)
-                    {
-                        this.drawableRandomMapNode[row, col].Draw(gameTime);
-                    }
-                }
-            }
         }
 
         private void convertMapNodes()
@@ -183,6 +172,30 @@ namespace Project_Origin
                 }
                 startPosition.X = x;
                 startPosition.Y = startPosition.Y - tempNode.Width * InternalMap.GridSize;
+            }
+        }
+
+        private void DrawMapWalls(GameTime gameTime)
+        {
+            if (this.internalMap != null)
+            {
+                for (int row = 0; row < this.internalMap.MapNodeHeight; row++)
+                {
+                    for (int col = 0; col < this.internalMap.MapNodeWidth; col++)
+                    {
+                        this.drawableRandomMapNode[row, col].Draw(gameTime);
+                    }
+                }
+            }
+        }
+
+        public InternalMap InternalMap
+        {
+            get { return internalMap; }
+            set
+            {
+                internalMap = value;
+                this.convertMapNodes();
             }
         }
 

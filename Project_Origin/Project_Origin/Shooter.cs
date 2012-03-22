@@ -190,7 +190,7 @@ namespace Project_Origin
             return gameStatus;
         }
 
-        public void BuildGameComponents()
+        public void BuildGameComponents(InternalMap internalMap)
         {
             this.camera = new Camera(this, new Vector3(0, 0, 100),
                             new Vector3(1, 0, 0),
