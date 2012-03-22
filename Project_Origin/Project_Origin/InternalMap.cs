@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -80,15 +81,27 @@ namespace Project_Origin
 
         public void OptimizeMap()
         {
-            int maxSize = numNodesH;
-            if (numNodesV > numNodesH)
-                maxSize = numNodesV;
+            int minSize = numNodesH;
+            if (numNodesV < numNodesH)
+                minSize = numNodesV;
+            ArrayList rowList1 = new ArrayList();
+            ArrayList colList1 = new ArrayList();
+            ArrayList rowList2 = new ArrayList();
+            ArrayList colList2 = new ArrayList();
             for (int row = 0; row < this.numNodesV; row++)
             {
                 for (int col = 0; col < this.numNodesH; col++)
                 {
-                    if (distance(0, 0, row, col) >= 0.75 * maxSize)
-                        Console.WriteLine("hello");
+                    if (distance(0, 0, row, col) >= 0.75 * minSize)
+                    {
+                        rowList1.Add(row);
+                        colList1.Add(col);
+                    }
+                    if (distance(this.numNodesV-1, this.numNodesH-1, row, col) >= 0.75 * minSize)
+                    {
+                        rowList2.Add(row);
+                        colList2.Add(col);
+                    }
                 }
             }
         }
