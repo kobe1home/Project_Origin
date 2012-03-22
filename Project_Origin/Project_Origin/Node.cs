@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 namespace Project_Origin
 {
+    [Serializable()]
     public class Node
     {
         private int width;

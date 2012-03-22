@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Project_Origin_Server
 {
+    [Serializable()]
     class EmptyNode : Node
     {
         public EmptyNode()

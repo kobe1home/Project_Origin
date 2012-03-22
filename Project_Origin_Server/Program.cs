@@ -86,15 +86,20 @@ namespace Project_Origin_Server
                             // Server received a discovery request from a client; send a discovery response (with no extra data attached)
                             //
                             NetOutgoingMessage com = server.CreateMessage();
+                            byte[] mapData = Serializer<InternalMap>.SerializeObject(map);
                             switch (server.ConnectionsCount)
                             {
                                 case 0:
                                     com.Write((int)PlayerId.Green);
-                                    com.Write((InternalMap)map);
+                                    com.Write(mapData.Length); //Write object size
+                                    com.Write(mapData); //Write object data
+                                    //com.Write((InternalMap)map);
                                     break;
                                 case 1:
                                     com.Write((int)PlayerId.Red);
-                                    com.Write((InternalMap)map);
+                                    com.Write(mapData.Length); //Write object size
+                                    com.Write(mapData); //Write object data
+                                    //com.Write((InternalMap)map);
                                     break;
                             }
                             server.SendDiscoveryResponse(com, msg.SenderEndpoint);

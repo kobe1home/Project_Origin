@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 namespace Project_Origin
 {
+    [Serializable()]
     public class WallNode : Node
     {
         private int position;

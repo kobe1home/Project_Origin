@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Project_Origin
 {
+    [Serializable()]
     public class RoomNode : Node
     {
 
