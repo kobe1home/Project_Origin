@@ -185,12 +185,6 @@ namespace Project_Origin_Server
                                 om.Write(playerInfo.position.Z);
                                 om.Write(playerInfo.orientation);
 
-                                //TODO: send dummy class, remove in future
-                                dummyClass obj = new dummyClass();
-                                byte[] objData = Serializer<dummyClass>.SerializeObject(obj);
-                                om.Write(objData.Length); //Write object size
-                                om.Write(objData); //Write object data
-
                                 //send message
                                 server.SendMessage(om, player, NetDeliveryMethod.ReliableOrdered);
                             }
