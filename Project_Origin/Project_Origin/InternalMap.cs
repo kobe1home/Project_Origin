@@ -88,6 +88,8 @@ namespace Project_Origin
             ArrayList colList1 = new ArrayList();
             ArrayList rowList2 = new ArrayList();
             ArrayList colList2 = new ArrayList();
+
+            // find suitable spoitions for placing optimal spots
             for (int row = 0; row < this.numNodesV; row++)
             {
                 for (int col = 0; col < this.numNodesH; col++)
@@ -97,13 +99,19 @@ namespace Project_Origin
                         rowList1.Add(row);
                         colList1.Add(col);
                     }
-                    if (distance(this.numNodesV-1, this.numNodesH-1, row, col) >= 0.75 * minSize)
+                    if (distance(this.numNodesV - 1, this.numNodesH - 1, row, col) >= 0.75 * minSize)
                     {
                         rowList2.Add(row);
                         colList2.Add(col);
                     }
                 }
             }
+            // randomly pick four spots
+            Random rand = new Random();
+            for (int i = 0; i < 4; i++)
+                rand.Next(rowList1.Count);
+            for (int i = 0; i < 4; i++)
+                rand.Next(rowList1.Count);
         }
 
         private double distance(int node1row, int node1col, int node2row, int node2col)
