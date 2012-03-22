@@ -100,9 +100,12 @@ namespace Project_Origin
                         //just connect to first server discovered
                         client.Connect(msg.SenderEndpoint);
                         playerId = (Project_Origin.Player.PlayerId)(msg.ReadInt32());
-                        map = (InternalMap)(msg.ReadString());
+                        int mapDataSize = msg.ReadInt32();
+                        int mapSeed = msg.ReadInt32();
+                        //byte[] mapData = new byte[mapDataSize];
+                        //InternalMap map = Serializer<InternalMap>.DeserializeObject<InternalMap>(mapData);
                         this.game.bMapIsReady = true;
-                        this.game.BuildGameComponents(map);
+                        this.game.BuildGameComponents(mapSeed);
                         this.game.gamePlayer.SetPlayId();
                         break;
                     case NetIncomingMessageType.Data:

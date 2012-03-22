@@ -190,7 +190,7 @@ namespace Project_Origin
             return gameStatus;
         }
 
-        public void BuildGameComponents(InternalMap internalMap)
+        public void BuildGameComponents(int mapSeed)
         {
             this.camera = new Camera(this, new Vector3(0, 0, 100),
                             new Vector3(1, 0, 0),
@@ -199,7 +199,7 @@ namespace Project_Origin
             
             this.Services.AddService(typeof(ICameraService), this.camera);
 
-            this.gameMap = new Map(this, new Vector3(0, 0, 0), 100, 60);
+            this.gameMap = new Map(this, new Vector3(0, 0, 0), mapSeed);
             this.Services.AddService(typeof(Map), this.gameMap);
 
             this.path = new Path(this);      

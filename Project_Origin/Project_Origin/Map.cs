@@ -28,7 +28,7 @@ namespace Project_Origin
         private DrawableGameComponent[,] drawableRandomMapNode; // converted from internalMap, so that it can be drawn.
 
 
-        public Map(Game game, Vector3 start, InternalMap internalMap)
+        public Map(Game game, Vector3 start, int mapSeed)
             : base(game)
         {
             
@@ -43,7 +43,7 @@ namespace Project_Origin
                 throw new InvalidOperationException("ICameraService not found.");
             }
 
-            this.internalMap = internalMap;//new InternalMap(width, heigh, 8, 8);
+            this.internalMap = new InternalMap(160, 80, 8, 8, mapSeed);//new InternalMap(width, heigh, 8, 8);
             this.convertMapNodes();
             //this.internalMap.GenerateRandomMap();
             //this.internalMap.printMaps();

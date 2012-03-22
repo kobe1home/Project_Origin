@@ -72,7 +72,10 @@ namespace Project_Origin_Server
             double nextSendUpdates = NetTime.Now;
 
             //Generate a map and wait client to connect
-            InternalMap map = GenerateMap();
+            //InternalMap map = GenerateMap();
+            int mapSeed = 1000;
+            Random rand = new Random();
+            mapSeed = rand.Next();
             //Run until escape is pressed
             while (!Console.KeyAvailable || Console.ReadKey().Key != ConsoleKey.Escape)
             {
@@ -86,15 +89,16 @@ namespace Project_Origin_Server
                             // Server received a discovery request from a client; send a discovery response (with no extra data attached)
                             //
                             NetOutgoingMessage com = server.CreateMessage();
+                            //byte[] mapData = Serializer<InternalMap>.SerializeObject(map);
                             switch (server.ConnectionsCount)
                             {
                                 case 0:
                                     com.Write((int)PlayerId.Green);
-                                    com.Write((InternalMap)map);
+                                    com.Write((int)mapSeed); //Write map seed
                                     break;
                                 case 1:
                                     com.Write((int)PlayerId.Red);
-                                    com.Write((InternalMap)map);
+                                    com.Write((int)mapSeed); //Write map seed
                                     break;
                             }
                             server.SendDiscoveryResponse(com, msg.SenderEndpoint);
@@ -203,7 +207,7 @@ namespace Project_Origin_Server
 
             server.Shutdown("server exiting");
         }
-
+        /*
         static InternalMap GenerateMap()
         {
             InternalMap internalMap = new InternalMap(160, 80, 8, 8);
@@ -212,5 +216,6 @@ namespace Project_Origin_Server
             //internalMap.printMaps();
             return internalMap;
         }
+         * */
     }
 }
