@@ -31,7 +31,7 @@ namespace Project_Origin
             this.pixelwidth = pixelWidth;
             this.pixelheight = pixelHeight;
             this.randomSeed = randomSeed;
-            
+
         }
 
         private void CheckMapSize(int width, int height, int nodeWidth, int nodeHeight)
@@ -80,8 +80,22 @@ namespace Project_Origin
 
         public void OptimizeMap()
         {
+            int maxSize = numNodesH;
+            if (numNodesV > numNodesH)
+                maxSize = numNodesV;
+            for (int row = 0; row < this.numNodesV; row++)
+            {
+                for (int col = 0; col < this.numNodesH; col++)
+                {
+                    if (distance(0, 0, row, col) >= 0.75 * maxSize)
+                        Console.WriteLine("hello");
+                }
+            }
+        }
 
-
+        private double distance(int node1row, int node1col, int node2row, int node2col)
+        {
+            return Math.Sqrt((node1row - node2row) * (node1row - node2row) + (node1col - node2col) * (node1col - node2col));
         }
 
         private void GenerateDetailMap()
@@ -156,7 +170,7 @@ namespace Project_Origin
         {
             int row = rowIndex;
             int col = colIndex;
-            
+
 
             if (wall.Orientation == WallNode.WallDirection.Horizontal)
             {
