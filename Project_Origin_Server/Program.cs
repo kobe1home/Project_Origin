@@ -72,7 +72,8 @@ namespace Project_Origin_Server
             double nextSendUpdates = NetTime.Now;
             
             //Generate a map and wait client to connect
-            InternalMap map = GenerateMap();
+            //InternalMap map = GenerateMap();
+            int mapSeed = 1000;
             //Run until escape is pressed
             while (!Console.KeyAvailable || Console.ReadKey().Key != ConsoleKey.Escape)
             {
@@ -86,20 +87,16 @@ namespace Project_Origin_Server
                             // Server received a discovery request from a client; send a discovery response (with no extra data attached)
                             //
                             NetOutgoingMessage com = server.CreateMessage();
-                            byte[] mapData = Serializer<InternalMap>.SerializeObject(map);
+                            //byte[] mapData = Serializer<InternalMap>.SerializeObject(map);
                             switch (server.ConnectionsCount)
                             {
                                 case 0:
                                     com.Write((int)PlayerId.Green);
-                                    com.Write(mapData.Length); //Write object size
-                                    com.Write(mapData); //Write object data
-                                    //com.Write((InternalMap)map);
+                                    com.Write((int)mapSeed); //Write map seed
                                     break;
                                 case 1:
                                     com.Write((int)PlayerId.Red);
-                                    com.Write(mapData.Length); //Write object size
-                                    com.Write(mapData); //Write object data
-                                    //com.Write((InternalMap)map);
+                                    com.Write((int)mapSeed); //Write map seed
                                     break;
                             }
                             server.SendDiscoveryResponse(com, msg.SenderEndpoint);
