@@ -11,7 +11,7 @@ namespace Project_Origin
     {
         private int position;
         private WallDirection orientation;
-        
+        private Random randomGenerator;
 
         public enum WallDirection
         {
@@ -19,17 +19,17 @@ namespace Project_Origin
             Vertial,
         }
 
-        public WallNode(): base()
+        public WallNode(int randomSeed): base()
         {
-            Random rand = new Random();
+            this.randomGenerator = new Random(randomSeed);
 
-            if (rand.Next(2) == 0) // horizontal wall
+            if (this.randomGenerator.Next()%2 == 0) // horizontal wall
             {
-                this.Intialize(rand.Next(this.Height), WallDirection.Horizontal);
+                this.Intialize(this.randomGenerator.Next(this.Height), WallDirection.Horizontal);
             }
             else // vertical wall
             {
-                this.Intialize(rand.Next(this.Width), WallDirection.Vertial);
+                this.Intialize(this.randomGenerator.Next(this.Width), WallDirection.Vertial);
             }
         }
 

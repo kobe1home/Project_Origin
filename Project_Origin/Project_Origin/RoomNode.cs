@@ -12,6 +12,7 @@ namespace Project_Origin
     {
 
         private DoorDirection direction;
+        private Random randomGenerator;
         
         public enum DoorDirection
         {
@@ -21,10 +22,10 @@ namespace Project_Origin
             West
         }
 
-        public RoomNode(): base()
+        public RoomNode(int randomSeed): base()
         {
-            Random rand = new Random();
-            int num = rand.Next(4);
+            this.randomGenerator = new Random(randomSeed);
+            int num = this.randomGenerator.Next(4);
             if (num == 0)
             {
                 this.Initialize(DoorDirection.North);

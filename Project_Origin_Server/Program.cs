@@ -70,7 +70,7 @@ namespace Project_Origin_Server
 
             //Schedule initial sending of position updates
             double nextSendUpdates = NetTime.Now;
-            
+
             //Generate a map and wait client to connect
             InternalMap map = GenerateMap();
             //Run until escape is pressed

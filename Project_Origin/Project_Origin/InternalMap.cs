@@ -19,14 +19,18 @@ namespace Project_Origin
         private Node[,] internalMapStruct;
         private Node[,] optimizedMapStruct;
         private Boolean[,] detailedInternalMapStruct;
+        private int randomSeed;
+        //private Random randomGenerator;
 
         public static int GridSize = 2;
 
-        public InternalMap(int pixelWidth, int pixelHeight, int nodeWidth, int nodeHeight)
+        public InternalMap(int pixelWidth, int pixelHeight, int nodeWidth, int nodeHeight, int randomSeed)
         {
             this.CheckMapSize(pixelWidth, pixelHeight, nodeWidth, nodeHeight);
             this.pixelwidth = pixelWidth;
             this.pixelheight = pixelHeight;
+            this.randomSeed = randomSeed;
+            
         }
 
         private void CheckMapSize(int width, int height, int nodeWidth, int nodeHeight)
@@ -48,20 +52,19 @@ namespace Project_Origin
 
         public void GenerateRandomMap()
         {
-            Random randNum = new Random();
-
+            Random randomGenerator = new Random(randomSeed);
             for (int row = 0; row < this.numNodesV; row++)
             {
                 for (int col = 0; col < this.numNodesH; col++)
                 {
-                    int randomType = randNum.Next(3);
+                    int randomType = randomGenerator.Next(3);
                     if (randomType == 0)
                     {
-                        this.internalMapStruct[row, col] = new RoomNode();
+                        this.internalMapStruct[row, col] = new RoomNode(this.randomSeed);
                     }
                     else if (randomType == 1)
                     {
-                        this.internalMapStruct[row, col] = new WallNode();
+                        this.internalMapStruct[row, col] = new WallNode(this.randomSeed);
                     }
                     else
                     {
