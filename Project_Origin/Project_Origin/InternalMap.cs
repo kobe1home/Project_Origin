@@ -70,7 +70,7 @@ namespace Project_Origin
                     }
                     else
                     {
-                        this.internalMapStruct[row, col] = new EmptyNode(); ;
+                        this.internalMapStruct[row, col] = new EmptyNode();
                     }
                 }
             }
@@ -106,12 +106,22 @@ namespace Project_Origin
                     }
                 }
             }
-            // randomly pick four spots
+            // randomly pick four spots and create "safe" spots
             Random rand = new Random();
             for (int i = 0; i < 4; i++)
-                rand.Next(rowList1.Count);
+            {
+                int pos = rand.Next(rowList1.Count);
+                for (int j = pos - 1; j <= pos + 1; j++)
+                    for (int k = pos - 1; k <= pos + 1; k++)
+                        this.internalMapStruct[(int)rowList1[j], (int)colList1[k]] = new EmptyNode();
+            }
             for (int i = 0; i < 4; i++)
-                rand.Next(rowList1.Count);
+            {
+                int pos = rand.Next(rowList2.Count);
+                for (int j = pos - 1; j <= pos + 1; j++)
+                    for (int k = pos - 1; k <= pos + 1; k++)
+                        this.internalMapStruct[(int)rowList2[j], (int)colList2[k]] = new EmptyNode();
+            }
         }
 
         private double distance(int node1row, int node1col, int node2row, int node2col)
