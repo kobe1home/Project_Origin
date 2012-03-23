@@ -33,8 +33,6 @@ namespace Project_Origin
         {
             this.defaultEfft =  new BasicEffect(game.GraphicsDevice);
             this.previousState = Mouse.GetState();
-            // TODO: Construct any child components here
-            
         }
 
         /// <summary>
@@ -106,7 +104,10 @@ namespace Project_Origin
 
                 Ray pickRay = GetPickRay(mouseState);
 
-                BoundingBox box = new BoundingBox(this.gameMap.Start - new Vector3(this.gameMap.Witdth / 2, this.gameMap.Heigh / 2, 0.0f), this.gameMap.Start + new Vector3(this.gameMap.Witdth / 2, this.gameMap.Heigh / 2, 0.0f));
+                BoundingBox box = new BoundingBox(this.gameMap.Start - new Vector3(this.gameMap.Witdth / 2, 
+                                                  this.gameMap.Heigh / 2, 0.0f), 
+                                                  this.gameMap.Start + new Vector3(this.gameMap.Witdth / 2, 
+                                                  this.gameMap.Heigh / 2, 0.0f));
 
                 Nullable<float> result = pickRay.Intersects(box);
                 if (result.HasValue == true)
@@ -199,7 +200,12 @@ namespace Project_Origin
 
         public void removeLastWayPoints()
         {
-            if (this.points.Count > 0 && this.lines.Count > 0)
+            
+            if (this.points.Count == 2 && this.lines.Count == 2)
+            {
+                this.CleanWayPoints();
+            }
+            else if (this.points.Count > 0 && this.lines.Count > 0)
             {
                 this.points.RemoveAt(this.points.Count - 1);
                 this.lines.RemoveAt(this.lines.Count - 1);

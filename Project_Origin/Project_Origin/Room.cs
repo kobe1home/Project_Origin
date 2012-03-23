@@ -28,6 +28,8 @@ namespace Project_Origin
 
         private static int wallHeight = 3;
 
+        private static Color RoomColor = Color.Blue;
+
         public Room(Game game, RoomNode roomNode, Vector3 position)
             : base(game)
         {
@@ -74,7 +76,7 @@ namespace Project_Origin
                 for (int height = 0; height < Room.wallHeight; height++)
                 {
                     world = Matrix.CreateTranslation(Position);
-                    wallcube.Draw(world, view, project, Color.Blue);
+                    wallcube.Draw(world, view, project, Room.RoomColor);
                     Position.Z = Position.Z + InternalMap.GridSize;
                 }
                 Position.X = Position.X + InternalMap.GridSize;
@@ -138,8 +140,6 @@ namespace Project_Origin
 
                 Position.Z = z;
             }
-
-            base.Draw(gameTime);
 
         }
 

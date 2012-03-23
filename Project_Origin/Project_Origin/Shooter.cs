@@ -220,8 +220,6 @@ namespace Project_Origin
             this.Components.Add(fps);
             this.Components.Add(this.path);
             this.Components.Add(this.gamePlayer);
-
-            return;
         }
     }
 }

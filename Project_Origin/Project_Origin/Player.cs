@@ -343,6 +343,8 @@ namespace Project_Origin
             translation = Matrix.CreateTranslation(position);//Matrix.CreateTranslation(20.0f, -20.0f, 110.0f);
             rotationZ = Matrix.CreateRotationZ(playerZRoatation);
             world = scale * rotationZ * translation;//* ;
+
+            
             foreach (ModelMesh mesh in player.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)
@@ -357,7 +359,8 @@ namespace Project_Origin
                     mesh.Draw();
                 }
             }
-
+            
+            
             if (CheckIfEnemyInSight() == true && playerMode == PlayerMode.Moving)
             {
                 path.CleanWayPoints();
@@ -396,6 +399,7 @@ namespace Project_Origin
                                             temp, 0, 1,
                                             VertexPositionColor.VertexDeclaration);
             }
+            
         }
 
         public void DrawOpponentPlayer(GameTime gameTime)
@@ -413,6 +417,8 @@ namespace Project_Origin
             translation = Matrix.CreateTranslation(position);//Matrix.CreateTranslation(20.0f, -20.0f, 110.0f);
             rotationZ = Matrix.CreateRotationZ(opponentZRoatation);
             world = scale * rotationZ * translation;//* ;
+
+            
             foreach (ModelMesh mesh in opponent.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)
@@ -456,6 +462,7 @@ namespace Project_Origin
                                             temp, 0, 1,
                                             VertexPositionColor.VertexDeclaration);
             }
+            
         }
         //public void DrawRedPlayer(GameTime gameTime)
         //{
