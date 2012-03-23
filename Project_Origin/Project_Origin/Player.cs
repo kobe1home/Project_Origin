@@ -22,6 +22,7 @@ namespace Project_Origin
         private Path path;
         private Shooter shooter;
         private NetworkingClient networkingClient;
+        private Map map;
 
         #region default properties of two kinds of player
 
@@ -41,6 +42,8 @@ namespace Project_Origin
         private float playerZRoatation; //Facing direction
         private Vector3 opponentPosition;
         private float opponentZRoatation; //Facing direction
+
+        Boolean[,] internalBoolMap;
 
         private Color playerDiffuseColor = Color.White;
         private float sightDistance = 30;
@@ -124,7 +127,13 @@ namespace Project_Origin
             {
                 throw new InvalidOperationException("Networking not found.");
             }
+            this.map = this.game.Services.GetService(typeof(Map)) as Map;
+            if (this.map == null)
+            {
+                throw new InvalidOperationException("Map not found.");
+            }
 
+            internalBoolMap = map.InternalMap.DetailedInternalMapStruct;
             //this.playerId = networkingClient.GetPlayerId();
 
             base.Initialize();
@@ -280,14 +289,14 @@ namespace Project_Origin
             if (Math.Abs(opponentPosition.X - playerPosition.X) > Math.Abs(opponentPosition.Y - playerPosition.Y))
             {
                 steps = (int)Math.Abs(opponentPosition.X - playerPosition.X);
-                increx = 2;
+                increx = (opponentPosition.X - playerPosition.X) / steps;
                 increy = (float)(opponentPosition.Y - playerPosition.Y) / steps;
             }
             else
             {
                 steps = (int)Math.Abs(opponentPosition.Y - playerPosition.Y);
                 increx = (float)(opponentPosition.X - playerPosition.X) / steps;
-                increy = 2;
+                increy = (opponentPosition.Y - playerPosition.Y) / steps; ;
             }
             x = playerPosition.X;
             y = playerPosition.Y;
@@ -295,6 +304,14 @@ namespace Project_Origin
             for (i = 1; i <= steps; ++i)
             {
                 //Check if block(x, y) is a wall
+                int boolMapX = (int)((x + this.map.InternalMap.MapPixelWidth / 2) / 2.0f);
+                int boolMapY = (int)((y + this.map.InternalMap.MapPixelHeight / 2) / 2.0f);
+                if (internalBoolMap[boolMapY - 1, boolMapX - 1] == false)
+                {
+                    bBlockExist = true;
+                    return bBlockExist;
+                }
+
                 x += increx;
                 y += increx;
             }
@@ -305,13 +322,14 @@ namespace Project_Origin
         public bool CheckIfEnemyInSight()
         {
             bool bEnemyInSight = false;
-            if (playerMode != PlayerMode.Shooting)
+            if (playerMode != PlayerMode.Shooting && playerMode != PlayerMode.Normal )
             {
-                //Check if enemy is in line of sight
+                //Step 1: Check the distance between two players
                 Vector2 posDir = new Vector2(opponentPosition.X, opponentPosition.Y) - new Vector2(playerPosition.X, playerPosition.Y);
                 if (posDir.Length() > sightDistance / 4.0 * 3.0)
                     return bEnemyInSight;
 
+                //Step 2: Check if the angle is in the field of view
                 posDir.Normalize();
 
                 Vector2 sightDir = new Vector2(0, 1);
@@ -321,8 +339,7 @@ namespace Project_Origin
                 float ConeThirtyDegreesDotProduct = (float)Math.Cos(MathHelper.ToRadians(30f / 2f));
                 if (Vector2.Dot(posDir, sightDir) > ConeThirtyDegreesDotProduct)
                 {
-                    //If in line of sight, then check if there are some blocks between player and enemy
-                    
+                    //Step 3: If in line of sight, then check if there are some blocks between player and enemy
                     bEnemyInSight = ! CheckIfWallBlockExist();
                 }
                 
