@@ -107,6 +107,7 @@ namespace Project_Origin
                 */
                 
                 // center the map to (0,0,0) point
+                
                 Vector3 mapPos = new Vector3(-this.internalMap.MapPixelWidth / 2, 
                                              -this.internalMap.MapPixelHeight / 2, 
                                              0.0f);
@@ -125,6 +126,7 @@ namespace Project_Origin
                                                     VertexPositionColor.VertexDeclaration);
                     }
                 }
+                
                 if (this.internalMap != null)
                     this.DrawMapWalls(gameTime);
                 

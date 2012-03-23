@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,7 @@ namespace Project_Origin
             this.pixelwidth = pixelWidth;
             this.pixelheight = pixelHeight;
             this.randomSeed = randomSeed;
-            
+
         }
 
         private void CheckMapSize(int width, int height, int nodeWidth, int nodeHeight)
@@ -69,7 +70,7 @@ namespace Project_Origin
                     }
                     else
                     {
-                        this.internalMapStruct[row, col] = new EmptyNode(); ;
+                        this.internalMapStruct[row, col] = new EmptyNode();
                     }
                 }
             }
@@ -80,8 +81,52 @@ namespace Project_Origin
 
         public void OptimizeMap()
         {
+            int minSize = numNodesH;
+            if (numNodesV < numNodesH)
+                minSize = numNodesV;
+            ArrayList rowList1 = new ArrayList();
+            ArrayList colList1 = new ArrayList();
+            ArrayList rowList2 = new ArrayList();
+            ArrayList colList2 = new ArrayList();
 
+            // find suitable spoitions for placing optimal spots
+            for (int row = 0; row < this.numNodesV; row++)
+            {
+                for (int col = 0; col < this.numNodesH; col++)
+                {
+                    if (distance(0, 0, row, col) >= 0.75 * minSize)
+                    {
+                        rowList1.Add(row);
+                        colList1.Add(col);
+                    }
+                    if (distance(this.numNodesV - 1, this.numNodesH - 1, row, col) >= 0.75 * minSize)
+                    {
+                        rowList2.Add(row);
+                        colList2.Add(col);
+                    }
+                }
+            }
+            // randomly pick four spots and create "safe" spots
+            Random rand = new Random();
+            for (int i = 0; i < 4; i++)
+            {
+                int pos = rand.Next(rowList1.Count);
+                for (int j = pos - 1; j <= pos + 1; j++)
+                    for (int k = pos - 1; k <= pos + 1; k++)
+                        this.internalMapStruct[(int)rowList1[j], (int)colList1[k]] = new EmptyNode();
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                int pos = rand.Next(rowList2.Count);
+                for (int j = pos - 1; j <= pos + 1; j++)
+                    for (int k = pos - 1; k <= pos + 1; k++)
+                        this.internalMapStruct[(int)rowList2[j], (int)colList2[k]] = new EmptyNode();
+            }
+        }
 
+        private double distance(int node1row, int node1col, int node2row, int node2col)
+        {
+            return Math.Sqrt((node1row - node2row) * (node1row - node2row) + (node1col - node2col) * (node1col - node2col));
         }
 
         private void GenerateDetailMap()
@@ -156,7 +201,7 @@ namespace Project_Origin
         {
             int row = rowIndex;
             int col = colIndex;
-            
+
 
             if (wall.Orientation == WallNode.WallDirection.Horizontal)
             {

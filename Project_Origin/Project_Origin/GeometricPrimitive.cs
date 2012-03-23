@@ -120,9 +120,9 @@ namespace Project_Origin
             this.dss.StencilFunction = CompareFunction.Equal;
             this.dss.StencilPass = StencilOperation.Increment;
             */
-            this.floorPlane = new Plane(new Vector3(-1, 1, 0),
-                           new Vector3(1, 1, 0),
-                           new Vector3(-1, -1, 0));
+            this.floorPlane = new Plane(new Vector3(-1f, 1f, 0.1f),
+                           new Vector3(1f, 1f, 0.1f),
+                           new Vector3(-1f, -1f, 0.1f));
             shadow = Matrix.CreateShadow(basicEffect.DirectionalLight0.Direction, floorPlane) *
                 Matrix.CreateTranslation(floorPlane.Normal / 100);
         }
