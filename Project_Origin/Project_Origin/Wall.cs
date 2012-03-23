@@ -88,7 +88,6 @@ namespace Project_Origin
                     Position.Y = Position.Y - InternalMap.GridSize;
                 Position.Z = z;
             }
-            base.Draw(gameTime);
         }
 
         /// <summary>
