@@ -24,6 +24,9 @@ namespace Project_Origin
         private NetworkingClient networkingClient;
         private Map map;
 
+        BasicEffect basicEffect;
+        VertexPositionColor[] vertices;
+
         #region default properties of two kinds of player
 
         //Below are embedded properties of two kind of player
@@ -95,6 +98,16 @@ namespace Project_Origin
         /// </summary>
         public override void Initialize()
         {
+            basicEffect = new BasicEffect(this.game.GraphicsDevice);
+            basicEffect.VertexColorEnabled = true;
+            basicEffect.Projection = Matrix.CreateOrthographicOffCenter
+               (0, this.game.GraphicsDevice.Viewport.Width,     // left, right
+                this.game.GraphicsDevice.Viewport.Height, 0,    // bottom, top
+                0, 1);                                         // near, far plane
+
+            vertices = new VertexPositionColor[2];
+
+
             //Position and orientation
             playerPosition = new Vector3(0.0f, 0.0f, 2.0f);
             playerZRoatation = 0.0f;
@@ -134,6 +147,7 @@ namespace Project_Origin
             }
 
             internalBoolMap = map.InternalMap.DetailedInternalMapStruct;
+
             //this.playerId = networkingClient.GetPlayerId();
 
             base.Initialize();
@@ -301,19 +315,24 @@ namespace Project_Origin
             x = playerPosition.X;
             y = playerPosition.Y;
 
+            //vertices[0].Position = playerPosition;
+            //vertices[0].Color = Color.Black;
+            //vertices[1].Position = opponentPosition;
+            //vertices[1].Color = Color.Black;
+
             for (i = 1; i <= steps; ++i)
             {
                 //Check if block(x, y) is a wall
                 int boolMapX = (int)((x + this.map.InternalMap.MapPixelWidth / 2) / 2.0f);
-                int boolMapY = (int)((y + this.map.InternalMap.MapPixelHeight / 2) / 2.0f);
-                if (internalBoolMap[boolMapY - 1, boolMapX - 1] == false)
+                int boolMapY = (int)-((y - this.map.InternalMap.MapPixelHeight / 2) / 2.0f);
+                if (internalBoolMap[boolMapY , boolMapX] == false)
                 {
                     bBlockExist = true;
                     return bBlockExist;
                 }
-
+                Console.WriteLine(boolMapX +"  "+ boolMapY);
                 x += increx;
-                y += increx;
+                y += increy;
             }
 
             return bBlockExist;
@@ -416,6 +435,31 @@ namespace Project_Origin
                                             temp, 0, 1,
                                             VertexPositionColor.VertexDeclaration);
             }
+
+
+            ////Draw line to enemy
+            ////Draw line of sight
+            //lineEffect.View = this.camera.ViewMatrix;
+            //lineEffect.Projection = this.camera.ProjectMatrix;
+            //lineEffect.World = Matrix.Identity;
+
+            ////lineEffect.Alpha = playerAlpha;
+            //foreach (EffectPass pass in lineEffect.CurrentTechnique.Passes)
+            //{
+            //    //translation = Matrix.CreateTranslation(opponentPosition);
+            //    //rotationZ = Matrix.CreateRotationZ(opponentZRoatation + MathHelper.Pi / 8);
+            //    //lineEffect.World = rotationZ * translation;
+            //    pass.Apply();
+            //    //VertexPositionColor[] temp = new VertexPositionColor[2];
+            //    //temp[0].Position = new Vector3(0, 5, 0);
+            //    //temp[0].Color = Color.Gray;
+            //    //temp[1].Position = new Vector3(0, sightDistance, 0);
+            //    //temp[1].Color = Color.Gray;
+
+            //    this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
+            //                                vertices, 0, 1,
+            //                                VertexPositionColor.VertexDeclaration);
+            //}
             
         }
 
@@ -553,6 +597,7 @@ namespace Project_Origin
                 }
                 playerAlphaTimer += timeElapse * playerAlphaSpeed;
                 playerAlpha = 0.6f + (float)playerAlphaTimer / 1000.0f;*/
+
 
                 DrawPlayer(gameTime);
                 DrawOpponentPlayer(gameTime);
