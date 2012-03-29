@@ -330,7 +330,7 @@ namespace Project_Origin
                     bBlockExist = true;
                     return bBlockExist;
                 }
-                Console.WriteLine(boolMapX +"  "+ boolMapY);
+                //Console.WriteLine(boolMapX +"  "+ boolMapY);
                 x += increx;
                 y += increy;
             }

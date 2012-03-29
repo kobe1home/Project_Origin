@@ -23,9 +23,9 @@ namespace Project_Origin
             West
         }
 
-        public RoomNode(int randomSeed): base()
+        public RoomNode(Random random): base()
         {
-            this.randomGenerator = new Random(randomSeed);
+            this.randomGenerator = random;
             int num = this.randomGenerator.Next(4);
             if (num == 0)
             {

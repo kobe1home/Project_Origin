@@ -69,13 +69,13 @@ namespace Project_Origin
                     int randomType = this.randomGenerator.Next(3);
                     if (randomType == 0)
                     {
-                        RoomNode tempRoom = new RoomNode(this.randomSeed);
+                        RoomNode tempRoom = new RoomNode(this.randomGenerator);
                         this.internalMapStruct[row, col] = tempRoom;
                         this.optimizedMapStruct[row, col] = tempRoom;
                     }
                     else if (randomType == 1)
                     {
-                        WallNode tempWall = new WallNode(this.randomSeed);
+                        WallNode tempWall = new WallNode(this.randomGenerator);
                         this.internalMapStruct[row, col] = tempWall;
                         this.optimizedMapStruct[row, col] = tempWall;
                     }
@@ -139,7 +139,7 @@ namespace Project_Origin
                         this.optimizedMapStruct[(int)rowList2[j], (int)colList2[k]] = new EmptyNode();
             }
             */
-            this.optimizedMapStruct[0, 0] = new RoomNode(this.randomSeed);
+            this.optimizedMapStruct[0, 0] = new RoomNode(this.randomGenerator);
             this.GenerateDetailMap(this.optimizedMapStruct,this.detailedOptimizedInternalMapStruct);
         }
 
@@ -175,6 +175,53 @@ namespace Project_Origin
                     }
                 }
             }
+        }
+
+        public String calculateRandomMapPercentage()
+        {
+            return "Random Map -->    " + this.CalculatePercentage(this.internalMapStruct);
+        }
+
+        public String calculateOptimizedMapPercentage()
+        {
+
+            return "Optimized Map --> " + this.CalculatePercentage(this.optimizedMapStruct);
+        }
+
+        private String CalculatePercentage(Node[,] mapStruct)
+        {
+            if (mapStruct == null)
+                Console.WriteLine("Wrong");
+            float roomNum = 0, wallNum = 0, emptyNum = 0;
+            float totalNum = this.numNodesH * this.numNodesV;
+            for (int row = 0; row < this.numNodesV; row++)
+            {
+                for (int col = 0; col < this.numNodesH; col++)
+                {
+                    Node tempNode = mapStruct[row, col];
+                    if (tempNode is RoomNode)
+                    {
+                        //Console.WriteLine("Wrong");
+                        roomNum++;
+                    }
+                    else if (tempNode is WallNode)
+                    {
+                        wallNum++;
+                    }
+                    if (tempNode is EmptyNode)
+                    {
+                        emptyNum++;
+                    }
+                    
+                }
+            }
+            float roomRate = (roomNum / totalNum) * 100;
+            float wallRate = (wallNum / totalNum) * 100;
+            float emptyRate = (emptyNum / totalNum) * 100;
+            //Console.WriteLine(roomNum/totalNum);
+
+            return "R: " + roomRate + "% W: " + wallRate + "% E: " + emptyRate + "%";
+
         }
 
         private void initializeDetailedMap(Boolean[,] internalDetailedMapStruct)

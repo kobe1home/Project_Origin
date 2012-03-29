@@ -229,7 +229,6 @@ namespace Project_Origin
                     bBlockExist = false;
                     return bBlockExist;
                 }
-                Console.WriteLine(boolMapX + "  " + boolMapY);
                 x += increx;
                 y += increy;
             }

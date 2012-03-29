@@ -21,6 +21,7 @@ namespace Project_Origin
         private double intervalTime = 0;
         private const double timeThreshold = 1000; //1 second
         private Shooter shooter;
+        private Map map;
 
         SpriteBatch spriteBatch;
         SpriteFont fpsFont;
@@ -31,6 +32,11 @@ namespace Project_Origin
             if (this.shooter == null)
             {
                 throw new InvalidOperationException("Shooter not found.");
+            }
+            this.map = game.Services.GetService(typeof(Map)) as Map;
+            if (this.map == null)
+            {
+                throw new InvalidOperationException("Map not found.");
             }
         }
 
@@ -84,8 +90,13 @@ namespace Project_Origin
                                 "Mouse Right Click to Select Waypoint.",
                                 "Del: Remove the Last Waypoint.",
                                 "C: Clear All Waypoint.",
-                                "R : Commit Your Move to the Server."}; 
-            
+                                "R : Commit Your Move to the Server.",
+                                " ",
+                                "Debug Information :",
+                                "F10 : ReGenerate Map.",
+                                "F12 : Switch Between Random VS Optimized Map.",
+                                this.map.InternalMap.calculateRandomMapPercentage(),
+                                this.map.InternalMap.calculateOptimizedMapPercentage()}; 
                 spriteBatch.Begin();
                 int y = 10;
                 if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)

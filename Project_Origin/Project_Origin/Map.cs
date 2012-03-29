@@ -105,6 +105,11 @@ namespace Project_Origin
             {
                 Map.displayOptimizedMap = Map.displayOptimizedMap ? false : true;
             }
+            else if (keyboard.IsKeyDown(Keys.F10) && prevKeyboardState.IsKeyUp(Keys.F10))
+            {
+                this.ReGenerateMap();
+            }
+             
             this.prevKeyboardState = keyboard;
 
             base.Update(gameTime);
@@ -150,6 +155,16 @@ namespace Project_Origin
             }
             
             base.Draw(gameTime);
+        }
+
+        private void ReGenerateMap()
+        {
+            this.internalMap.GenerateRandomMap();
+            this.internalMap.OptimizeMap();
+            //this.drawableRandomMapNode = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
+            //this.drawableOptimizedMapNode = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
+            this.convertMapNodes(this.drawableRandomMapNode, this.internalMap.InternalMapStruct);
+            this.convertMapNodes(this.drawableOptimizedMapNode, this.internalMap.OptimizedMapStruct);
         }
 
         private void convertMapNodes(DrawableGameComponent [,] mapNodes, Node[,] tempMap)

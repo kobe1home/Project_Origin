@@ -20,9 +20,9 @@ namespace Project_Origin
             Vertial,
         }
 
-        public WallNode(int randomSeed): base()
+        public WallNode(Random random): base()
         {
-            this.randomGenerator = new Random(randomSeed);
+            this.randomGenerator = random;
 
             if (this.randomGenerator.Next()%2 == 0) // horizontal wall
             {
