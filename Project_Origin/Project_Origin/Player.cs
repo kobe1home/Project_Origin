@@ -30,9 +30,9 @@ namespace Project_Origin
         #region default properties of two kinds of player
 
         //Below are embedded properties of two kind of player
-        static Vector3 greenPlayerPosition = new Vector3(45.0f, -25.0f, 2.0f);
+        static Vector3 greenPlayerPosition = new Vector3(78.0f, -38.0f, 1.0f);
         static float greenPlayerZRoatation = 0.0f;
-        static Vector3 redPlayerPosition = new Vector3(-45.0f, 25.0f, 2.0f);
+        static Vector3 redPlayerPosition = new Vector3(-78.0f, 38.0f, 1.0f);
         static float redPlayerZRoatation = MathHelper.Pi;
         static Color greenPlayerColor = Color.Green;
         static Color redPlayerColor = Color.Red;
@@ -391,7 +391,7 @@ namespace Project_Origin
                     effect.Projection = this.camera.ProjectMatrix;
                     effect.DiffuseColor = playerDiffuseColor.ToVector3();
                     effect.Alpha = 1.0f; // playerAlpha;
-
+                    
                     mesh.Draw();
                 }
             }

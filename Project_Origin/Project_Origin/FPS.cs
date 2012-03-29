@@ -20,13 +20,18 @@ namespace Project_Origin
         private double fps = 0, fpsCounter = 0;
         private double intervalTime = 0;
         private const double timeThreshold = 1000; //1 second
+        private Shooter shooter;
 
         SpriteBatch spriteBatch;
         SpriteFont fpsFont;
         public FPS(Game game)
             : base(game)
         {
-            // TODO: Construct any child components here
+            this.shooter = game.Services.GetService(typeof(Shooter)) as Shooter;
+            if (this.shooter == null)
+            {
+                throw new InvalidOperationException("Shooter not found.");
+            }
         }
 
         /// <summary>
@@ -35,8 +40,7 @@ namespace Project_Origin
         /// </summary>
         public override void Initialize()
         {
-            // TODO: Add your initialization code here
-
+            
             base.Initialize();
         }
 
@@ -72,20 +76,32 @@ namespace Project_Origin
         }
 
         public override void Draw(GameTime gameTime)
-        {
-            NetworkingClient client = this.Game.Services.GetService(typeof(NetworkingClient)) as NetworkingClient;
+        {   
+            String[] commands ={ "Frames Per Second: " + fps,
+                                "Command for Playing the Games:",
+                                "W, A, S, D : Move the Screen Position.",
+                                "Mouse Wheel to Zoom In/Out.",
+                                "Mouse Right Click to Select Waypoint.",
+                                "Del: Remove the Last Waypoint.",
+                                "C: Clear All Waypoint.",
+                                "R : Commit Your Move to the Server."}; 
             
-            //this.drawAllWayPoints();
-            MouseState mouse = Mouse.GetState();
-            spriteBatch.Begin();
-            spriteBatch.DrawString(fpsFont, "Frames Per Second: "+fps, new Vector2(10, 10), Color.White);
-            //spriteBatch.DrawString(fpsFont, "Frames Per Second: " + mouse.Y, new Vector2(10, 30), Color.White);
-            {
-                //use player unique identifier to choose an image
-                spriteBatch.DrawString(fpsFont, "" + client.otherPlayerInfo.position + ": ", new Vector2(10, 30), Color.White);
-            }
-            spriteBatch.End();
-            //this.device.RasterizerState = prevRs;
+                spriteBatch.Begin();
+                int y = 10;
+                if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)
+                {
+                    foreach (String text in commands)
+                    {
+                        spriteBatch.DrawString(fpsFont, text, new Vector2(10, y), Color.White);
+                        y = y + 15;
+                    }
+                }
+                else
+                {
+                    spriteBatch.DrawString(fpsFont, commands[0], new Vector2(10, y), Color.White);
+                }
+                spriteBatch.End();
+            
             base.Draw(gameTime);
         }
     }
