@@ -20,13 +20,17 @@ namespace Project_Origin
         private Game game;
         private Shooter shooter;
 
-        private BasicEffect defaultEfft;
-        private static Color DefaultColor = Color.Orange;
+        KeyboardState prevKeyboardState;
 
+        private BasicEffect defaultEfft;
 
         private InternalMap internalMap; // Map got from Server
         private DrawableGameComponent[,] drawableRandomMapNode; // converted from internalMap, so that it can be drawn.
+        private DrawableGameComponent[,] drawableOptimizedMapNode; // this is a optimized Map we can display both for comparsion
 
+
+        private static Boolean displayOptimizedMap = false;
+        private static Color DefaultColor = Color.Orange;
 
         public Map(Game game, Vector3 start, int mapSeed)
             : base(game)
@@ -37,6 +41,7 @@ namespace Project_Origin
             this.device = this.game.GraphicsDevice;
             this.camera = this.game.Services.GetService(typeof(ICameraService)) as ICameraService;
             this.defaultEfft = new BasicEffect(this.device);
+            this.prevKeyboardState = Keyboard.GetState();
 
             if (this.camera == null)
             {
@@ -45,7 +50,11 @@ namespace Project_Origin
 
             this.internalMap = new InternalMap(160, 80, 8, 8, mapSeed);//new InternalMap(width, heigh, 8, 8);
             this.internalMap.GenerateRandomMap();
-            this.convertMapNodes();
+            this.internalMap.OptimizeMap();
+            this.drawableRandomMapNode = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
+            this.drawableOptimizedMapNode = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
+            this.convertMapNodes(this.drawableRandomMapNode, this.internalMap.InternalMapStruct);
+            this.convertMapNodes(this.drawableOptimizedMapNode, this.internalMap.OptimizedMapStruct);
             //this.internalMap.printMaps();
             
         }
@@ -91,6 +100,13 @@ namespace Project_Origin
 
         public override void Update(GameTime gameTime)
         {
+            KeyboardState keyboard = Keyboard.GetState();
+            if (keyboard.IsKeyDown(Keys.F12) && prevKeyboardState.IsKeyUp(Keys.F12))
+            {
+                Map.displayOptimizedMap = Map.displayOptimizedMap ? false : true;
+            }
+            this.prevKeyboardState = keyboard;
+
             base.Update(gameTime);
         }
 
@@ -136,15 +152,15 @@ namespace Project_Origin
             base.Draw(gameTime);
         }
 
-        private void convertMapNodes()
+        private void convertMapNodes(DrawableGameComponent [,] mapNodes, Node[,] tempMap)
         {
-            this.drawableRandomMapNode = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
-            Node[,] tempMap = this.internalMap.InternalMapStruct;
+            //mapNodes = new DrawableGameComponent[this.internalMap.MapNodeHeight, this.internalMap.MapNodeWidth];
+            //Node[,] tempMap = this.internalMap.InternalMapStruct;
 
             Vector3 startPosition = new Vector3(-(this.internalMap.MapPixelWidth / 2) + (InternalMap.GridSize / 2),
                                                  (this.internalMap.MapPixelHeight / 2 - InternalMap.GridSize / 2),
                                                  InternalMap.GridSize / 2);
-            Console.WriteLine(startPosition);
+            //Console.WriteLine(startPosition);
             Node tempNode = tempMap[0, 0];
             for (int row = 0; row < this.internalMap.MapNodeHeight; row++)
             {
@@ -157,18 +173,18 @@ namespace Project_Origin
                     {
                         Room room = new Room(this.game, (RoomNode)tempNode, 
                                              new Vector3(startPosition.X, startPosition.Y, startPosition.Z));
-                        this.drawableRandomMapNode[row, col] = room;
+                        mapNodes[row, col] = room;
                     }
                     else if (tempNode is WallNode)
                     {
                         Wall wall = new Wall(this.game, (WallNode)tempNode, 
                                              new Vector3(startPosition.X, startPosition.Y, startPosition.Z));
-                        this.drawableRandomMapNode[row, col] = wall;
+                        mapNodes[row, col] = wall;
                     }
                     if (tempNode is EmptyNode)
                     {
                         EmptySpace empty = new EmptySpace(this.game);
-                        this.drawableRandomMapNode[row, col] = empty;
+                        mapNodes[row, col] = empty;
                     }
                     startPosition.X = startPosition.X + tempNode.Width * InternalMap.GridSize;
                 }
@@ -179,13 +195,22 @@ namespace Project_Origin
 
         private void DrawMapWalls(GameTime gameTime)
         {
+            DrawableGameComponent[,] tempMaps;
+            if (Map.displayOptimizedMap)
+            {
+                tempMaps = this.drawableOptimizedMapNode;
+            }
+            else
+            {
+                tempMaps = this.drawableRandomMapNode;
+            }
             if (this.internalMap != null)
             {
                 for (int row = 0; row < this.internalMap.MapNodeHeight; row++)
                 {
                     for (int col = 0; col < this.internalMap.MapNodeWidth; col++)
                     {
-                        this.drawableRandomMapNode[row, col].Draw(gameTime);
+                        tempMaps[row, col].Draw(gameTime);
                     }
                 }
             }
@@ -197,8 +222,15 @@ namespace Project_Origin
             set
             {
                 internalMap = value;
-                this.convertMapNodes();
+                this.convertMapNodes(this.drawableRandomMapNode, this.internalMap.InternalMapStruct);
+                this.convertMapNodes(this.drawableOptimizedMapNode, this.internalMap.OptimizedMapStruct);
             }
+        }
+
+        public Boolean[,] getCurrentDisplayedMapDetail()
+        {
+            return Map.displayOptimizedMap ? this.internalMap.DetailedOptimizedInternalMapStruct : this.internalMap.DetailedInternalMapStruct;
+
         }
 
         public int Witdth

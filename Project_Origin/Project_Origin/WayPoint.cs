@@ -12,6 +12,8 @@ namespace Project_Origin
     public class WayPoint : CubePrimitive
     {
         private Vector3 centerPos;
+
+
         private CubePrimitive cube;
 
         public const float CubeSize = 1.0f;

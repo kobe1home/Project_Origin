@@ -146,7 +146,7 @@ namespace Project_Origin
                 throw new InvalidOperationException("Map not found.");
             }
 
-            internalBoolMap = map.InternalMap.DetailedInternalMapStruct;
+            internalBoolMap = map.getCurrentDisplayedMapDetail();
 
             //this.playerId = networkingClient.GetPlayerId();
 

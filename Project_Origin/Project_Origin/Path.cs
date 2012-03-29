@@ -122,9 +122,12 @@ namespace Project_Origin
                     }
 
                     Vector3 selectedPoint = pickRay.Position + pickRay.Direction * result.Value;
-                    WayPoint waypoint = new WayPoint(this.Game.GraphicsDevice, selectedPoint + new Vector3(0.0f, 0.0f, WayPoint.CubeSize / 2));
-                    this.points.Add(waypoint);
-                    this.lines.Add(new VertexPositionColor(waypoint.CenterPos, Color.White));
+                    if (this.CheckIfPathValidate(selectedPoint))
+                    {
+                        WayPoint waypoint = new WayPoint(this.Game.GraphicsDevice, selectedPoint + new Vector3(0.0f, 0.0f, WayPoint.CubeSize / 2));
+                        this.points.Add(waypoint);
+                        this.lines.Add(new VertexPositionColor(waypoint.CenterPos, Color.White));
+                    }
                 }
             }
             this.previousState = mouseState;
@@ -192,6 +195,48 @@ namespace Project_Origin
 
         }
 
+        private bool CheckIfPathValidate(Vector3 selectedPostion)
+        {
+            bool bBlockExist = true;
+            Vector3 lastPoint = points.Last<WayPoint>().CenterPos;
+            float increx, increy, x, y;
+            int steps, i;
+
+            if (Math.Abs(selectedPostion.X - lastPoint.X) > Math.Abs(selectedPostion.Y - lastPoint.Y))
+            {
+                steps = (int)Math.Abs(selectedPostion.X - lastPoint.X);
+                increx = (selectedPostion.X - lastPoint.X) / steps;
+                increy = (float)(selectedPostion.Y - lastPoint.Y) / steps;
+            }
+            else
+            {
+                steps = (int)Math.Abs(selectedPostion.Y - lastPoint.Y);
+                increx = (float)(selectedPostion.X - lastPoint.X) / steps;
+                increy = (selectedPostion.Y - lastPoint.Y) / steps; ;
+            }
+            x = lastPoint.X;
+            y = lastPoint.Y;
+
+            Boolean[,] boolMap = this.gameMap.getCurrentDisplayedMapDetail();
+
+            for (i = 1; i <= steps; ++i)
+            {
+                //Check if block(x, y) is a wall
+                int boolMapX = (int)((x + this.gameMap.InternalMap.MapPixelWidth / 2) / 2.0f);
+                int boolMapY = (int)-((y - this.gameMap.InternalMap.MapPixelHeight / 2) / 2.0f);
+                if (boolMap[boolMapY, boolMapX] == false)
+                {
+                    bBlockExist = false;
+                    return bBlockExist;
+                }
+                Console.WriteLine(boolMapX + "  " + boolMapY);
+                x += increx;
+                y += increy;
+            }
+
+            return bBlockExist;
+
+        }
         public void CleanWayPoints()
         {
             this.points.Clear();

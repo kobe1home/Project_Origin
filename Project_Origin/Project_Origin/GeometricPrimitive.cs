@@ -236,7 +236,7 @@ namespace Project_Origin
                 graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0,
                                                      vertices.Count, 0, primitiveCount);
             }
-            this.DrawShadows(effect);
+            //this.DrawShadows(effect);
         }
 
         private void DrawShadows(BasicEffect effect)
