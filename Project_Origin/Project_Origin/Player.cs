@@ -80,10 +80,16 @@ namespace Project_Origin
 
 
         private List<WayPoint> movingWayPoints; //Store all the way points during moving
-        //private Vector3 movingSourcePoint;
         private int movingDestinationPointIndex = 0;
         private Vector3 movingDirection;
         private float movingCurrentDistance;
+
+        private List<WayPoint> opponentWayPoints; //Store all the way points during moving
+        private int opponentDestinationPointIndex = 0;
+        private Vector3 opponentDirection;
+        private float opponentCurrentDistance;
+
+        private bool ememyInSight = true;
 
         //private SoundEffect soundEffectWalk;
         private SoundEffect soundEffectShoot;
@@ -268,8 +274,19 @@ namespace Project_Origin
             {
                 path.removeLastWayPoints();
             }
-            
-            UpdatePlayerPosition(gameTime);
+
+
+            this.IncreaseTimer(gameTime);
+
+            if (this.shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
+            {
+                UpdatePlayerPosition(gameTime);
+            }
+            else if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)
+            {
+                UpdatePlayerPosition(gameTime);
+                UpdateOpponentPosition(gameTime);
+            }
 
             prevKeyboardState = keyboard;
             base.Update(gameTime);
@@ -298,8 +315,27 @@ namespace Project_Origin
             return zRotation;
         }
 
+        public void CheckVisibility()
+        {
+            if (CheckIfEnemyInSight() == true)
+            {
+
+                if (CheckIfInShootRange(shootingDistance))
+                {
+                    if (playerMode == PlayerMode.Moving)
+                    {
+                        this.playerMode = PlayerMode.Normal;
+
+                    }
+                    MediaPlayer.Stop();
+                    soundEffectShoot.Play(1.0f, 0.0f, 0.0f);
+                }
+            }
+        }
+
         public void UpdatePlayerPosition(GameTime gameTime)
         {
+
             if (playerMode == PlayerMode.Moving)
             {
                 Vector3 movingSourcePoint = movingWayPoints[movingDestinationPointIndex - 1].CenterPos;
@@ -329,16 +365,52 @@ namespace Project_Origin
                     this.playerMode = PlayerMode.Normal;
                     MediaPlayer.Stop();
                 }
+            }
+        }
 
+        public void UpdateOpponentPosition(GameTime gameTime)
+        {
+            if (playerMode == PlayerMode.Moving)
+            {
+                Vector3 opponentSourcePoint = opponentWayPoints[movingDestinationPointIndex - 1].CenterPos;
+                Vector3 opponentDestinationPoint = opponentWayPoints[movingDestinationPointIndex].CenterPos;
+                opponentDirection = opponentDestinationPoint - opponentSourcePoint;
+                float d = opponentDirection.Length();
+                opponentDirection.Normalize();
+                opponentCurrentDistance += (float)gameTime.ElapsedGameTime.Milliseconds * opponentMovingSpeed;
+                opponentZRoatation = CalcPlayerRotationFromMovingDirection(opponentDirection);
 
-                //Check timer
-                playerTurnTimer += gameTime.ElapsedGameTime.Milliseconds;
-                if (playerTurnTimer > playerTurnTimerThres)
+                //Destination = Source + d * Direction
+                if (opponentCurrentDistance < d)
                 {
-                    path.CleanWayPoints();
-                    this.playerMode = PlayerMode.Normal;
-                    playerTurnTimer = 0;
+                    Vector3 position = opponentSourcePoint + opponentCurrentDistance * opponentDirection;
+                    opponentPosition = new Vector3(position.X, position.Y, playerPosition.Z);
                 }
+                else
+                {
+                    opponentPosition = new Vector3(opponentDestinationPoint.X, opponentDestinationPoint.Y, playerPosition.Z);
+                    movingDestinationPointIndex++;
+                    opponentCurrentDistance = 0;
+                }
+
+                if (movingDestinationPointIndex >= movingWayPoints.Count)
+                {
+                    path.OpponentWayPoints.Clear();
+                    this.playerMode = PlayerMode.Normal;
+                    MediaPlayer.Stop();
+                }
+            }
+        }
+
+        public void IncreaseTimer(GameTime gameTime)
+        {
+            playerTurnTimer += gameTime.ElapsedGameTime.Milliseconds;
+            if (playerTurnTimer > playerTurnTimerThres)
+            {
+                path.CleanWayPoints();
+                path.OpponentWayPoints.Clear();
+                this.playerMode = PlayerMode.Normal;
+                playerTurnTimer = 0;
             }
         }
 
@@ -396,8 +468,8 @@ namespace Project_Origin
             {
                 //Step 1: Check the distance between two players
                 Vector2 posDir = new Vector2(opponentPosition.X, opponentPosition.Y) - new Vector2(playerPosition.X, playerPosition.Y);
-                if (posDir.Length() > sightDistance / 4.0 * 3.0)
-                    return bEnemyInSight;
+                //if (posDir.Length() > sightDistance / 4.0 * 3.0)
+                //    return bEnemyInSight;
 
                 //Step 2: Check if the angle is in the field of view
                 posDir.Normalize();
@@ -415,6 +487,14 @@ namespace Project_Origin
                 
             }
             return bEnemyInSight;
+        }
+
+        public bool CheckIfInShootRange(float range)
+        {
+            Vector2 posDir = new Vector2(opponentPosition.X, opponentPosition.Y) - new Vector2(playerPosition.X, playerPosition.Y);
+            if (posDir.Length() > range)
+                return true;
+            return false;
         }
 
         public void DrawPlayer(GameTime gameTime)
@@ -451,15 +531,7 @@ namespace Project_Origin
             }
             
             
-            if (CheckIfEnemyInSight() == true && playerMode == PlayerMode.Moving)
-            {
-                path.CleanWayPoints();
-                this.playerMode = PlayerMode.Normal;
-                MediaPlayer.Stop();
-
-                soundEffectShoot.Play(1.0f, 0.0f, 0.0f);
-                //playerDiffuseColor = Color.Red;
-            }
+            
             
             //Draw line of sight
             lineEffect.View = this.camera.ViewMatrix;
@@ -488,33 +560,7 @@ namespace Project_Origin
                 this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
                                             temp, 0, 1,
                                             VertexPositionColor.VertexDeclaration);
-            }
-
-
-            ////Draw line to enemy
-            ////Draw line of sight
-            //lineEffect.View = this.camera.ViewMatrix;
-            //lineEffect.Projection = this.camera.ProjectMatrix;
-            //lineEffect.World = Matrix.Identity;
-
-            ////lineEffect.Alpha = playerAlpha;
-            //foreach (EffectPass pass in lineEffect.CurrentTechnique.Passes)
-            //{
-            //    //translation = Matrix.CreateTranslation(opponentPosition);
-            //    //rotationZ = Matrix.CreateRotationZ(opponentZRoatation + MathHelper.Pi / 8);
-            //    //lineEffect.World = rotationZ * translation;
-            //    pass.Apply();
-            //    //VertexPositionColor[] temp = new VertexPositionColor[2];
-            //    //temp[0].Position = new Vector3(0, 5, 0);
-            //    //temp[0].Color = Color.Gray;
-            //    //temp[1].Position = new Vector3(0, sightDistance, 0);
-            //    //temp[1].Color = Color.Gray;
-
-            //    this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
-            //                                vertices, 0, 1,
-            //                                VertexPositionColor.VertexDeclaration);
-            //}
-            
+            } 
         }
 
         public void DrawOpponentPlayer(GameTime gameTime)
@@ -531,7 +577,7 @@ namespace Project_Origin
             Vector3 position = opponentPosition;
             translation = Matrix.CreateTranslation(position);//Matrix.CreateTranslation(20.0f, -20.0f, 110.0f);
             rotationZ = Matrix.CreateRotationZ(opponentZRoatation);
-            world = scale * rotationZ * translation;//* ;
+            world = scale * rotationZ * translation;
 
             
             foreach (ModelMesh mesh in opponent.Meshes)

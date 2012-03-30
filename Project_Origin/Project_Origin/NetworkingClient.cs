@@ -162,6 +162,7 @@ namespace Project_Origin
                                     otherPlayerInfo.position.Z = msg.ReadFloat();
                                     otherPlayerInfo.orientation = msg.ReadFloat();
 
+                                    Console.WriteLine("{0} {1} {2}",otherPlayerInfo.position.X,otherPlayerInfo.position.Y,otherPlayerInfo.position.Z);
                                     opponentWaypoint.Add(new WayPoint(this.game.GraphicsDevice, new Vector3(otherPlayerInfo.position.X,
                                                                                                         otherPlayerInfo.position.Y,
                                                                                                         otherPlayerInfo.position.Z)));

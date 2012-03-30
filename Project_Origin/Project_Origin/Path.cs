@@ -79,7 +79,10 @@ namespace Project_Origin
         public override void Update(GameTime gameTime)
         {
             // TODO: Add your update code here
-            CheckMouseClick();
+            if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Simulation)
+            {
+                CheckMouseClick();
+            }
             base.Update(gameTime);
         }
 
