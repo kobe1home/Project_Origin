@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-
+//Green player uses sniper, red player uses handgun
 namespace Project_Origin
 {
     /// <summary>
@@ -30,10 +30,24 @@ namespace Project_Origin
         #region default properties of two kinds of player
 
         //Below are embedded properties of two kind of player
+
+        //Green player uses sniper, red player uses handgun
+        static float sightDistance = 30;
+        static float playerTurnTimerThres = 5000; // 5 seconds
+        static float playerTurnTimer = 0;
+
         static Vector3 greenPlayerPosition = new Vector3(78.0f, -38.0f, 1.0f);
         static float greenPlayerZRoatation = 0.0f;
+        static float greenPlayerMovingSpeed = 0.02f;
+        static float greenPlayerShootingDistance = 20;
+        static float greenPlayerWaitingTimerThres = 1000; //1s
+
         static Vector3 redPlayerPosition = new Vector3(-78.0f, 38.0f, 1.0f);
         static float redPlayerZRoatation = MathHelper.Pi;
+        static float redPlayerMovingSpeed = 0.04f;
+        static float redPlayerShootingDistance = 10;
+        static float redPlayerWaitingTimerThres = 500; // 0.5s
+        
         static Color greenPlayerColor = Color.Green;
         static Color redPlayerColor = Color.Red;
 
@@ -43,17 +57,23 @@ namespace Project_Origin
         private Model player, opponent = null;
         private Vector3 playerPosition;
         private float playerZRoatation; //Facing direction
+        private float movingSpeed;
+        private float shootingDistance;
+        private float playerWaitingTimerThres;
+        private float playerWaitingTimer;
+        
         private Vector3 opponentPosition;
         private float opponentZRoatation; //Facing direction
+        private float opponentMovingSpeed;
+        private float opponentShootingDistance;
 
         Boolean[,] internalBoolMap;
 
         private Color playerDiffuseColor = Color.White;
-        private float sightDistance = 30;
+        
         private float playerAlphaTimer;
         private float playerAlphaSpeed;
         private float playerAlpha;
-        private double moveSpeed;
         private BasicEffect lineEffect;
         KeyboardState prevKeyboardState;
 
@@ -64,7 +84,7 @@ namespace Project_Origin
         private int movingDestinationPointIndex = 0;
         private Vector3 movingDirection;
         private float movingCurrentDistance;
-        private float movingSpeed = 0.02f;
+
         //private SoundEffect soundEffectWalk;
         private SoundEffect soundEffectShoot;
 
@@ -111,6 +131,16 @@ namespace Project_Origin
             //Position and orientation
             playerPosition = new Vector3(0.0f, 0.0f, 2.0f);
             playerZRoatation = 0.0f;
+            movingSpeed = 0.02f;
+            shootingDistance = 20;
+            playerWaitingTimerThres = 1000; //1s
+            playerWaitingTimer = 0;
+            playerTurnTimerThres = 5000; //5s
+            playerTurnTimer = 0;
+
+            opponentMovingSpeed = 0.02f;
+            opponentShootingDistance = 20;
+
 
             //Animation
             playerAlphaTimer = 0;
@@ -176,10 +206,16 @@ namespace Project_Origin
                 playerPosition = greenPlayerPosition;
                 playerZRoatation = greenPlayerZRoatation;
                 playerDiffuseColor = greenPlayerColor;
+                sightDistance = greenPlayerShootingDistance;
+                movingSpeed = greenPlayerMovingSpeed;
+                shootingDistance = greenPlayerShootingDistance;
+                playerWaitingTimer = greenPlayerWaitingTimerThres;
 
                 opponent = game.Content.Load<Model>("Models\\playerRed");
                 opponentPosition = redPlayerPosition;
                 opponentZRoatation = redPlayerZRoatation;
+                opponentMovingSpeed = redPlayerMovingSpeed;
+                opponentShootingDistance = redPlayerShootingDistance;
             }
             else
             {
@@ -187,10 +223,15 @@ namespace Project_Origin
                 playerPosition = redPlayerPosition;
                 playerZRoatation = redPlayerZRoatation;
                 playerDiffuseColor = redPlayerColor;
+                movingSpeed = redPlayerMovingSpeed;
+                shootingDistance = redPlayerShootingDistance;
+                playerWaitingTimer = redPlayerWaitingTimerThres;
 
                 opponent = game.Content.Load<Model>("Models\\playerGreen");
                 opponentPosition = greenPlayerPosition;
                 opponentZRoatation = greenPlayerZRoatation;
+                opponentMovingSpeed = greenPlayerMovingSpeed;
+                opponentShootingDistance = greenPlayerShootingDistance;
             }
         }
         /// <summary>
@@ -219,7 +260,6 @@ namespace Project_Origin
                 movingWayPoints = path.GetWayPoints();
                 if (movingWayPoints.Count > 1)
                 {
-                    //soundEffectWalk.Play(1.0f, 0.0f, 0.0f);
                     movingDestinationPointIndex = 1;
                     playerMode = PlayerMode.Moving;
                 }
@@ -287,6 +327,16 @@ namespace Project_Origin
                     path.CleanWayPoints();
                     this.playerMode = PlayerMode.Normal;
                     MediaPlayer.Stop();
+                }
+
+
+                //Check timer
+                playerTurnTimer += gameTime.ElapsedGameTime.Milliseconds;
+                if (playerTurnTimer > playerTurnTimerThres)
+                {
+                    path.CleanWayPoints();
+                    this.playerMode = PlayerMode.Normal;
+                    playerTurnTimer = 0;
                 }
             }
         }
@@ -374,7 +424,10 @@ namespace Project_Origin
             player.CopyAbsoluteBoneTransformsTo(transforms);
 
             Matrix world, scale, rotationZ, translation;
-            scale = Matrix.CreateScale(0.02f, 0.02f, 0.02f);
+            if(playerId == PlayerId.Green)
+                scale = Matrix.CreateScale(0.017f, 0.017f, 0.017f);
+            else
+                scale = Matrix.CreateScale(0.02f, 0.02f, 0.02f);
             Vector3 position = playerPosition;
             translation = Matrix.CreateTranslation(position);//Matrix.CreateTranslation(20.0f, -20.0f, 110.0f);
             rotationZ = Matrix.CreateRotationZ(playerZRoatation);
