@@ -96,6 +96,7 @@ namespace Project_Origin
             KeyboardState keyboard = Keyboard.GetState();
             if (keyboard.IsKeyDown(Keys.Enter) && 
                 prevKeyboardState.IsKeyUp(Keys.Enter) &&
+                this.game.GetGameStatus() == Shooter.GameStatus.Simulation && 
                 this.game.GetGameStatus() != Shooter.GameStatus.Sending && 
                 this.game.GetGameStatus() != Shooter.GameStatus.Receive)
             {
@@ -112,9 +113,10 @@ namespace Project_Origin
                     // If there's input; send it to server
                     //
                     NetOutgoingMessage om = client.CreateMessage();
+                    om.Write((byte)OutgoingMessageType.DataPlayerInfo);
+                    om.Write(this.game.path.GetWayPoints().Count);
                     foreach (WayPoint point in this.game.path.GetWayPoints())
-                    {
-                        om.Write((byte)OutgoingMessageType.DataPlayerInfo);
+                    { 
                         Vector3 tempPos = point.CenterPos;//this.game.gamePlayer.GetPlayerPosition();
                         float tempOri = this.game.gamePlayer.GetPlayerOrientation();
                         om.Write(tempPos.X);
@@ -151,26 +153,35 @@ namespace Project_Origin
                             IncomingMessageType imt = (IncomingMessageType)msg.ReadByte();
                             if (imt == IncomingMessageType.DataOtherPlayerInfo)
                             {
-                                otherPlayerInfo.position.X = msg.ReadFloat();
-                                otherPlayerInfo.position.Y = msg.ReadFloat();
-                                otherPlayerInfo.position.Z = msg.ReadFloat();
-                                otherPlayerInfo.orientation = msg.ReadFloat();
-                                opponentWaypoint.Add(new WayPoint(this.game.GraphicsDevice, new Vector3(otherPlayerInfo.position.X,
+                                opponentWaypoint.Clear();
+                                int wayPointCounter = msg.ReadInt32();
+                                for (int i = 1; i <= wayPointCounter; ++i)
+                                {
+                                    otherPlayerInfo.position.X = msg.ReadFloat();
+                                    otherPlayerInfo.position.Y = msg.ReadFloat();
+                                    otherPlayerInfo.position.Z = msg.ReadFloat();
+                                    otherPlayerInfo.orientation = msg.ReadFloat();
+
+                                    opponentWaypoint.Add(new WayPoint(this.game.GraphicsDevice, new Vector3(otherPlayerInfo.position.X,
                                                                                                         otherPlayerInfo.position.Y,
                                                                                                         otherPlayerInfo.position.Z)));
+                                }
+                                
+                                
                             }
                             this.game.gamePlayer.Path.OpponentWayPoints = opponentWaypoint;
+                            this.game.SetGameStatus(Shooter.GameStatus.Start);
                             break;
                     }
                 }
-                if (this.game.GetGameStatus() == Shooter.GameStatus.MainMenu)
-                {
-                    //this.game.SetGameStatus(Shooter.GameStatus.Simulation);
-                }
-                else
-                {
-                    this.game.SetGameStatus(Shooter.GameStatus.Start);
-                }
+                //if (this.game.GetGameStatus() == Shooter.GameStatus.MainMenu)
+                //{
+                //    //this.game.SetGameStatus(Shooter.GameStatus.Simulation);
+                //}
+                //else
+                //{
+                //    this.game.SetGameStatus(Shooter.GameStatus.Start);
+                //}
             }
 
             

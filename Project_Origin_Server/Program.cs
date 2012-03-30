@@ -31,8 +31,15 @@ namespace Project_Origin_Server
             public float orientation;
         }
 
-        static Dictionary<IPEndPoint, PlayerInfo> playerInfoDict = new Dictionary<IPEndPoint, PlayerInfo>(); //key: senderEndpoint value: a list of position and orientation
+        static Dictionary<IPEndPoint, List<PlayerInfo>> playerInfoDict = new Dictionary<IPEndPoint, List<PlayerInfo>>(); //key: senderEndpoint value: a list of position and orientation
         
+        public enum GameStatus
+        {
+            Initial,
+            Receive,
+            Sending
+        }
+
         public enum PlayerId
         {
             Green,
@@ -71,6 +78,9 @@ namespace Project_Origin_Server
             //Schedule initial sending of position updates
             double nextSendUpdates = NetTime.Now;
 
+            GameStatus gameStatus = GameStatus.Initial;
+            int clientDoneCounter = 0;
+
             //Generate a map and wait client to connect
             //InternalMap map = GenerateMap();
             int mapSeed = 1000;
@@ -99,117 +109,97 @@ namespace Project_Origin_Server
                                 case 1:
                                     com.Write((int)PlayerId.Red);
                                     com.Write((int)mapSeed); //Write map seed
+                                    gameStatus = GameStatus.Receive;
                                     break;
                             }
                             server.SendDiscoveryResponse(com, msg.SenderEndpoint);
                             Console.WriteLine("Connect to: " + msg.SenderEndpoint);
                             break;
                         case NetIncomingMessageType.Data:
-                            //
-                            // The client sent input to the server
-                            //
-                            IncomingMessageType imt = (IncomingMessageType)msg.ReadByte();
-                            if (imt == IncomingMessageType.CommandFinishPlan)
+                            if (gameStatus == GameStatus.Receive)
                             {
+                                //
+                                // The client sent input to the server
+                                //
+                                IncomingMessageType imt = (IncomingMessageType)msg.ReadByte();
+                                if (imt == IncomingMessageType.DataPlayerInfo)
+                                {
+                                    int wayPointCounter = msg.ReadInt32();
 
-                            }
-                            else if (imt == IncomingMessageType.DataPlayerInfo)
-                            {
-                                Vector3 tempPos;
-                                tempPos.X = msg.ReadFloat();
-                                tempPos.Y = msg.ReadFloat();
-                                tempPos.Z = msg.ReadFloat();
+                                    List<PlayerInfo> wayPoints = new List<PlayerInfo>();
+                                    for (int i = 1; i <= wayPointCounter; ++i)
+                                    {
+                                        Vector3 tempPos;
+                                        tempPos.X = msg.ReadFloat();
+                                        tempPos.Y = msg.ReadFloat();
+                                        tempPos.Z = msg.ReadFloat();
 
-                                float tempOrientation;
-                                tempOrientation = msg.ReadFloat();
+                                        float tempOrientation;
+                                        tempOrientation = msg.ReadFloat();
 
-                                playerInfoDict[msg.SenderEndpoint] = new PlayerInfo(tempPos, tempOrientation);
-                            }
-                            else if (imt == IncomingMessageType.DummyObjectData)
-                            {
-                                //TODO: Just an example to show deserialize object, remove this in future
-                                int objDataSize = msg.ReadInt32();
-                                byte[] objData = new byte[objDataSize];
-                                dummyClass obj = Serializer<dummyClass>.DeserializeObject<dummyClass>(objData);
+                                        PlayerInfo wayPoint = new PlayerInfo(tempPos, tempOrientation);
+                                        wayPoints.Add(wayPoint);
+                                    }
+                                    playerInfoDict[msg.SenderEndpoint] = wayPoints;
+                                    Console.WriteLine("Receive message from" + msg.SenderEndpoint);
+                                    
+                                    clientDoneCounter++;
+                                    if (clientDoneCounter == 2)
+                                        gameStatus = GameStatus.Sending;
+                                    
+                                }
                             }
                             break;
-
-                            
-                            //int xinput = msg.ReadInt32();
-                            //int yinput = msg.ReadInt32();
-
-                            //int[] pos = msg.SenderConnection.Tag as int[];
-
-                            //pos[0] = xinput;
-                            //pos[1] = yinput;
-                            //break;
                     }
 
                     //
                     // send position updates 30 times per second
                     //
-                    double now = NetTime.Now;
-                    if (now > nextSendUpdates)
+                    if (gameStatus == GameStatus.Sending)
                     {
-                        // Yes, it's time to send position updates
+                            // Yes, it's time to send position updates
 
-                        // for each player...
-                        foreach (NetConnection player in server.Connections)
-                        {
-                            if (!playerInfoDict.ContainsKey(player.RemoteEndpoint))
-                                playerInfoDict[player.RemoteEndpoint] = new PlayerInfo(new Vector3(0, 0, 0), 0);
-                        }
-                        foreach (NetConnection player in server.Connections)
-                        {
-                            //send information about every other player(not including self)
-                            foreach(NetConnection otherPlayer in server.Connections)
+                            // for each player...
+                            foreach (NetConnection player in server.Connections)
                             {
-                                if (player.RemoteEndpoint == otherPlayer.RemoteEndpoint)
-                                    continue;
+                                if (!playerInfoDict.ContainsKey(player.RemoteEndpoint))
+                                    playerInfoDict[player.RemoteEndpoint] = new List<PlayerInfo>();
+                            }
+                            foreach (NetConnection player in server.Connections)
+                            {
+                                //send information about every other player(not including self)
+                                foreach (NetConnection otherPlayer in server.Connections)
+                                {
+                                    if (player.RemoteEndpoint == otherPlayer.RemoteEndpoint)
+                                        continue;
 
-                                // send position update about 'otherPlayer' to 'player'
-                                NetOutgoingMessage om = server.CreateMessage();
-                                om.Write((byte)OutgoingMessageType.DataOtherPlayerInfo);
-                                //Write who this position is for
-                                //om.Write(otherPlayer.RemoteUniqueIdentifier);
+                                    // send position update about 'otherPlayer' to 'player'
+                                    NetOutgoingMessage om = server.CreateMessage();
+                                    om.Write((byte)OutgoingMessageType.DataOtherPlayerInfo);
 
-                                //if(otherPlayer.Tag == null)
-                                //    otherPlayer.Tag = new int[2];
+                                    om.Write(playerInfoDict[otherPlayer.RemoteEndpoint].Count);
 
-                                //int[] pos = otherPlayer.Tag as int[];
-                                //om.Write(pos[0]);
-                                //om.Write(pos[1]);
-                                PlayerInfo playerInfo = playerInfoDict[otherPlayer.RemoteEndpoint];
-                                om.Write(playerInfo.position.X);
-                                om.Write(playerInfo.position.Y);
-                                om.Write(playerInfo.position.Z);
-                                om.Write(playerInfo.orientation);
+                                    foreach (PlayerInfo playerInfo in playerInfoDict[otherPlayer.RemoteEndpoint])
+                                    {
+                                        om.Write(playerInfo.position.X);
+                                        om.Write(playerInfo.position.Y);
+                                        om.Write(playerInfo.position.Z);
+                                        om.Write(playerInfo.orientation);
+                                    }
+                                    //send message
+                                    server.SendMessage(om, player, NetDeliveryMethod.ReliableOrdered);
+                                }
 
-                                //send message
-                                server.SendMessage(om, player, NetDeliveryMethod.ReliableOrdered);
                             }
 
-                        }
-                        //schedule next update
-                        nextSendUpdates += (1.0 / 10.0);
+                            gameStatus = GameStatus.Receive;
+                            clientDoneCounter = 0;
 
-                    }
+                        }
                 }
-                //sleep to allow other processes to run smoothly
-                Thread.Sleep(1);
             }
 
             server.Shutdown("server exiting");
         }
-        /*
-        static InternalMap GenerateMap()
-        {
-            InternalMap internalMap = new InternalMap(160, 80, 8, 8);
-            internalMap.GenerateRandomMap();
-            //internalMap.convertMapNodes();
-            //internalMap.printMaps();
-            return internalMap;
-        }
-         * */
     }
 }
