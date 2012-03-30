@@ -98,22 +98,28 @@ namespace Project_Origin
                                 "F12 : Switch Between Random VS Optimized Map.",
                                 this.map.InternalMap.calculateRandomMapPercentage(),
                                 this.map.InternalMap.calculateOptimizedMapPercentage()}; 
-                spriteBatch.Begin();
-                int y = 10;
-                if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start ||
-                    this.shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
+
+            spriteBatch.Begin();
+            int y = 10;
+            if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start ||
+                this.shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
+            {
+                foreach (String text in commands)
                 {
-                    foreach (String text in commands)
-                    {
-                        spriteBatch.DrawString(fpsFont, text, new Vector2(10, y), Color.White);
-                        y = y + 15;
-                    }
+                    spriteBatch.DrawString(fpsFont, text, new Vector2(10, y), Color.White);
+                    y = y + 15;
                 }
-                else
-                {
-                    spriteBatch.DrawString(fpsFont, commands[0], new Vector2(10, y), Color.White);
-                }
-                spriteBatch.End();
+            }
+            else if (this.shooter.GetGameStatus() == Shooter.GameStatus.Receive)
+            {
+                spriteBatch.DrawString(fpsFont, "Waiting for the Other Player \n Sending the Information.", new Vector2(this.shooter.Window.ClientBounds.Left/2, this.shooter.Window.ClientBounds.Top/2), Color.White);
+            }
+            else
+            {
+                spriteBatch.DrawString(fpsFont, commands[0], new Vector2(10, y), Color.White);
+            }
+
+            spriteBatch.End();
             
             base.Draw(gameTime);
         }
