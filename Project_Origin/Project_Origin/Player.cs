@@ -37,6 +37,7 @@ namespace Project_Origin
         static float playerTurnTimer = 0;
 
         static Vector3 greenPlayerPosition = new Vector3(78.0f, -38.0f, 1.0f);
+<<<<<<< HEAD
         static float greenPlayerZRoatation = 0.0f;
         static float greenPlayerMovingSpeed = 0.02f;
         static float greenPlayerShootingDistance = 20;
@@ -48,6 +49,11 @@ namespace Project_Origin
         static float redPlayerShootingDistance = 10;
         static float redPlayerWaitingTimerThres = 500; // 0.5s
         
+=======
+        static float greenPlayerZRoatation = MathHelper.PiOver4;
+        static Vector3 redPlayerPosition = new Vector3(-78.0f, 38.0f, 1.0f);
+        static float redPlayerZRoatation = -MathHelper.PiOver4 * 3;
+>>>>>>> origin/master
         static Color greenPlayerColor = Color.Green;
         static Color redPlayerColor = Color.Red;
 
@@ -519,8 +525,8 @@ namespace Project_Origin
         public void DrawOpponentPlayer(GameTime gameTime)
         {
             //Update opponent from networking client
-            opponentPosition = networkingClient.otherPlayerInfo.position;
-            opponentZRoatation = networkingClient.otherPlayerInfo.orientation;
+            //opponentPosition = networkingClient.otherPlayerInfo.position;
+            //opponentZRoatation = networkingClient.otherPlayerInfo.orientation;
 
             Matrix[] transforms = new Matrix[opponent.Bones.Count];
             opponent.CopyAbsoluteBoneTransformsTo(transforms);
@@ -578,63 +584,11 @@ namespace Project_Origin
             }
             
         }
-        //public void DrawRedPlayer(GameTime gameTime)
-        //{
-        //    Matrix[] transforms = new Matrix[playerRed.Bones.Count];
-        //    playerRed.CopyAbsoluteBoneTransformsTo(transforms);
-
-        //    Matrix world, scale, rotationZ, translation;
-        //    scale = Matrix.CreateScale(0.02f, 0.02f, 0.02f);
-        //    translation = Matrix.CreateTranslation(-40.0f, 20.0f, 2.0f);
-        //    //rotationZ = Matrix.CreateRotationZ(-MathHelper.Pi / 4 * 3);
-        //    world = scale /** rotationZ*/ * translation;
-        //    foreach (ModelMesh mesh in playerRed.Meshes)
-        //    {
-        //        foreach (BasicEffect effect in mesh.Effects)
-        //        {
-        //            effect.EnableDefaultLighting();
-        //            effect.World = transforms[mesh.ParentBone.Index] * world;
-        //            effect.View = this.camera.ViewMatrix; 
-        //            effect.Projection = this.camera.ProjectMatrix; 
-        //            effect.Alpha = 1.0f;
-        //            effect.DiffuseColor = playerDiffuseColor.ToVector3();
-
-        //            mesh.Draw();
-        //        }
-        //    }
-
-        //    /*
-        //    lineEffect.View = this.camera.ViewMatrix;
-        //    lineEffect.Projection = this.camera.ProjectMatrix; 
-
-        //    lineEffect.Alpha = playerAlpha;
-        //    foreach (EffectPass pass in lineEffect.CurrentTechnique.Passes)
-        //    {
-        //        rotationZ = Matrix.CreateRotationZ(MathHelper.Pi / 8);
-        //        lineEffect.World = rotationZ * world;
-        //        pass.Apply();
-        //        VertexPositionColor[] temp = new VertexPositionColor[2];
-        //        temp[0].Position = new Vector3(0, 0, 0);
-        //        temp[0].Color = Color.Red;
-        //        temp[1].Position = new Vector3(0, 110, 0);
-        //        temp[1].Color = Color.Red;
-        //        this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
-        //                                    temp, 0, 1,
-        //                                    VertexPositionColor.VertexDeclaration);
-
-        //        rotationZ = Matrix.CreateRotationZ(-MathHelper.Pi / 8);
-        //        lineEffect.World = rotationZ * world;
-        //        pass.Apply();
-        //        temp[1].Position = new Vector3(0, 80, 0);
-        //        this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
-        //                                    temp, 0, 1,
-        //                                    VertexPositionColor.VertexDeclaration);
-        //    }*/
-        //}
 
         public override void Draw(GameTime gameTime)
         {
-            if ( shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start)
+            if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start ||
+                shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
             {
 
                 /*float timeElapse = (float)gameTime.ElapsedGameTime.Milliseconds;
@@ -671,6 +625,12 @@ namespace Project_Origin
         public PlayerMode GetPlayerMode()
         {
             return playerMode;
+        }
+
+        public Path Path
+        {
+            get { return path; }
+            set { path = value; }
         }
 
     }

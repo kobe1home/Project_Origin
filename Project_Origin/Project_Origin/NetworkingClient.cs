@@ -18,6 +18,8 @@ namespace Project_Origin
     /// </summary>
     public class NetworkingClient : Microsoft.Xna.Framework.DrawableGameComponent
     {
+
+
         public enum IncomingMessageType
         {
             CommandChangeStatusToPlan,
@@ -46,11 +48,13 @@ namespace Project_Origin
         }
         public PlayerInfo otherPlayerInfo = new PlayerInfo(new Vector3(0, 0, 0), 0);
 
+        private List<WayPoint> opponentWaypoint = new List<WayPoint>();
 
         Shooter game;
 
         NetClient client;
-        
+
+        KeyboardState prevKeyboardState;
 
 
         //Below is the column that save player information
@@ -61,8 +65,9 @@ namespace Project_Origin
         public NetworkingClient(Game game)
             : base(game)
         {
-            // TODO: Construct any child components here
             this.game = (Shooter)game;
+            this.prevKeyboardState = Keyboard.GetState();
+
             NetPeerConfiguration config = new NetPeerConfiguration("projectorigin");
             config.EnableMessageType(NetIncomingMessageType.DiscoveryResponse);
 
@@ -88,60 +93,87 @@ namespace Project_Origin
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            // TODO: Add your update code here
-
-            //read message
-            NetIncomingMessage msg;
-            while ((msg = client.ReadMessage()) != null)
+            KeyboardState keyboard = Keyboard.GetState();
+            if (keyboard.IsKeyDown(Keys.Enter) && 
+                prevKeyboardState.IsKeyUp(Keys.Enter) &&
+                this.game.GetGameStatus() != Shooter.GameStatus.Sending && 
+                this.game.GetGameStatus() != Shooter.GameStatus.Receive)
             {
-                switch(msg.MessageType)
+                this.game.SetGameStatus(Shooter.GameStatus.Sending);
+            }
+            this.prevKeyboardState = keyboard;
+
+
+            if (this.game.GetGameStatus() == Shooter.GameStatus.Sending)
+            {
+                if (this.game.bMapIsReady)
                 {
-                    case NetIncomingMessageType.DiscoveryResponse:
-                        //just connect to first server discovered
-                        client.Connect(msg.SenderEndpoint);
-                        playerId = (Project_Origin.Player.PlayerId)(msg.ReadInt32());
-                        int mapSeed = msg.ReadInt32();
-                        //byte[] mapData = new byte[mapDataSize];
-                        //InternalMap map = Serializer<InternalMap>.DeserializeObject<InternalMap>(mapData);
-                        this.game.bMapIsReady = true;
-                        this.game.BuildGameComponents(mapSeed);
-                        this.game.gamePlayer.SetPlayId();
-                        break;
-                    case NetIncomingMessageType.Data:
-                        //server sent a position update
-                        IncomingMessageType imt = (IncomingMessageType)msg.ReadByte();
-                        if (imt == IncomingMessageType.DataOtherPlayerInfo)
-                        {
-                            otherPlayerInfo.position.X = msg.ReadFloat();
-                            otherPlayerInfo.position.Y = msg.ReadFloat();
-                            otherPlayerInfo.position.Z = msg.ReadFloat();
-                            otherPlayerInfo.orientation = msg.ReadFloat();
-                        }
-                        break;
-                        /*long who = msg.ReadInt64();
-                        int x = msg.ReadInt32();
-                        int y = msg.ReadInt32();
-                        positions[who] = new Vector2(x, y);
-                        break;*/
+                    //
+                    // If there's input; send it to server
+                    //
+                    NetOutgoingMessage om = client.CreateMessage();
+                    foreach (WayPoint point in this.game.path.GetWayPoints())
+                    {
+                        om.Write((byte)OutgoingMessageType.DataPlayerInfo);
+                        Vector3 tempPos = point.CenterPos;//this.game.gamePlayer.GetPlayerPosition();
+                        float tempOri = this.game.gamePlayer.GetPlayerOrientation();
+                        om.Write(tempPos.X);
+                        om.Write(tempPos.Y);
+                        om.Write(tempPos.Z);
+                        om.Write(tempOri);
+                    }
+                    client.SendMessage(om, NetDeliveryMethod.ReliableOrdered);
+
+                }
+                this.game.SetGameStatus(Shooter.GameStatus.Receive);
+            }
+
+            if (this.game.GetGameStatus() == Shooter.GameStatus.Receive || 
+                this.game.GetGameStatus() == Shooter.GameStatus.MainMenu)
+            {
+                //read message
+                NetIncomingMessage msg;
+                while ((msg = client.ReadMessage()) != null)
+                {
+                    switch (msg.MessageType)
+                    {
+                        case NetIncomingMessageType.DiscoveryResponse:
+                            //just connect to first server discovered
+                            client.Connect(msg.SenderEndpoint);
+                            playerId = (Project_Origin.Player.PlayerId)(msg.ReadInt32());
+                            int mapSeed = msg.ReadInt32();
+                            this.game.bMapIsReady = true;
+                            this.game.BuildGameComponents(mapSeed);
+                            this.game.gamePlayer.SetPlayId();
+                            break;
+                        case NetIncomingMessageType.Data:
+                            //server sent a position update
+                            IncomingMessageType imt = (IncomingMessageType)msg.ReadByte();
+                            if (imt == IncomingMessageType.DataOtherPlayerInfo)
+                            {
+                                otherPlayerInfo.position.X = msg.ReadFloat();
+                                otherPlayerInfo.position.Y = msg.ReadFloat();
+                                otherPlayerInfo.position.Z = msg.ReadFloat();
+                                otherPlayerInfo.orientation = msg.ReadFloat();
+                                opponentWaypoint.Add(new WayPoint(this.game.GraphicsDevice, new Vector3(otherPlayerInfo.position.X,
+                                                                                                        otherPlayerInfo.position.Y,
+                                                                                                        otherPlayerInfo.position.Z)));
+                            }
+                            this.game.gamePlayer.Path.OpponentWayPoints = opponentWaypoint;
+                            break;
+                    }
+                }
+                if (this.game.GetGameStatus() == Shooter.GameStatus.MainMenu)
+                {
+                    //this.game.SetGameStatus(Shooter.GameStatus.Simulation);
+                }
+                else
+                {
+                    this.game.SetGameStatus(Shooter.GameStatus.Start);
                 }
             }
 
-            if (this.game.bMapIsReady)
-            {
-                //
-                // If there's input; send it to server
-                //
-                NetOutgoingMessage om = client.CreateMessage();
-                om.Write((byte)OutgoingMessageType.DataPlayerInfo);
-                Vector3 tempPos = this.game.gamePlayer.GetPlayerPosition();
-                float tempOri = this.game.gamePlayer.GetPlayerOrientation();
-                om.Write(tempPos.X);
-                om.Write(tempPos.Y);
-                om.Write(tempPos.Z);
-                om.Write(tempOri);
-                client.SendMessage(om, NetDeliveryMethod.ReliableOrdered);
-
-            }
+            
             base.Update(gameTime);
         }
 

@@ -26,6 +26,7 @@ namespace Project_Origin
 
         private MouseState previousState;
         private List<WayPoint> points = new List<WayPoint>();
+        private List<WayPoint> opponentPoints;
         private List<VertexPositionColor> lines = new List<VertexPositionColor>();
 
         public Path(Game game)
@@ -84,7 +85,8 @@ namespace Project_Origin
 
         public override void Draw(GameTime gameTime)
         {
-            if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start)
+            if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start ||
+                shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
             {
                 this.drawAllWayPoints();
             }
@@ -259,6 +261,12 @@ namespace Project_Origin
         public List<WayPoint> GetWayPoints()
         {
             return points;
+        }
+
+        public List<WayPoint> OpponentWayPoints
+        {
+            get { return opponentPoints; }
+            set { opponentPoints = value; }
         }
     }
 }
