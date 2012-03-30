@@ -276,14 +276,18 @@ namespace Project_Origin
             }
 
 
-            this.IncreaseTimer(gameTime);
+            
 
             if (this.shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
             {
+                //this.IncreaseTimer(gameTime);
+                //this.CheckVisibility();
                 //UpdatePlayerPosition(gameTime);
             }
             else if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)
             {
+                this.IncreaseTimer(gameTime);
+                this.CheckVisibility();
                 UpdatePlayerPosition(gameTime);
                 UpdateOpponentPosition(gameTime);
             }
@@ -336,17 +340,20 @@ namespace Project_Origin
         {
             if (CheckIfEnemyInSight() == true)
             {
-
                 if (CheckIfInShootRange(shootingDistance))
                 {
                     if (playerMode == PlayerMode.Moving)
                     {
                         this.playerMode = PlayerMode.Normal;
-
                     }
                     MediaPlayer.Stop();
                     soundEffectShoot.Play(1.0f, 0.0f, 0.0f);
                 }
+                ememyInSight = true;
+            }
+            else
+            {
+                ememyInSight = false;
             }
         }
 
@@ -444,20 +451,17 @@ namespace Project_Origin
 
         public void IncreaseTimer(GameTime gameTime)
         {
-            if (playerMode == PlayerMode.Moving)
+            playerTurnTimer += gameTime.ElapsedGameTime.Milliseconds;
+            if (playerTurnTimer > playerTurnTimerThres)
             {
-                playerTurnTimer += gameTime.ElapsedGameTime.Milliseconds;
-                if (playerTurnTimer > playerTurnTimerThres)
-                {
-                    path.CleanWayPoints();
-                    path.OpponentWayPoints.Clear();
-                    movingWayPoints.Clear();
-                    opponentWayPoints.Clear();
-                    this.playerMode = PlayerMode.Normal;
-                    playerTurnTimer = 0;
-                    this.shooter.SetGameStatus(Shooter.GameStatus.Simulation);
-                    
-                }
+                path.CleanWayPoints();
+                path.OpponentWayPoints.Clear();
+                movingWayPoints.Clear();
+                opponentWayPoints.Clear();
+                this.playerMode = PlayerMode.Normal;
+                playerTurnTimer = 0;
+                this.shooter.SetGameStatus(Shooter.GameStatus.Simulation);
+
             }
         }
 
@@ -539,7 +543,7 @@ namespace Project_Origin
         public bool CheckIfInShootRange(float range)
         {
             Vector2 posDir = new Vector2(opponentPosition.X, opponentPosition.Y) - new Vector2(playerPosition.X, playerPosition.Y);
-            if (posDir.Length() > range)
+            if (posDir.Length() < range)
                 return true;
             return false;
         }
