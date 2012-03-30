@@ -36,7 +36,10 @@ namespace Project_Origin
         {
             MainMenu,
             Intro,
-            Start
+            Start,
+            Simulation,
+            Sending,
+            Receive
         }
         
         private GameStatus gameStatus = GameStatus.MainMenu;
@@ -148,7 +151,7 @@ namespace Project_Origin
             if (keyboard.IsKeyDown(Keys.D1) && gameStatus == GameStatus.MainMenu)
                 gameStatus = GameStatus.Intro;
             if (keyboard.IsKeyDown(Keys.D2) && gameStatus == GameStatus.MainMenu)
-                gameStatus = GameStatus.Start;
+                gameStatus = GameStatus.Simulation;
             if (keyboard.IsKeyDown(Keys.M) && gameStatus != GameStatus.MainMenu)
                 gameStatus = GameStatus.MainMenu;
 
@@ -188,6 +191,11 @@ namespace Project_Origin
         public GameStatus GetGameStatus()
         {
             return gameStatus;
+        }
+
+        public void SetGameStatus(GameStatus gs)
+        {
+            gameStatus = gs;
         }
 
         public void BuildGameComponents(int mapSeed)

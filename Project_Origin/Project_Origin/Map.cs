@@ -117,7 +117,8 @@ namespace Project_Origin
 
         public override void Draw(GameTime gameTime)
         {
-            if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start)
+            if (shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Start ||
+                shooter.GetGameStatus() == Project_Origin.Shooter.GameStatus.Simulation)
             {
                 /*
                 RasterizerState prevRs = this.device.RasterizerState;

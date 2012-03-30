@@ -90,7 +90,8 @@ namespace Project_Origin
                                 "Mouse Right Click to Select Waypoint.",
                                 "Del: Remove the Last Waypoint.",
                                 "C: Clear All Waypoint.",
-                                "R : Commit Your Move to the Server.",
+                                "R : Simulate Your Move Only on Your Client",
+                                "Enter : Commit Your Move to the Server.",
                                 " ",
                                 "Debug Information :",
                                 "F10 : ReGenerate Map.",
@@ -99,7 +100,8 @@ namespace Project_Origin
                                 this.map.InternalMap.calculateOptimizedMapPercentage()}; 
                 spriteBatch.Begin();
                 int y = 10;
-                if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)
+                if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start ||
+                    this.shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
                 {
                     foreach (String text in commands)
                     {
