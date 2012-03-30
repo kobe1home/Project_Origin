@@ -24,6 +24,10 @@ namespace Project_Origin
         private NetworkingClient networkingClient;
         private Map map;
 
+        Texture2D deadSymbolTexture;
+        Vector2 deadSymbolTexturePos;
+        Vector2 deadSymbolTextureCenter;
+
         BasicEffect basicEffect;
         VertexPositionColor[] vertices;
 
@@ -127,6 +131,9 @@ namespace Project_Origin
 
             vertices = new VertexPositionColor[2];
 
+            deadSymbolTexture = this.Game.Content.Load<Texture2D>("Models\\deadSymbol");
+            deadSymbolTexturePos= new Vector2(0, 0);
+            deadSymbolTextureCenter = new Vector2(deadSymbolTexture.Width / 2, deadSymbolTexture.Height / 2);
 
             //Position and orientation
             playerPosition = new Vector3(0.0f, 0.0f, 2.0f);
@@ -490,6 +497,16 @@ namespace Project_Origin
             }
 
 
+            //Draw dead symbol if player is shot
+          
+            world =  Matrix.Identity;
+            Matrix view = this.camera.ViewMatrix;
+            Matrix projection = this.camera.ProjectMatrix;
+            Vector3 screenPos = GraphicsDevice.Viewport.Project(position, projection, view, world);
+            deadSymbolTexturePos = new Vector2(screenPos.X, screenPos.Y);
+            spriteBatch.Begin();
+            spriteBatch.Draw(deadSymbolTexture, deadSymbolTexturePos, null, Color.White, 0.0f, deadSymbolTextureCenter, 0.1f, SpriteEffects.None, 0.0f);
+            spriteBatch.End();
             ////Draw line to enemy
             ////Draw line of sight
             //lineEffect.View = this.camera.ViewMatrix;
