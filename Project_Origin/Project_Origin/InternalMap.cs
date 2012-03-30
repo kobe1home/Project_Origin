@@ -139,8 +139,113 @@ namespace Project_Origin
                         this.optimizedMapStruct[(int)rowList2[j], (int)colList2[k]] = new EmptyNode();
             }
             */
-            this.optimizedMapStruct[0, 0] = new RoomNode(this.randomGenerator);
+
+            /*
+            float roomNum = 0, wallNum = 0, emptyNum = 0;
+            float totalNum = this.numNodesH * this.numNodesV;
+            for (int row = 0; row < this.numNodesV; row++)
+            {
+                for (int col = 0; col < this.numNodesH; col++)
+                {
+                    Node tempNode = this.optimizedMapStruct[row, col];
+                    if (tempNode is RoomNode)
+                    {
+                        //Console.WriteLine("Wrong");
+                        roomNum++;
+                    }
+                    else if (tempNode is WallNode)
+                    {
+                        wallNum++;
+                    }
+                    if (tempNode is EmptyNode)
+                    {
+                        emptyNum++;
+                    }
+
+                }
+            }
+            float roomRate = (roomNum / totalNum) * 100;
+            float wallRate = (wallNum / totalNum) * 100;
+            float emptyRate = (emptyNum / totalNum) * 100;
+
+            while (true)
+            {
+                Console.WriteLine("{0} {1} {2} ", roomRate, wallRate, emptyRate);
+                if (roomRate > 20)
+                {
+                    int next = this.randomGenerator.Next(2);
+                    if (next == 0)
+                    {
+                        replaceNode(new RoomNode(this.randomGenerator));
+                        roomRate = ((roomNum + 1) / totalNum) * 100;
+                    }
+                    else
+                    {
+                        replaceNode(new WallNode(this.randomGenerator));
+                        wallRate = ((wallNum + 1) / totalNum) * 100;
+                    }
+                    continue;
+
+                }
+                else if (wallNum < 40)
+                {
+                    int next = this.randomGenerator.Next(2);
+                    if (next == 0)
+                    {
+                        //replaceNode(new RoomNode(this.randomGenerator));
+                        //roomRate = ((roomNum + 1) / totalNum) * 100;
+
+                    }
+                    else
+                    {
+                        replaceNode(new EmptyNode());
+                        emptyRate = ((emptyNum + 1) / totalNum) * 100;
+                    }
+                    continue;
+                }
+                else if (emptyRate < 40)
+                {
+                    int next = this.randomGenerator.Next(2);
+                    if (next == 0)
+                    {
+                        //replaceNode(new RoomNode(this.randomGenerator));
+                        //roomRate = ((roomNum + 1) / totalNum) * 100;
+                    }
+                    else
+                    {
+                        replaceNode(new WallNode(this.randomGenerator));
+                        wallRate = ((wallNum + 1) / totalNum) * 100;
+                    }
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+
+                
+            }
+            */
+
+            //this.optimizedMapStruct[0, 0] = new RoomNode(this.randomGenerator);
             this.GenerateDetailMap(this.optimizedMapStruct,this.detailedOptimizedInternalMapStruct);
+        }
+
+        private void replaceNode(Node newNode)
+        {
+            while (true)
+            {
+                int h = this.randomGenerator.Next(this.numNodesH);
+                int v = this.randomGenerator.Next(this.numNodesV);
+                Node n = this.optimizedMapStruct[v, h];
+                if (n.GetType() == newNode.GetType())
+                {
+                    this.optimizedMapStruct[v, h] = newNode;
+                    break;
+                }
+            }
+
+
         }
 
         private double distance(int node1row, int node1col, int node2row, int node2col)
