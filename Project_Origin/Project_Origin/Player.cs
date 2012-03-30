@@ -404,13 +404,16 @@ namespace Project_Origin
 
         public void IncreaseTimer(GameTime gameTime)
         {
-            playerTurnTimer += gameTime.ElapsedGameTime.Milliseconds;
-            if (playerTurnTimer > playerTurnTimerThres)
+            if (playerMode == PlayerMode.Moving)
             {
-                path.CleanWayPoints();
-                path.OpponentWayPoints.Clear();
-                this.playerMode = PlayerMode.Normal;
-                playerTurnTimer = 0;
+                playerTurnTimer += gameTime.ElapsedGameTime.Milliseconds;
+                if (playerTurnTimer > playerTurnTimerThres)
+                {
+                    path.CleanWayPoints();
+                    path.OpponentWayPoints.Clear();
+                    this.playerMode = PlayerMode.Normal;
+                    playerTurnTimer = 0;
+                }
             }
         }
 
@@ -648,7 +651,10 @@ namespace Project_Origin
 
 
                 DrawPlayer(gameTime);
-                DrawOpponentPlayer(gameTime);
+                if (ememyInSight)
+                {
+                    DrawOpponentPlayer(gameTime);
+                }
                 base.Draw(gameTime);
             }
         }
