@@ -26,7 +26,7 @@ namespace Project_Origin
 
         private MouseState previousState;
         private List<WayPoint> points = new List<WayPoint>();
-        private List<WayPoint> opponentPoints;
+        private List<WayPoint> opponentPoints = new List<WayPoint>();
         private List<VertexPositionColor> lines = new List<VertexPositionColor>();
 
         public Path(Game game)

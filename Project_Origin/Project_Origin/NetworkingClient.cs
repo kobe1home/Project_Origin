@@ -128,6 +128,7 @@ namespace Project_Origin
 
                 }
                 this.game.SetGameStatus(Shooter.GameStatus.Receive);
+                
             }
 
             if (this.game.GetGameStatus() == Shooter.GameStatus.Receive || 
@@ -172,6 +173,7 @@ namespace Project_Origin
                             }
                             this.game.gamePlayer.Path.OpponentWayPoints = opponentWaypoint;
                             this.game.SetGameStatus(Shooter.GameStatus.Start);
+                            this.game.gamePlayer.StartToMove();
                             break;
                     }
                 }

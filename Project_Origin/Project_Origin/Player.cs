@@ -102,7 +102,7 @@ namespace Project_Origin
             Moving,
             Shooting
         }
-        PlayerMode playerMode = PlayerMode.Normal; 
+        public PlayerMode playerMode = PlayerMode.Normal; 
 
         public enum PlayerId
         {
@@ -280,7 +280,7 @@ namespace Project_Origin
 
             if (this.shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
             {
-                UpdatePlayerPosition(gameTime);
+                //UpdatePlayerPosition(gameTime);
             }
             else if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)
             {
@@ -292,6 +292,23 @@ namespace Project_Origin
             base.Update(gameTime);
         }
 
+        public void StartToMove()
+        {
+            this.movingWayPoints = path.GetWayPoints();
+            this.opponentWayPoints = path.OpponentWayPoints;
+            if (movingWayPoints.Count > 1)
+            {
+                movingDestinationPointIndex = 1;
+                playerMode = PlayerMode.Moving;
+            }
+            if(opponentWayPoints.Count > 1)
+            {
+                opponentDestinationPointIndex = 1;
+                playerMode = PlayerMode.Moving;
+            }
+            
+
+        }
         public float CalcPlayerRotationFromMovingDirection(Vector3 movingDirection)
         {
             float zRotation = 0.0f;
@@ -338,68 +355,91 @@ namespace Project_Origin
 
             if (playerMode == PlayerMode.Moving)
             {
-                Vector3 movingSourcePoint = movingWayPoints[movingDestinationPointIndex - 1].CenterPos;
-                Vector3 movingDestinationPoint = movingWayPoints[movingDestinationPointIndex].CenterPos;
-                movingDirection = movingDestinationPoint - movingSourcePoint;
-                float d = movingDirection.Length();
-                movingDirection.Normalize();
-                movingCurrentDistance += (float)gameTime.ElapsedGameTime.Milliseconds * movingSpeed;
-                playerZRoatation = CalcPlayerRotationFromMovingDirection(movingDirection);
-                
-                //Destination = Source + d * Direction
-                if (movingCurrentDistance < d)
+                if (movingDestinationPointIndex < movingWayPoints.Count)
                 {
-                    Vector3 position = movingSourcePoint + movingCurrentDistance * movingDirection;
-                    playerPosition = new Vector3(position.X, position.Y, playerPosition.Z);
+                    Vector3 movingSourcePoint = movingWayPoints[movingDestinationPointIndex - 1].CenterPos;
+                    Vector3 movingDestinationPoint = movingWayPoints[movingDestinationPointIndex].CenterPos;
+                    movingDirection = movingDestinationPoint - movingSourcePoint;
+                    float d = movingDirection.Length();
+                    movingDirection.Normalize();
+                    movingCurrentDistance += (float)gameTime.ElapsedGameTime.Milliseconds * movingSpeed;
+                    playerZRoatation = CalcPlayerRotationFromMovingDirection(movingDirection);
+
+                    //Destination = Source + d * Direction
+                    if (movingCurrentDistance < d)
+                    {
+                        Vector3 position = movingSourcePoint + movingCurrentDistance * movingDirection;
+                        playerPosition = new Vector3(position.X, position.Y, playerPosition.Z);
+                    }
+                    else
+                    {
+                        playerPosition = new Vector3(movingDestinationPoint.X, movingDestinationPoint.Y, playerPosition.Z);
+                        movingDestinationPointIndex++;
+                        movingCurrentDistance = 0;
+                    }
+
                 }
                 else
                 {
-                    playerPosition = new Vector3(movingDestinationPoint.X, movingDestinationPoint.Y, playerPosition.Z);
-                    movingDestinationPointIndex++;
-                    movingCurrentDistance = 0;
-                }
-
-                if (movingDestinationPointIndex >= movingWayPoints.Count)
-                {
-                    path.CleanWayPoints();
-                    this.playerMode = PlayerMode.Normal;
-                    MediaPlayer.Stop();
+                    if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)
+                    {
+                        path.CleanWayPoints();
+                        movingWayPoints.Clear();
+                    }
+                    else if (this.shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
+                    {
+                        movingDestinationPointIndex = 1;
+                        playerPosition = movingWayPoints[0].CenterPos;
+                    }
                 }
             }
+
         }
 
         public void UpdateOpponentPosition(GameTime gameTime)
         {
             if (playerMode == PlayerMode.Moving)
             {
-                Vector3 opponentSourcePoint = opponentWayPoints[movingDestinationPointIndex - 1].CenterPos;
-                Vector3 opponentDestinationPoint = opponentWayPoints[movingDestinationPointIndex].CenterPos;
-                opponentDirection = opponentDestinationPoint - opponentSourcePoint;
-                float d = opponentDirection.Length();
-                opponentDirection.Normalize();
-                opponentCurrentDistance += (float)gameTime.ElapsedGameTime.Milliseconds * opponentMovingSpeed;
-                opponentZRoatation = CalcPlayerRotationFromMovingDirection(opponentDirection);
-
-                //Destination = Source + d * Direction
-                if (opponentCurrentDistance < d)
+                if (opponentDestinationPointIndex < opponentWayPoints.Count)
                 {
-                    Vector3 position = opponentSourcePoint + opponentCurrentDistance * opponentDirection;
-                    opponentPosition = new Vector3(position.X, position.Y, playerPosition.Z);
+                    Vector3 opponentSourcePoint = opponentWayPoints[opponentDestinationPointIndex - 1].CenterPos;
+                    Vector3 opponentDestinationPoint = opponentWayPoints[opponentDestinationPointIndex].CenterPos;
+                    opponentDirection = opponentDestinationPoint - opponentSourcePoint;
+                    float d = opponentDirection.Length();
+                    opponentDirection.Normalize();
+                    opponentCurrentDistance += (float)gameTime.ElapsedGameTime.Milliseconds * opponentMovingSpeed;
+                    opponentZRoatation = CalcPlayerRotationFromMovingDirection(opponentDirection);
+
+                    //Destination = Source + d * Direction
+                    if (opponentCurrentDistance < d)
+                    {
+                        Vector3 position = opponentSourcePoint + opponentCurrentDistance * opponentDirection;
+                        opponentPosition = new Vector3(position.X, position.Y, playerPosition.Z);
+                    }
+                    else
+                    {
+                        opponentPosition = new Vector3(opponentDestinationPoint.X, opponentDestinationPoint.Y, playerPosition.Z);
+                        opponentDestinationPointIndex++;
+                        opponentCurrentDistance = 0;
+                    }
+
                 }
                 else
                 {
-                    opponentPosition = new Vector3(opponentDestinationPoint.X, opponentDestinationPoint.Y, playerPosition.Z);
-                    movingDestinationPointIndex++;
-                    opponentCurrentDistance = 0;
-                }
-
-                if (movingDestinationPointIndex >= movingWayPoints.Count)
-                {
-                    path.OpponentWayPoints.Clear();
-                    this.playerMode = PlayerMode.Normal;
-                    MediaPlayer.Stop();
+                    if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)
+                    {
+                        opponentWayPoints.Clear();
+                        path.OpponentWayPoints.Clear();
+                    }
+                    else if (this.shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
+                    {
+                        opponentDestinationPointIndex = 1;
+                        opponentPosition = opponentWayPoints[0].CenterPos;
+                    }
+                    
                 }
             }
+
         }
 
         public void IncreaseTimer(GameTime gameTime)
@@ -411,8 +451,12 @@ namespace Project_Origin
                 {
                     path.CleanWayPoints();
                     path.OpponentWayPoints.Clear();
+                    movingWayPoints.Clear();
+                    opponentWayPoints.Clear();
                     this.playerMode = PlayerMode.Normal;
                     playerTurnTimer = 0;
+                    this.shooter.SetGameStatus(Shooter.GameStatus.Simulation);
+                    
                 }
             }
         }
