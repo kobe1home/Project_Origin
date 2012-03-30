@@ -37,23 +37,17 @@ namespace Project_Origin
         static float playerTurnTimer = 0;
 
         static Vector3 greenPlayerPosition = new Vector3(78.0f, -38.0f, 1.0f);
-<<<<<<< HEAD
-        static float greenPlayerZRoatation = 0.0f;
+        static float greenPlayerZRoatation = MathHelper.PiOver4;
         static float greenPlayerMovingSpeed = 0.02f;
         static float greenPlayerShootingDistance = 20;
         static float greenPlayerWaitingTimerThres = 1000; //1s
 
         static Vector3 redPlayerPosition = new Vector3(-78.0f, 38.0f, 1.0f);
-        static float redPlayerZRoatation = MathHelper.Pi;
+        static float redPlayerZRoatation = -MathHelper.PiOver4 * 3;
         static float redPlayerMovingSpeed = 0.04f;
         static float redPlayerShootingDistance = 10;
         static float redPlayerWaitingTimerThres = 500; // 0.5s
-        
-=======
-        static float greenPlayerZRoatation = MathHelper.PiOver4;
-        static Vector3 redPlayerPosition = new Vector3(-78.0f, 38.0f, 1.0f);
-        static float redPlayerZRoatation = -MathHelper.PiOver4 * 3;
->>>>>>> origin/master
+
         static Color greenPlayerColor = Color.Green;
         static Color redPlayerColor = Color.Red;
 
