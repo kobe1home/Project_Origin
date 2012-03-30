@@ -56,6 +56,7 @@ namespace Project_Origin
 
         private Model player, opponent = null;
         private Vector3 playerPosition;
+        private float prevRotat;
         private float playerZRoatation; //Facing direction
         private float movingSpeed;
         private float shootingDistance;
@@ -268,6 +269,7 @@ namespace Project_Origin
                 {
                     movingDestinationPointIndex = 1;
                     playerMode = PlayerMode.Moving;
+                    this.prevRotat = playerZRoatation;
                 }
             }
             if (keyboard.IsKeyDown(Keys.Delete) && prevKeyboardState.IsKeyUp(Keys.Delete))
@@ -280,16 +282,19 @@ namespace Project_Origin
 
             if (this.shooter.GetGameStatus() == Shooter.GameStatus.Simulation)
             {
-                //this.IncreaseTimer(gameTime);
-                //this.CheckVisibility();
-                //UpdatePlayerPosition(gameTime);
+                UpdatePlayerPosition(gameTime);
+                if (playerMode == PlayerMode.Moving)
+                {
+                    this.IncreaseTimer(gameTime);
+                }
+                   
             }
             else if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)
             {
-                this.IncreaseTimer(gameTime);
                 this.CheckVisibility();
                 UpdatePlayerPosition(gameTime);
                 UpdateOpponentPosition(gameTime);
+                this.IncreaseTimer(gameTime);
             }
 
             prevKeyboardState = keyboard;
@@ -397,6 +402,9 @@ namespace Project_Origin
                     {
                         movingDestinationPointIndex = 1;
                         playerPosition = movingWayPoints[0].CenterPos;
+                        playerZRoatation = prevRotat;
+                        this.playerMode = PlayerMode.Normal;
+                        playerTurnTimer = 0;
                     }
                 }
             }
@@ -454,14 +462,21 @@ namespace Project_Origin
             playerTurnTimer += gameTime.ElapsedGameTime.Milliseconds;
             if (playerTurnTimer > playerTurnTimerThres)
             {
-                path.CleanWayPoints();
-                path.OpponentWayPoints.Clear();
-                movingWayPoints.Clear();
-                opponentWayPoints.Clear();
+                if (this.shooter.GetGameStatus() == Shooter.GameStatus.Start)
+                {
+                    path.CleanWayPoints();
+                    path.OpponentWayPoints.Clear();
+                    movingWayPoints.Clear();
+                    opponentWayPoints.Clear();
+                }
+                else
+                {
+                    playerPosition = path.GetWayPoints()[0].CenterPos;
+                    playerZRoatation = prevRotat;
+                }
                 this.playerMode = PlayerMode.Normal;
                 playerTurnTimer = 0;
                 this.shooter.SetGameStatus(Shooter.GameStatus.Simulation);
-
             }
         }
 

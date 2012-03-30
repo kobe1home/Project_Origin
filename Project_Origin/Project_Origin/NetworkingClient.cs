@@ -58,8 +58,7 @@ namespace Project_Origin
 
 
         //Below is the column that save player information
-        Project_Origin.Player.PlayerId playerId = Project_Origin.Player.PlayerId.Red;
-        InternalMap map;
+        Player.PlayerId playerId = Project_Origin.Player.PlayerId.Red;
 
 
         public NetworkingClient(Game game)
@@ -81,7 +80,6 @@ namespace Project_Origin
         /// </summary>
         public override void Initialize()
         {
-            // TODO: Add your initialization code here
             client.DiscoverLocalPeers(14242);
 
             base.Initialize();
@@ -177,14 +175,6 @@ namespace Project_Origin
                             break;
                     }
                 }
-                //if (this.game.GetGameStatus() == Shooter.GameStatus.MainMenu)
-                //{
-                //    //this.game.SetGameStatus(Shooter.GameStatus.Simulation);
-                //}
-                //else
-                //{
-                //    this.game.SetGameStatus(Shooter.GameStatus.Start);
-                //}
             }
 
             
