@@ -38,13 +38,13 @@ namespace Project_Origin
 
         static Vector3 greenPlayerPosition = new Vector3(78.0f, -38.0f, 1.0f);
         static float greenPlayerZRoatation = MathHelper.PiOver4;
-        static float greenPlayerMovingSpeed = 0.02f;
+        static float greenPlayerMovingSpeed = 0.01f;
         static float greenPlayerShootingDistance = 20;
         static float greenPlayerWaitingTimerThres = 1000; //1s
 
         static Vector3 redPlayerPosition = new Vector3(-78.0f, 38.0f, 1.0f);
         static float redPlayerZRoatation = -MathHelper.PiOver4 * 3;
-        static float redPlayerMovingSpeed = 0.04f;
+        static float redPlayerMovingSpeed = 0.02f;
         static float redPlayerShootingDistance = 10;
         static float redPlayerWaitingTimerThres = 500; // 0.5s
 
@@ -371,6 +371,7 @@ namespace Project_Origin
                 {
                     Vector3 movingSourcePoint = movingWayPoints[movingDestinationPointIndex - 1].CenterPos;
                     Vector3 movingDestinationPoint = movingWayPoints[movingDestinationPointIndex].CenterPos;
+                    
                     movingDirection = movingDestinationPoint - movingSourcePoint;
                     float d = movingDirection.Length();
                     movingDirection.Normalize();
@@ -405,6 +406,7 @@ namespace Project_Origin
                         playerZRoatation = prevRotat;
                         this.playerMode = PlayerMode.Normal;
                         playerTurnTimer = 0;
+                        movingCurrentDistance = 0;
                     }
                 }
             }

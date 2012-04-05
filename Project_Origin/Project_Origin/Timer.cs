@@ -25,6 +25,12 @@ namespace Project_Origin
             this.previousTime = this.currentTime;
             this.currentTime = currentTime;
             time = this.currentTime - this.previousTime;
+            
+
+            if (this.totalTime >= this.timeToCount)
+            {
+                return;
+            }
 
             if ((time + totalTime) > this.timeToCount)
             {
@@ -40,11 +46,16 @@ namespace Project_Origin
 
         public Boolean IfTimeExpired()
         {
-            if (this.totalTime == this.timeToCount)
+            if (this.totalTime >= this.timeToCount)
             {
+                Console.WriteLine("True");
                 return true;
             }
             return false;
+        }
+        public TimeSpan getElapsedTime()
+        {
+            return this.ElapsedTime;
         }
 
 
@@ -54,6 +65,7 @@ namespace Project_Origin
             this.previousTime = startTime;
             this.totalTime = this.currentTime - this.previousTime;
             this.timeToCount = new TimeSpan(0, 0, timeToCount);
+            Console.WriteLine(""+this.timeToCount);
             this.ElapsedTime = (this.currentTime - this.previousTime);
         }
     }
