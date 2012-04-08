@@ -67,7 +67,6 @@ namespace Project_Origin
         private float opponentZRoatation; //Facing direction
         private float opponentMovingSpeed;
         private float opponentShootingDistance;
-
         Boolean[,] internalBoolMap;
 
         private Color playerDiffuseColor = Color.White;
@@ -78,7 +77,9 @@ namespace Project_Origin
         private BasicEffect lineEffect;
         KeyboardState prevKeyboardState;
 
-
+        Vector2 deadSymPos;
+        Vector2 deadSymCenter;
+        Texture2D deadSymTexture;
 
         private List<WayPoint> movingWayPoints; //Store all the way points during moving
         private int movingDestinationPointIndex = 0;
@@ -90,10 +91,21 @@ namespace Project_Origin
         private Vector3 opponentDirection;
         private float opponentCurrentDistance;
 
-        private bool ememyInSight = true;
+        private bool enemyInSight = true;
+        private bool playerInEnemySight = false; 
 
         //private SoundEffect soundEffectWalk;
         private SoundEffect soundEffectShoot;
+
+        //win symbol
+        Vector2 winSymbolPos;
+        Vector2 winSymbolCenter;
+        Texture2D winSymbolTexture;
+
+        //lose symbol
+        Vector2 loseSymbolPos;
+        Vector2 loseSymbolCenter;
+        Texture2D loseSymbolTexture;
 
         SpriteBatch spriteBatch;
 
@@ -101,7 +113,9 @@ namespace Project_Origin
         {
             Normal,
             Moving,
-            Shooting
+            Shooting,
+            PlayerWin,
+            EnemyWin
         }
         public PlayerMode playerMode = PlayerMode.Normal; 
 
@@ -200,6 +214,20 @@ namespace Project_Origin
 
             //soundEffectWalk = this.Game.Content.Load<SoundEffect>("Sounds\\move");
             soundEffectShoot = this.Game.Content.Load<SoundEffect>("Sounds\\rifleShoot");
+
+            deadSymTexture = this.Game.Content.Load<Texture2D>("Models\\deadSymbol");
+            deadSymPos = new Vector2(0, 0);//= new Vector2(this.Game.GraphicsDevice.Viewport.Width / 2, this.Game.GraphicsDevice.Viewport.Height / 4 * 3);
+            deadSymCenter = new Vector2(deadSymTexture.Width / 2, deadSymTexture.Height / 2);
+
+
+            winSymbolTexture = this.Game.Content.Load<Texture2D>("Models\\win");
+            winSymbolPos = new Vector2(this.Game.GraphicsDevice.Viewport.Width / 2, this.Game.GraphicsDevice.Viewport.Height / 2);
+            winSymbolCenter = new Vector2(winSymbolTexture.Width / 2, winSymbolTexture.Height / 2);
+
+            loseSymbolTexture = this.Game.Content.Load<Texture2D>("Models\\lose");
+            loseSymbolPos = new Vector2(this.Game.GraphicsDevice.Viewport.Width / 2, this.Game.GraphicsDevice.Viewport.Height / 2);
+            loseSymbolCenter = new Vector2(loseSymbolTexture.Width / 2, loseSymbolTexture.Height / 2);
+
 
             base.LoadContent();
         }
@@ -343,22 +371,48 @@ namespace Project_Origin
 
         public void CheckVisibility()
         {
+            //Check if enemy in player's sight
             if (CheckIfEnemyInSight() == true)
             {
                 if (CheckIfInShootRange(shootingDistance))
                 {
                     if (playerMode == PlayerMode.Moving)
                     {
-                        this.playerMode = PlayerMode.Normal;
+                        //this.playerMode = PlayerMode.Normal;
+                        this.playerMode = PlayerMode.PlayerWin;
                     }
                     MediaPlayer.Stop();
                     soundEffectShoot.Play(1.0f, 0.0f, 0.0f);
+
+                    //Player win
                 }
-                ememyInSight = true;
+                enemyInSight = true;
             }
             else
             {
-                ememyInSight = false;
+                enemyInSight = false;
+            }
+
+            //Check if player in enemy's sight
+            if (CheckIfPlayerInSight() == true)
+            {
+                if (CheckIfInShootRange(opponentShootingDistance))
+                {
+                    if (playerMode == PlayerMode.Moving)
+                    {
+                        //this.playerMode = PlayerMode.Normal;
+                        this.playerMode = PlayerMode.EnemyWin;
+                    }
+                    MediaPlayer.Stop();
+                    soundEffectShoot.Play(1.0f, 0.0f, 0.0f);
+                    //Enemy win
+
+                    playerInEnemySight = true;
+                }
+            }
+            else
+            {
+                playerInEnemySight = false;
             }
         }
 
@@ -482,6 +536,8 @@ namespace Project_Origin
             }
         }
 
+        #region functions check if player can shoot enemy
+        
         public bool CheckIfWallBlockExist()
         {
             //Use DDA algorithm to calculate the line from player to enemy
@@ -564,6 +620,39 @@ namespace Project_Origin
                 return true;
             return false;
         }
+        #endregion
+
+
+        #region functions check if enemy can shoot player
+        public bool CheckIfPlayerInSight()
+        {
+            bool bPlayerInSight = false;
+            if (playerMode != PlayerMode.Shooting && playerMode != PlayerMode.Normal)
+            {
+                //Step 1: Check the distance between two players
+                Vector2 posDir = new Vector2(playerPosition.X, playerPosition.Y) - new Vector2(opponentPosition.X, opponentPosition.Y);
+                //if (posDir.Length() > sightDistance / 4.0 * 3.0)
+                //    return bEnemyInSight;
+
+                //Step 2: Check if the angle is in the field of view
+                posDir.Normalize();
+
+                Vector2 sightDir = new Vector2(0, 1);
+                sightDir = Vector2.Transform(sightDir, Matrix.CreateRotationZ(opponentZRoatation));
+                sightDir.Normalize();
+
+                float ConeThirtyDegreesDotProduct = (float)Math.Cos(MathHelper.ToRadians(30f / 2f));
+                if (Vector2.Dot(posDir, sightDir) > ConeThirtyDegreesDotProduct)
+                {
+                    //Step 3: If in line of sight, then check if there are some blocks between player and enemy
+                    bPlayerInSight = !CheckIfWallBlockExist();
+                }
+
+            }
+            return bPlayerInSight;
+        }
+
+        #endregion
 
         public void DrawPlayer(GameTime gameTime)
         {
@@ -628,7 +717,20 @@ namespace Project_Origin
                 this.game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList,
                                             temp, 0, 1,
                                             VertexPositionColor.VertexDeclaration);
-            } 
+            }  
+
+            if (playerMode == PlayerMode.EnemyWin)
+            {
+                //Draw dead symbol if player lose
+                Vector3 tempPos = this.GraphicsDevice.Viewport.Project(playerPosition, this.camera.ProjectMatrix, this.camera.ViewMatrix, Matrix.Identity);
+                deadSymPos.X = tempPos.X;
+                deadSymPos.Y = tempPos.Y;
+
+                spriteBatch.Begin();
+                spriteBatch.Draw(deadSymTexture, deadSymPos, null, Color.White,
+                    0.0f, deadSymCenter, 0.2f, SpriteEffects.None, 0.0f);
+                spriteBatch.End();
+            }
         }
 
         public void DrawOpponentPlayer(GameTime gameTime)
@@ -691,6 +793,20 @@ namespace Project_Origin
                                             temp, 0, 1,
                                             VertexPositionColor.VertexDeclaration);
             }
+
+
+            if (playerMode == PlayerMode.PlayerWin)
+            {
+                //Draw dead symbol if opponent lose
+                Vector3 tempPos = this.GraphicsDevice.Viewport.Project(opponentPosition, this.camera.ProjectMatrix, this.camera.ViewMatrix, Matrix.Identity);
+                deadSymPos.X = tempPos.X;
+                deadSymPos.Y = tempPos.Y;
+
+                spriteBatch.Begin();
+                spriteBatch.Draw(deadSymTexture, deadSymPos, null, Color.White,
+                    0.0f, deadSymCenter, 0.2f, SpriteEffects.None, 0.0f);
+                spriteBatch.End();
+            }
             
         }
 
@@ -716,12 +832,38 @@ namespace Project_Origin
 
 
                 DrawPlayer(gameTime);
-                if (ememyInSight)
+
+                //If enemy is in player sight or player is shot by enemy, show enemy to let player know
+                if (enemyInSight || playerInEnemySight)
                 {
                     DrawOpponentPlayer(gameTime);
                 }
+
+                if (playerMode == PlayerMode.PlayerWin)
+                    DrawWinSymbol(gameTime);
+                else if (playerMode == PlayerMode.EnemyWin)
+                    DrawLoseSymbol(gameTime);
+
                 base.Draw(gameTime);
             }
+        }
+
+        public void DrawWinSymbol(GameTime gameTime)
+        {
+            //Draw title
+            spriteBatch.Begin();
+            spriteBatch.Draw(winSymbolTexture, winSymbolPos, null, Color.White,
+                0.0f, winSymbolCenter, 1.0f, SpriteEffects.None, 0.0f);
+            spriteBatch.End();
+        }
+
+        public void DrawLoseSymbol(GameTime gameTime)
+        {
+            //Draw title
+            spriteBatch.Begin();
+            spriteBatch.Draw(loseSymbolTexture, loseSymbolPos, null, Color.White,
+                0.0f, loseSymbolCenter, 1.0f, SpriteEffects.None, 0.0f);
+            spriteBatch.End();
         }
 
         public Vector3 GetPlayerPosition()

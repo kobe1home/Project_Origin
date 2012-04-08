@@ -19,7 +19,7 @@ namespace Project_Origin
     public class NetworkingClient : Microsoft.Xna.Framework.DrawableGameComponent
     {
 
-
+        string severIP = "127.0.0.1";
         public enum IncomingMessageType
         {
             CommandChangeStatusToPlan,
@@ -80,7 +80,7 @@ namespace Project_Origin
         /// </summary>
         public override void Initialize()
         {
-            client.DiscoverLocalPeers(14242);
+            client.DiscoverKnownPeer(severIP, 14242);
 
             base.Initialize();
         }
