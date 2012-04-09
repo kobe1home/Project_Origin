@@ -23,11 +23,22 @@ namespace Project_Origin
         private Boolean[,] detailedInternalMapStruct;
         private Boolean[,] detailedOptimizedInternalMapStruct;
 
+        private ArrayList rooms;
+        private ArrayList walls;
+        private ArrayList empties;
+
+        private int numOfRooms;
+        private int numOfWalls;
+        private int numOfEmpties;
+
 
         private int randomSeed;
         private Random randomGenerator;
 
         public static int GridSize = 2;
+        private static float RoomFixRate = 20.0f;
+        private static float WallFixRate = 40.0f;
+        private static float EmptyFixRate = 40.0f;
 
         public InternalMap(int pixelWidth, int pixelHeight, int nodeWidth, int nodeHeight, int randomSeed)
         {
@@ -61,35 +72,56 @@ namespace Project_Origin
 
         public void GenerateRandomMap()
         {
+            this.rooms = new ArrayList();
+            this.walls = new ArrayList();
+            this.empties = new ArrayList();
+            this.numOfEmpties = 0;
+            this.numOfRooms = 0;
+            this.numOfWalls = 0;
             //Random randomGenerator = new Random(randomSeed);
             for (int row = 0; row < this.numNodesV; row++)
             {
                 for (int col = 0; col < this.numNodesH; col++)
                 {
+                    if ( (row == 0 && col == 0) || (row == this.numNodesV - 1 && col == this.numNodesH - 1))
+                    {
+                        this.internalMapStruct[row, col] = new EmptyNode();
+                        this.optimizedMapStruct[row, col] = new EmptyNode();
+                        this.numOfEmpties++;
+                        continue;
+                    }
+
                     int randomType = this.randomGenerator.Next(3);
                     if (randomType == 0)
                     {
                         RoomNode tempRoom = new RoomNode(this.randomGenerator);
+                        KeyValuePair<int, int> item = new KeyValuePair<int, int>(row, col);
+                        this.rooms.Add(item);
+                        this.numOfRooms++;
                         this.internalMapStruct[row, col] = tempRoom;
                         this.optimizedMapStruct[row, col] = tempRoom;
+
                     }
                     else if (randomType == 1)
                     {
                         WallNode tempWall = new WallNode(this.randomGenerator);
+                        KeyValuePair<int, int> item = new KeyValuePair<int, int>(row, col);
+                        this.walls.Add(item);
+                        this.numOfWalls++;
                         this.internalMapStruct[row, col] = tempWall;
                         this.optimizedMapStruct[row, col] = tempWall;
                     }
                     else
                     {
-                        this.internalMapStruct[row, col] = new EmptyNode();
-                        this.optimizedMapStruct[row, col] = new EmptyNode();
+                        EmptyNode tempEmpty = new EmptyNode();
+                        KeyValuePair<int, int> item = new KeyValuePair<int, int>(row, col);
+                        this.empties.Add(item);
+                        this.numOfEmpties++;
+                        this.internalMapStruct[row, col] = tempEmpty;
+                        this.optimizedMapStruct[row, col] = tempEmpty;
                     }
                 }
             }
-            this.internalMapStruct[0, 0] = new EmptyNode();
-            this.internalMapStruct[this.numNodesV - 1, this.numNodesH - 1] = new EmptyNode();
-            this.optimizedMapStruct[0, 0] = new EmptyNode();
-            this.optimizedMapStruct[this.numNodesV - 1, this.numNodesH - 1] = new EmptyNode();
             this.GenerateDetailMap(this.internalMapStruct, this.detailedInternalMapStruct);
             this.GenerateDetailMap(this.optimizedMapStruct, this.detailedOptimizedInternalMapStruct);
         }
@@ -140,6 +172,9 @@ namespace Project_Origin
             }
             */
 
+
+
+
             /*
             float roomNum = 0, wallNum = 0, emptyNum = 0;
             float totalNum = this.numNodesH * this.numNodesV;
@@ -167,65 +202,108 @@ namespace Project_Origin
             float roomRate = (roomNum / totalNum) * 100;
             float wallRate = (wallNum / totalNum) * 100;
             float emptyRate = (emptyNum / totalNum) * 100;
+            */
 
+            float totalNum = this.numNodesH * this.numNodesV;//this.numOfWalls + this.numOfRooms + this.numOfEmpties;
+            float roomRate = (this.numOfRooms / totalNum) * 100;
+            float wallRate = (this.numOfWalls / totalNum) * 100;
+            float emptyRate = (this.numOfEmpties / totalNum) * 100;
+            Console.WriteLine("{0} {1} {2} ", roomRate, wallRate, emptyRate);
             while (true)
             {
                 Console.WriteLine("{0} {1} {2} ", roomRate, wallRate, emptyRate);
-                if (roomRate > 20)
+                if (roomRate > InternalMap.RoomFixRate)
                 {
-                    int next = this.randomGenerator.Next(2);
-                    if (next == 0)
-                    {
-                        replaceNode(new RoomNode(this.randomGenerator));
-                        roomRate = ((roomNum + 1) / totalNum) * 100;
-                    }
-                    else
-                    {
-                        replaceNode(new WallNode(this.randomGenerator));
-                        wallRate = ((wallNum + 1) / totalNum) * 100;
-                    }
-                    continue;
+                    int index = this.randomGenerator.Next(this.rooms.Count);
+                    KeyValuePair<int, int> removed = (KeyValuePair<int, int>)this.rooms[index];
+                    this.rooms.RemoveAt(index);
+                    this.numOfRooms--;
+                    if (emptyRate < InternalMap.EmptyFixRate)
+                    {   
+                        this.empties.Add(removed);
+                        this.numOfEmpties++;
 
-                }
-                else if (wallNum < 40)
-                {
-                    int next = this.randomGenerator.Next(2);
-                    if (next == 0)
+                        EmptyNode temp = new EmptyNode();
+                        this.optimizedMapStruct[removed.Key, removed.Value] = temp;
+                    }
+                    else if (wallRate < InternalMap.WallFixRate)
                     {
-                        //replaceNode(new RoomNode(this.randomGenerator));
-                        //roomRate = ((roomNum + 1) / totalNum) * 100;
+                        this.walls.Add(removed);
+                        this.numOfWalls++;
 
+                        WallNode temp = new WallNode(this.randomGenerator);
+                        this.optimizedMapStruct[removed.Key, removed.Value] = temp;
                     }
-                    else
-                    {
-                        replaceNode(new EmptyNode());
-                        emptyRate = ((emptyNum + 1) / totalNum) * 100;
-                    }
-                    continue;
                 }
-                else if (emptyRate < 40)
+                else if (wallRate < InternalMap.WallFixRate)
                 {
-                    int next = this.randomGenerator.Next(2);
-                    if (next == 0)
+                    int index;
+                    KeyValuePair<int, int> removed;
+                    if (roomRate > InternalMap.RoomFixRate)
                     {
-                        //replaceNode(new RoomNode(this.randomGenerator));
-                        //roomRate = ((roomNum + 1) / totalNum) * 100;
+                        index = this.randomGenerator.Next(this.rooms.Count);
+                        removed = (KeyValuePair<int, int>)this.rooms[index];
+                        this.rooms.RemoveAt(index);
+                        this.numOfRooms--;
+
+                        WallNode temp = new WallNode(this.randomGenerator);
+                        this.optimizedMapStruct[removed.Key, removed.Value] = temp;
+                        this.walls.Add(removed);
+                        this.numOfWalls++;
                     }
-                    else
+                    else if (emptyRate > InternalMap.EmptyFixRate)
                     {
-                        replaceNode(new WallNode(this.randomGenerator));
-                        wallRate = ((wallNum + 1) / totalNum) * 100;
+                        index = this.randomGenerator.Next(this.empties.Count);
+                        removed = (KeyValuePair<int, int>)this.empties[index];
+                        this.empties.RemoveAt(index);
+                        this.numOfEmpties--;
+
+                        WallNode temp = new WallNode(this.randomGenerator);
+                        this.optimizedMapStruct[removed.Key, removed.Value] = temp;
+                        this.walls.Add(removed);
+                        this.numOfWalls++;
                     }
-                    continue;
+                    
+                }
+                else if (emptyRate < InternalMap.EmptyFixRate)
+                {
+                    int index;
+                    KeyValuePair<int, int> removed;
+                    if (roomRate > InternalMap.RoomFixRate)
+                    {
+                        index = this.randomGenerator.Next(this.rooms.Count);
+                        removed = (KeyValuePair<int, int>)this.rooms[index];
+                        this.rooms.RemoveAt(index);
+                        this.numOfRooms--;
+
+                        EmptyNode temp = new EmptyNode();
+                        this.optimizedMapStruct[removed.Key, removed.Value] = temp;
+                        this.empties.Add(removed);
+                        this.numOfEmpties++;
+                    }
+                    else if (wallRate > InternalMap.WallFixRate)
+                    {
+                        index = this.randomGenerator.Next(this.walls.Count);
+                        removed = (KeyValuePair<int, int>)this.walls[index];
+                        this.walls.RemoveAt(index);
+                        this.numOfWalls--;
+
+                        EmptyNode temp = new EmptyNode();
+                        this.optimizedMapStruct[removed.Key, removed.Value] = temp;
+                        this.empties.Add(removed);
+                        this.numOfEmpties++;
+                    }
                 }
                 else
                 {
                     break;
                 }
 
-                
+                roomRate = (this.numOfRooms / totalNum) * 100;
+                wallRate = (this.numOfWalls / totalNum) * 100;
+                emptyRate = (this.numOfEmpties / totalNum) * 100;
             }
-            */
+            
 
             //this.optimizedMapStruct[0, 0] = new RoomNode(this.randomGenerator);
             this.GenerateDetailMap(this.optimizedMapStruct,this.detailedOptimizedInternalMapStruct);

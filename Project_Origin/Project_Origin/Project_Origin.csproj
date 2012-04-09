@@ -120,6 +120,7 @@
     <Compile Include="ICameraService.cs" />
     <Compile Include="InternalMap.cs" />
     <Compile Include="MainMenu.cs" />
+    <Compile Include="MapItem.cs" />
     <Compile Include="NetworkingClient.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Path.cs" />
